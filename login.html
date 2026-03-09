@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <link rel="icon" type="image/png" href="logo-alyx.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Acesso Restrito — AlyxSoftwares</title>
+  <link rel="apple-touch-icon" href="logo-alyx.png">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    * { font-family: 'Plus Jakarta Sans', sans-serif; }
+
+    .glass-card {
+      background: rgba(255, 255, 255, 0.96);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.55);
+    }
+
+    .orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(72px);
+      mix-blend-mode: multiply;
+      animation: orbPulse 5s ease-in-out infinite alternate;
+      pointer-events: none;
+      will-change: transform, opacity;
+    }
+    @keyframes orbPulse {
+      from { transform: scale(1);    opacity: 0.28; }
+      to   { transform: scale(1.12); opacity: 0.18; }
+    }
+
+    .alerta-enter { animation: alertaEntrar 0.22s ease forwards; }
+    @keyframes alertaEntrar {
+      from { opacity: 0; transform: translateY(-6px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .btn-loading { position: relative; overflow: hidden; }
+    .btn-loading::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+      animation: btnShimmer 1.2s infinite;
+    }
+    @keyframes btnShimmer {
+      from { transform: translateX(-100%); }
+      to   { transform: translateX(100%); }
+    }
+
+    .no-select { user-select: none; -webkit-user-select: none; }
+
+    input:focus-visible, button:focus-visible {
+      outline: 3px solid #7c3aed;
+      outline-offset: 2px;
+    }
+  </style>
+</head>
+
+<body class="min-h-screen flex flex-col items-center justify-center p-4
+             relative overflow-hidden
+             bg-gradient-to-br from-purple-900 via-purple-800 to-gray-900">
+
+  <div class="orb w-96 h-96 bg-purple-500 -top-20 -left-20" style="animation-duration:4s;"></div>
+  <div class="orb w-80 h-80 bg-purple-300 -bottom-16 -right-16" style="animation-duration:6s; animation-delay:1s;"></div>
+  <div class="orb w-64 h-64 bg-pink-400 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
+       style="animation-duration:7s; animation-delay:2s; opacity:0.08;"></div>
+
+  <div class="glass-card relative z-10 w-full max-w-md rounded-3xl p-8 md:p-10 border border-white/20">
+
+    <!-- Cabeçalho -->
+    <header class="text-center mb-8 no-select">
+      <div class="w-20 h-20 bg-white rounded-full flex items-center justify-center
+                  mx-auto mb-4 shadow-lg border-4 border-purple-100 overflow-hidden relative">
+        <i id="iconeLogin" class="fa-solid fa-lock text-3xl text-purple-600 absolute transition-opacity duration-300"></i>
+        <img id="imgLogoLogin" src="" alt="Logo da loja"
+             class="w-full h-full object-cover opacity-0 transition-opacity duration-500" aria-hidden="true">
+      </div>
+      <h1 id="nomeLoja" class="text-3xl font-black text-gray-800 tracking-tight">AlyxSoftwares</h1>
+      <span class="inline-block mt-2 text-[10px] font-black text-purple-700 uppercase
+                   tracking-widest bg-purple-100 px-3 py-1 rounded-full border border-purple-200">
+        Painel de Controle
+      </span>
+    </header>
+
+    <!-- Alerta de loja não encontrada (se loja_id ausente na URL) -->
+    <div id="alertaLojaInvalida" class="hidden mb-5 p-3.5 rounded-xl text-sm text-center font-bold border
+                                        bg-red-50 text-red-600 border-red-200">
+      <i class="fa-solid fa-triangle-exclamation mr-2" aria-hidden="true"></i>
+      Link de acesso inválido. Contate o suporte da sua loja.
+    </div>
+
+    <!-- Alerta de feedback (erro / sucesso) -->
+    <div id="alertaMensagem"
+         role="alert" aria-live="polite" aria-atomic="true"
+         class="hidden mb-5 p-3.5 rounded-xl text-sm text-center font-bold border">
+    </div>
+
+    <!-- Campos de login -->
+    <div class="space-y-5">
+
+      <!-- Loja (Oculto por padrão, aparece se o link estiver limpo) -->
+      <div id="divCodigoLoja" style="display: none;">
+        <label for="inputCodigoLoja" class="block text-xs font-black text-gray-500 uppercase tracking-wide mb-2 pl-1 no-select">
+          Código da Loja
+        </label>
+        <div class="relative group">
+          <span class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none" aria-hidden="true">
+            <i class="fa-solid fa-store text-gray-400 group-focus-within:text-purple-500 transition-colors"></i>
+          </span>
+          <input id="inputCodigoLoja" type="text" placeholder="Ex: alyxsoftwares"
+                 class="w-full pl-11 pr-4 py-3.5 bg-gray-50 border border-gray-200 rounded-xl
+                        font-medium text-gray-800 lowercase focus:outline-none focus:ring-2
+                        focus:ring-purple-500 focus:bg-white transition-all shadow-inner"
+                 onkeydown="if(event.key==='Enter') document.getElementById('inputUsuario').focus()">
+        </div>
+      </div>
+
+      <!-- Usuário -->
+      <div>
+        <label for="inputUsuario" class="block text-xs font-black text-gray-500 uppercase tracking-wide mb-2 pl-1 no-select">
+          Usuário de Acesso
+        </label>
+        <div class="relative group">
+          <span class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none" aria-hidden="true">
+            <i class="fa-solid fa-user text-gray-400 group-focus-within:text-purple-500 transition-colors"></i>
+          </span>
+          <input id="inputUsuario" type="text" placeholder="Digite seu usuário"
+                 autocomplete="username" autocorrect="off" autocapitalize="none"
+                 spellcheck="false" maxlength="60"
+                 class="w-full pl-11 pr-4 py-3.5 bg-gray-50 border border-gray-200 rounded-xl
+                        font-medium text-gray-800 lowercase focus:outline-none focus:ring-2
+                        focus:ring-purple-500 focus:bg-white transition-all shadow-inner"
+                 onkeydown="if(event.key==='Enter') document.getElementById('inputSenha').focus()">
+        </div>
+      </div>
+
+      <!-- Senha -->
+      <div>
+        <label for="inputSenha" class="block text-xs font-black text-gray-500 uppercase tracking-wide mb-2 pl-1 no-select">
+          Senha
+        </label>
+        <div class="relative group">
+          <span class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none" aria-hidden="true">
+            <i class="fa-solid fa-key text-gray-400 group-focus-within:text-purple-500 transition-colors"></i>
+          </span>
+          <input id="inputSenha" type="password" placeholder="••••••••"
+                 autocomplete="current-password" maxlength="128"
+                 class="w-full pl-11 pr-12 py-3.5 bg-gray-50 border border-gray-200 rounded-xl
+                        font-medium text-gray-800 focus:outline-none focus:ring-2
+                        focus:ring-purple-500 focus:bg-white transition-all shadow-inner"
+                 onkeydown="if(event.key==='Enter') fazerLogin()">
+          <button type="button" id="btnVerSenha"
+                  onclick="alternarVisibilidadeSenha()"
+                  aria-label="Mostrar ou ocultar senha" tabindex="0"
+                  class="absolute inset-y-0 right-0 pr-4 flex items-center
+                         text-gray-400 hover:text-purple-600 transition-colors">
+            <i id="iconeOlho" class="fa-solid fa-eye text-sm"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Indicador de tentativas restantes -->
+      <div id="tentativasWarn" class="hidden text-center">
+        <span class="text-xs font-bold text-orange-500">
+          <i class="fa-solid fa-triangle-exclamation mr-1"></i>
+          <span id="tentativasTexto"></span>
+        </span>
+      </div>
+
+      <!-- Botão Entrar -->
+      <button id="btnEntrar" type="button" onclick="fazerLogin()"
+              class="w-full bg-gradient-to-r from-purple-600 to-purple-700
+                     hover:from-purple-700 hover:to-purple-800
+                     active:scale-[0.98] text-white font-bold py-4 px-4 rounded-xl
+                     transition-all shadow-lg hover:shadow-purple-500/30
+                     flex justify-center items-center gap-2
+                     focus:outline-none focus:ring-4 focus:ring-purple-300">
+        <span id="textoBtnLogin">Entrar no Sistema</span>
+        <i id="iconeBtnLogin" class="fa-solid fa-arrow-right transition-transform"></i>
+      </button>
+
+    </div>
+
+    <!-- Rodapé -->
+    <footer class="mt-8 text-center no-select space-y-1">
+      <p class="text-[10px] text-gray-300 font-medium uppercase tracking-widest">Painel Administrativo</p>
+      <p class="text-[10px] text-gray-300 font-medium">
+        Sistema por <span class="font-bold text-gray-400">AlyxSoftwares</span> ·
+        <a href="tel:+5585921480429" class="text-purple-400 hover:underline font-bold">(85) 92148-0429</a>
+      </p>
+    </footer>
+
+  </div><!-- /glass-card -->
+
+
+  <script>
+
+  "use strict";
+
+  // ═══ CONFIGURAÇÃO ════════════════════════════════════════
+  var API_URL = 'https://alyxsoftwares-acaiteria.onrender.com'; // ← URL do seu backend
+
+  // ─── Lê o loja_id obrigatório da URL: login.html?loja=minha-acaiteria ──────
+  var LOJA_ID = (function () {
+    try {
+      return new URLSearchParams(window.location.search).get('loja') || '';
+    } catch (e) { return ''; }
+  })();
+
+  // ─── Constantes ──────────────────────────────────────────
+  var ESTADO_IDLE    = 'idle';
+  var ESTADO_LOADING = 'loading';
+  var ESTADO_SUCESSO = 'sucesso';
+
+  var TENTATIVAS_MAX      = 5;
+  var BLOQUEIO_DURACAO_MS = 30000;
+
+  // ─── Estado ──────────────────────────────────────────────
+  var estadoAtual  = ESTADO_IDLE;
+  var tentativas   = 0;
+  var bloqueadoAte = 0;
+
+
+  // ══════════════════════════════════════════════════════════
+  // INICIALIZAÇÃO
+  // ══════════════════════════════════════════════════════════
+  window.addEventListener('DOMContentLoaded', function () {
+    // Se não há loja_id na URL, exibe o campo para digitar e esconde o erro
+    if (!LOJA_ID) {
+      document.getElementById('alertaLojaInvalida').classList.add('hidden');
+      document.getElementById('divCodigoLoja').style.display = 'block';
+      document.getElementById('inputCodigoLoja').focus();
+      return;
+    }
+
+    document.getElementById('inputUsuario').focus();
+
+    // Carrega logo, nome da loja e favicon em background (falha silenciosa — não crítica)
+    apiPublica('GET', '/api/lojas/' + LOJA_ID + '/cardapio')
+      .then(function (dados) {
+        if (dados && dados.configuracoes) aplicarConfiguracoes(dados.configuracoes);
+      })
+      .catch(function () { /* falha silenciosa */ });
+  });
+
+  function aplicarConfiguracoes(config) {
+    if (!config || typeof config !== 'object') return;
+
+    var nomeLoja = (config['Nome_Loja'] || '').toString().trim();
+    if (nomeLoja) {
+      document.getElementById('nomeLoja').textContent = nomeLoja;
+      document.title = 'Acesso — ' + nomeLoja;
+    }
+
+    var urlLogo = (config['URL_Logo'] || '').toString().trim();
+    if (!urlLogo) return;
+
+    // Atualiza favicon da aba do navegador
+    var link = document.querySelector("link[rel~='icon']");
+    if (!link) { link = document.createElement('link'); link.rel = 'icon'; document.head.appendChild(link); }
+    link.href = urlLogo;
+
+    var img   = document.getElementById('imgLogoLogin');
+    var icone = document.getElementById('iconeLogin');
+
+    img.onload = function () {
+      icone.style.opacity = '0';
+      // Delay mínimo apenas para a transição visual da imagem (não é delay de lógica)
+      setTimeout(function () { icone.style.display = 'none'; }, 300);
+      img.style.opacity = '1';
+    };
+    img.onerror = function () { img.src = ''; };
+    img.src = urlLogo;
+  }
+
+
+  // ══════════════════════════════════════════════════════════
+  // WRAPPERS DE FETCH
+  // ══════════════════════════════════════════════════════════
+
+  /** Fetch público (sem token). */
+  function apiPublica(method, path, body) {
+    var controller = new AbortController();
+    var tid = setTimeout(function () { controller.abort(); }, 25000);
+    var opts = {
+      method:  method,
+      headers: { 'Content-Type': 'application/json' },
+      signal:  controller.signal,
+    };
+    if (body && method !== 'GET') opts.body = JSON.stringify(body);
+    return fetch(API_URL + path, opts)
+      .then(function (r) { clearTimeout(tid); return r.json(); })
+      .catch(function (e) { clearTimeout(tid); throw e; });
+  }
+
+
+  // ══════════════════════════════════════════════════════════
+  // TOGGLE DE VISIBILIDADE DA SENHA
+  // ══════════════════════════════════════════════════════════
+  function alternarVisibilidadeSenha() {
+    var input   = document.getElementById('inputSenha');
+    var icone   = document.getElementById('iconeOlho');
+    var visivel = input.type === 'text';
+
+    input.type      = visivel ? 'password' : 'text';
+    icone.className = visivel ? 'fa-solid fa-eye text-sm' : 'fa-solid fa-eye-slash text-sm';
+    document.getElementById('btnVerSenha').setAttribute(
+      'aria-label', visivel ? 'Mostrar senha' : 'Ocultar senha'
+    );
+  }
+
+
+  // ══════════════════════════════════════════════════════════
+  // SISTEMA DE ALERTAS
+  // ══════════════════════════════════════════════════════════
+  function exibirAlerta(texto, tipo) {
+    var el = document.getElementById('alertaMensagem');
+    el.classList.remove('alerta-enter');
+    void el.offsetWidth;
+    el.classList.add('alerta-enter');
+
+    el.className = 'mb-5 p-3.5 rounded-xl text-sm text-center font-bold border alerta-enter ';
+
+    if (tipo === 'erro') {
+      el.className += 'bg-red-50 text-red-600 border-red-200';
+      el.innerHTML  = '<i class="fa-solid fa-triangle-exclamation mr-2" aria-hidden="true"></i>' + _escapar(texto);
+    } else {
+      el.className += 'bg-green-50 text-green-600 border-green-200';
+      el.innerHTML  = '<i class="fa-solid fa-circle-check mr-2" aria-hidden="true"></i>' + _escapar(texto);
+    }
+
+    el.classList.remove('hidden');
+    el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+
+  function ocultarAlerta() {
+    var el = document.getElementById('alertaMensagem');
+    el.classList.add('hidden');
+    el.innerHTML = '';
+  }
+
+  function _escapar(str) {
+    var d = document.createElement('div');
+    d.textContent = String(str || '');
+    return d.innerHTML;
+  }
+
+
+  // ══════════════════════════════════════════════════════════
+  // INDICADOR DE TENTATIVAS
+  // ══════════════════════════════════════════════════════════
+  function atualizarIndicadorTentativas() {
+    var warn      = document.getElementById('tentativasWarn');
+    var txt       = document.getElementById('tentativasTexto');
+    var restantes = TENTATIVAS_MAX - tentativas;
+
+    if (tentativas >= 3 && tentativas < TENTATIVAS_MAX) {
+      warn.classList.remove('hidden');
+      txt.textContent = restantes + ' tentativa' + (restantes !== 1 ? 's' : '') +
+                        ' restante' + (restantes !== 1 ? 's' : '') + ' antes do bloqueio.';
+    } else {
+      warn.classList.add('hidden');
+    }
+  }
+
+
+  // ══════════════════════════════════════════════════════════
+  // CONTROLE DO BOTÃO
+  // ══════════════════════════════════════════════════════════
+  function setEstadoBotao(estado) {
+    var btn     = document.getElementById('btnEntrar');
+    var textoEl = document.getElementById('textoBtnLogin');
+    var iconeEl = document.getElementById('iconeBtnLogin');
+
+    estadoAtual = estado;
+
+    if (estado === ESTADO_LOADING) {
+      btn.disabled        = true;
+      btn.classList.add('opacity-80', 'cursor-not-allowed', 'btn-loading');
+      textoEl.textContent = 'Autenticando...';
+      iconeEl.className   = 'fa-solid fa-circle-notch fa-spin';
+
+    } else if (estado === ESTADO_SUCESSO) {
+      btn.disabled        = true;
+      textoEl.textContent = 'Acesso Liberado!';
+      iconeEl.className   = 'fa-solid fa-check';
+      btn.classList.remove('from-purple-600', 'to-purple-700',
+                           'hover:from-purple-700', 'hover:to-purple-800',
+                           'opacity-80', 'btn-loading');
+      btn.classList.add('from-green-500', 'to-green-600', 'cursor-not-allowed');
+
+    } else {
+      btn.disabled        = false;
+      btn.classList.remove('opacity-80', 'cursor-not-allowed', 'btn-loading',
+                           'from-green-500', 'to-green-600');
+      btn.classList.add('from-purple-600', 'to-purple-700',
+                        'hover:from-purple-700', 'hover:to-purple-800');
+      textoEl.textContent = 'Entrar no Sistema';
+      iconeEl.className   = 'fa-solid fa-arrow-right transition-transform';
+    }
+  }
+
+
+  // ══════════════════════════════════════════════════════════
+  // FLUXO DE LOGIN
+  // ══════════════════════════════════════════════════════════
+  function fazerLogin() {
+    if (estadoAtual === ESTADO_LOADING || estadoAtual === ESTADO_SUCESSO) return;
+
+    // Bloqueio temporário por excesso de tentativas
+    var agora = Date.now();
+    if (bloqueadoAte > agora) {
+      var restante = Math.ceil((bloqueadoAte - agora) / 1000);
+      exibirAlerta('Muitas tentativas. Aguarde ' + restante + 's antes de tentar novamente.', 'erro');
+      return;
+    }
+
+    // Se LOJA_ID estiver vazio, tenta pegar do campo novo
+    if (!LOJA_ID) {
+      LOJA_ID = (document.getElementById('inputCodigoLoja').value || '').trim().toLowerCase();
+      if (!LOJA_ID) {
+        exibirAlerta('Informe o código da loja para continuar.', 'erro');
+        document.getElementById('inputCodigoLoja').focus();
+        return;
+      }
+    }
+
+    var usuario = (document.getElementById('inputUsuario').value || '').trim().toLowerCase();
+    var senha   = document.getElementById('inputSenha').value || '';
+
+    if (!usuario) {
+      exibirAlerta('Informe o usuário de acesso.', 'erro');
+      document.getElementById('inputUsuario').focus();
+      return;
+    }
+    if (!senha) {
+      exibirAlerta('Informe a senha.', 'erro');
+      document.getElementById('inputSenha').focus();
+      return;
+    }
+    if (usuario.length > 60 || senha.length > 128) {
+      exibirAlerta('Dados inválidos.', 'erro');
+      return;
+    }
+
+    ocultarAlerta();
+    setEstadoBotao(ESTADO_LOADING);
+
+    // ─── Chama a rota multitenant ──────────────────────────
+    apiPublica('POST', '/api/lojas/' + LOJA_ID + '/auth/login', { usuario: usuario, senha: senha })
+      .then(onLoginSucesso)
+      .catch(onLoginErro);
+  }
+
+  function onLoginSucesso(resposta) {
+    if (!resposta || !resposta.sucesso) {
+      tentativas++;
+      setEstadoBotao(ESTADO_IDLE);
+
+      var msg = (resposta && resposta.mensagem) ? resposta.mensagem : 'Usuário ou senha inválidos.';
+
+      if (tentativas >= TENTATIVAS_MAX) {
+        bloqueadoAte = Date.now() + BLOQUEIO_DURACAO_MS;
+        tentativas   = 0;
+        msg += ' Acesso temporariamente bloqueado por 30 segundos.';
+        document.getElementById('tentativasWarn').classList.add('hidden');
+      } else {
+        atualizarIndicadorTentativas();
+      }
+
+      exibirAlerta(msg, 'erro');
+      document.getElementById('inputSenha').value = '';
+      document.getElementById('inputSenha').focus();
+      return;
+    }
+
+    // ── Login aprovado ─────────────────────────────────────
+    tentativas = 0;
+    document.getElementById('tentativasWarn').classList.add('hidden');
+
+    // Persiste sessão com loja_id e cargo para uso em painel.html
+    try {
+      var sessao = {
+        loja_id:    LOJA_ID,
+        nome:       (resposta.nome       || '').toString(),
+        cargo:      (resposta.cargo      || '').toString(),
+        permissoes: Array.isArray(resposta.permissoes) ? resposta.permissoes : [],
+        token:      (resposta.token      || '').toString(),
+        fotoPerfil: (resposta.fotoPerfil || resposta.Foto_Perfil || '').toString()
+      };
+      sessionStorage.setItem('pdacai_user', JSON.stringify(sessao));
+    } catch (e) {
+      console.warn('[Login] Erro ao salvar sessão:', e);
+    }
+
+   // Feedback visual imediato, redirecionamento sem delay desnecessário
+    setEstadoBotao(ESTADO_SUCESSO);
+    window.location.href = 'painel.html?loja=' + LOJA_ID;
+  }
+
+  function onLoginErro(erro) {
+    setEstadoBotao(ESTADO_IDLE);
+    exibirAlerta('Falha de conexão com o servidor. Verifique sua internet e tente novamente.', 'erro');
+    console.warn('[Login] Falha no servidor:', erro);
+  }
+
+  </script>
+</body>
+</html>
