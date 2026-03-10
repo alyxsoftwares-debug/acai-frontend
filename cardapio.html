@@ -618,7 +618,8 @@
     }
   }, 25000);
 
-  api('GET', L('/cardapio'))
+  // Força o navegador a contornar o cache e buscar sempre o cardápio atualizado
+  api('GET', L('/cardapio?v=' + Date.now()))
     .then(function (p) {
       clearTimeout(_loadTimeout);
       if (!p || p.sucesso === false) {
@@ -782,7 +783,8 @@
   // ══════════════════════════════════════════════════════════
   function renderizarProntos() {
     var lista = document.getElementById('listaProdutosReal');
-    lista.innerHTML = dadosBase.prontos.filter(function(item){ return item.id_item; }).map(function (item) {
+    lista.innerHTML = dadosBase.prontos.filter(function(item){ return item.id_item || item.id; }).map(function (item) {
+      var idItemAtual = item.id_item || item.id;
       var foto = (item.foto_url && item.foto_url !== '')
         ? '<img src="' + esc(item.foto_url) + '" loading="lazy" ' +
           'class="w-24 h-24 object-cover rounded-2xl shadow flex-shrink-0 border border-gray-100" ' +
@@ -804,7 +806,7 @@
              '<p class="font-black text-green-600 mt-2 text-sm">' + fmt(item.preco) + '</p>' +
              '</div>' +
              '<div class="flex items-end pb-1 flex-shrink-0">' +
-             '<button onclick="adicionarProntoAoCarrinho(\'' + esc(item.id_item) + '\')" ' +
+             '<button onclick="adicionarProntoAoCarrinho(\'' + esc(idItemAtual) + '\')" ' +
              'class="w-10 h-10 bg-gray-50 text-gray-400 rounded-2xl border border-gray-200 ' +
              'flex items-center justify-center group-hover:bg-purple-600 group-hover:text-white ' +
              'group-hover:border-purple-600 transition-all shadow-sm active:scale-90">' +
@@ -812,7 +814,6 @@
              '</div></div>';
     }).join('');
   }
-
 
   // ══════════════════════════════════════════════════════════
   // 4. GESTÃO DO CARRINHO
@@ -822,7 +823,7 @@
   }
 
   function adicionarProntoAoCarrinho(idItem) {
-    var item = dadosBase.prontos.find(function (p) { return p.id_item === idItem; });
+    var item = dadosBase.prontos.find(function (p) { return (p.id_item || p.id) === idItem; });
     if (!item) return;
     carrinho.itens.push({
       uid: Date.now() + Math.random(),
@@ -1262,7 +1263,7 @@
       setTimeout(function () { msg.style.display = 'none'; }, 3500);
       return;
     }
-    var retiradaDisp = dadosBase.configuracoes.Retirada_Loja_Ativo !== 'NAO';
+    var retiradaDisp = dadosBase.configuracoes.retirada_loja_ativo !== false;
     checkout = {
       etapa: 1, nome: '', telefone: '',
       tipoEntrega: retiradaDisp ? 'retirada' : 'entrega', bairroId: '', nomeBairro: '',
@@ -1331,7 +1332,7 @@
       '<span>Subtotal</span><span class="text-green-600">' + fmt(getTotal()) + '</span>' +
       '</div></div>' +
       (function(){
-        var freteGratisMeta = parseFloat((dadosBase.configuracoes && dadosBase.configuracoes.Frete_Gratis) || 0);
+        var freteGratisMeta = parseFloat((dadosBase.configuracoes && dadosBase.configuracoes.frete_gratis) || 0);
         if (freteGratisMeta <= 0) return '';
         var sub = getTotal();
         var falta = freteGratisMeta - sub;
@@ -1381,7 +1382,7 @@
       'placeholder="(00) 00000-0000" class="campo-texto"></div>' +
 
       (function(){
-        var retiradaAtiva = dadosBase.configuracoes.retirada_loja_ativo !== 'NAO';
+        var retiradaAtiva = dadosBase.configuracoes.retirada_loja_ativo !== false;
         // Se retirada foi desativada e cliente tinha selecionado retirada, muda para entrega
         if(!retiradaAtiva && checkout.tipoEntrega==='retirada') checkout.tipoEntrega='entrega';
         var numCols = retiradaAtiva ? '2' : '1';
