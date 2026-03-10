@@ -2672,8 +2672,8 @@ function renderItensRows(){
   var items=((ST.dados&&ST.dados.itensFixos)||[]).slice().sort(function(a,b){ return (parseInt(a.ordem)||0) - (parseInt(b.ordem)||0); });
   if(!items.length) return '<tr><td colspan="6" style="text-align:center;padding:30px;color:#9ca3af">Nenhum item cadastrado</td></tr>';
   return items.map(function(i){
-    var disp=i.disponivel===true;
-    var online=i.mostrar_online!==false;
+    var disp=(i.disponivel===true || i.disponivel==='SIM');
+    var online=(i.mostrar_online!==false && i.mostrar_online!=='NÃO' && i.mostrar_online!=='NAO');
     return '<tr>'+
       '<td><div style="font-weight:700">'+esc(i.nome)+'</div><div style="font-size:12px;color:#9ca3af">'+esc(i.descricao||'')+'</div></td>'+
       '<td>'+esc(i.categoria||'--')+'</td>'+
@@ -2733,8 +2733,17 @@ function fGroup(label,id,type,val,ph){
   return '<div class="form-group"><label class="form-label">'+label+'</label><input type="'+type+'" class="form-control" id="'+id+'" value="'+esc(val||'')+'" placeholder="'+esc(ph||'')+'"/></div>';
 }
 function fGroupSel(label,id,opts,val){
+  // Tradutor Inteligente: Converte o true/false do banco para SIM/NÃO da tela
+  var valorReal = val;
+  if (valorReal === true) valorReal = 'SIM';
+  if (valorReal === false) valorReal = 'NÃO';
+  
   return '<div class="form-group"><label class="form-label">'+label+'</label><select class="form-control" id="'+id+'">'+
-    opts.map(function(o){ return '<option'+(o===val?' selected':'')+'>'+esc(o)+'</option>'; }).join('')+'</select></div>';
+    opts.map(function(o){ 
+      // Garante que seleciona a opção certa mesmo com falta de acentos
+      var selecionado = (o === valorReal) || (o === 'NAO' && valorReal === 'NÃO') || (o === 'NÃO' && valorReal === 'NAO');
+      return '<option'+(selecionado?' selected':'')+'>'+esc(o)+'</option>'; 
+    }).join('')+'</select></div>';
 }
 
 function chamarSalvar(fn,dados,tbodyId,renderFn,modalId,cacheKey){
@@ -2869,7 +2878,7 @@ function renderModelosRows(){
   var items=((ST.dados&&ST.dados.acaiModelos)||[]).slice().sort(function(a,b){ return (parseInt(a.ordem)||0) - (parseInt(b.ordem)||0); });
   if(!items.length) return '<tr><td colspan="4" style="text-align:center;padding:20px;color:#9ca3af">Nenhum tamanho</td></tr>';
   return items.map(function(m){
-    var d=m.disponivel==='SIM';
+    var d=(m.disponivel===true || m.disponivel==='SIM');
     return '<tr><td><div style="font-weight:700">'+esc(m.nome)+'</div><div style="font-size:11px;color:#9ca3af">'+esc(m.descricao||'')+'</div></td>'+
       '<td><strong style="color:#7c3aed">'+fmtMoeda(m.preco)+'</strong></td>'+
       '<td><span class="badge '+(d?'badge-entregue':'badge-cancelado')+'">'+(d?'Sim':'Não')+'</span></td>'+
@@ -2898,7 +2907,7 @@ function renderIngsRows(){
   var cats=(ST.dados&&ST.dados.acaiCategorias)||[];
   return items.map(function(i){
     var cat=cats.find(function(c){ return c.id_categoria===i.categoria_id; });
-    var d=i.disponivel==='SIM';
+    var d=(i.disponivel===true || i.disponivel==='SIM');
     return '<tr>'+
       '<td style="font-weight:600">'+esc(i.nome)+'</td>'+
       '<td>'+esc(cat?cat.nome:'--')+'</td>'+
@@ -3270,7 +3279,7 @@ function renderTarasRows(){
   var items=(ST.dados&&ST.dados.taras)||[];
   if(!items.length) return '<tr><td colspan="4" style="text-align:center;padding:20px;color:#9ca3af">Nenhuma tara cadastrada. Clique em "+ Nova" para adicionar.</td></tr>';
   return items.map(function(t){
-    var ativo=t.ativo==='SIM';
+    var ativo=(t.ativo===true || t.ativo==='SIM');
     return '<tr>'+
       '<td style="font-weight:700">'+esc(t.nome)+'</td>'+
       '<td><strong style="color:#7c3aed">'+esc(t.peso_g)+'g</strong></td>'+
@@ -3407,7 +3416,7 @@ function renderBairrosRows(){
   var items=(ST.dados&&ST.dados.bairros)||[];
   if(!items.length) return '<tr><td colspan="4" style="text-align:center;padding:20px;color:#9ca3af">Nenhum bairro</td></tr>';
   return items.map(function(b){
-    var d=b.disponivel==='SIM';
+    var d=(b.disponivel===true || b.disponivel==='SIM');
     return '<tr><td style="font-weight:600">'+esc(b.nome)+'</td>'+
       '<td><strong style="color:#7c3aed">'+fmtMoeda(b.taxa_entrega)+'</strong></td>'+
       '<td><span class="badge '+(d?'badge-entregue':'badge-cancelado')+'">'+(d?'Sim':'Não')+'</span></td>'+
@@ -3436,10 +3445,10 @@ function renderCuponsRows(){
   var items=(ST.dados&&ST.dados.cupons)||[];
   if(!items.length) return '<tr><td colspan="6" style="text-align:center;padding:20px;color:#9ca3af">Nenhum cupom</td></tr>';
   return items.map(function(c){
-    var ativo=c.ativo==='SIM';
+    var ativo=(c.ativo===true || c.ativo==='SIM');
     var tipo=c.tipo_desconto||'VALOR';
     var valLabel=tipo==='PERCENTUAL'?((parseFloat(c.valor_desconto)||0).toFixed(0)+'%'):fmtMoeda(c.valor_desconto);
-    var online=c.usar_cardapio!=='NÃO'&&c.usar_cardapio!=='NAO';
+    var online=(c.usar_cardapio!==false && c.usar_cardapio!=='NÃO' && c.usar_cardapio!=='NAO');
     return '<tr>'+
       '<td style="font-weight:700;font-family:monospace;color:#7c3aed">'+esc(c.codigo_cupom)+'</td>'+
       '<td><strong>'+valLabel+'</strong></td>'+
