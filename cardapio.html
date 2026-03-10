@@ -2232,7 +2232,7 @@ function api(method, path, body) {
           '<span class="text-[10px] font-bold text-gray-400">' + esc(p.data_hora) + '</span>' +
           '</div>' +
           (p.nomeCliente ? '<p class="font-black text-gray-800 text-sm">' + esc(p.nomeCliente) + '</p>' : '') +
-          '<p class="text-xs text-gray-500 font-medium mt-0.5">' + p.origem ? esc(p.origem) : '' + ' · ' +
+          '<p class="text-xs text-gray-500 font-medium mt-0.5">' + (p.origem ? esc(p.origem) : '') + ' · ' +
           '<span class="font-black text-green-600">R$ ' + parseFloat(p.total_final||0).toFixed(2).replace('.',',') + '</span></p>' +
           entregadorHTML + retiradaHTML + itensHTML + '</div>' +
           '</div>';
