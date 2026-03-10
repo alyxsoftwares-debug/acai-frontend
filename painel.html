@@ -615,7 +615,7 @@ var LOJA_ID = (function(){
 })();
 
 /** Monta o path multitenant: L('/pedidos') → '/api/lojas/{loja_id}/pedidos' */
-function L(path){ var sep = path.indexOf('?') === -1 ? '?' : '&'; return '/api/lojas/'+LOJA_ID+path + sep + 'v=' + Date.now(); }
+function L(path){ return '/api/lojas/'+LOJA_ID+path; }
 
 /**
  * Wrapper fetch — comunicação com a API do backend.
@@ -628,6 +628,14 @@ function api(method, path, body) {
   var sessao = JSON.parse(sessionStorage.getItem('pdacai_user') || '{}');
   var controller = new AbortController();
   var tid = setTimeout(function() { controller.abort(); }, 25000);
+  
+  // Anti-cache inteligente: Adiciona apenas se for leitura (GET) no fim da URL
+  var urlFinal = API_URL + path;
+  if (method === 'GET') {
+      var sep = urlFinal.indexOf('?') === -1 ? '?' : '&';
+      urlFinal += sep + 'v=' + Date.now();
+  }
+  
   var opts = {
     method:  method,
     headers: {
@@ -637,13 +645,13 @@ function api(method, path, body) {
     signal: controller.signal
   };
   if (body !== undefined && method !== 'GET') opts.body = JSON.stringify(body);
-  return fetch(API_URL + path, opts)
+  return fetch(urlFinal, opts)
     .then(function(r) {
       clearTimeout(tid);
       if (r.status === 401) {
         sessionStorage.clear();
         window.location.href = 'login.html'+(LOJA_ID?'?loja='+encodeURIComponent(LOJA_ID):'');
-        throw new Error('Sess\u00e3o expirada');
+        throw new Error('Sessão expirada');
       }
       if (!r.ok) throw new Error('HTTP ' + r.status);
       return r.json();

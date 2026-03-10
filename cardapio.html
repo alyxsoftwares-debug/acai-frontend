@@ -567,7 +567,7 @@
   })();
 
   /** Monta o path multitenante */
-  function L(path){ var sep = path.indexOf('?') === -1 ? '?' : '&'; return '/api/lojas/'+LOJA_ID+path + sep + 'v=' + Date.now(); }
+  function L(path){ return '/api/lojas/'+LOJA_ID+path; }
 
   /**
    * Wrapper fetch com timeout de 25s — acessível em todo o script
@@ -575,13 +575,21 @@
   function api(method, path, body) {
     var controller = new AbortController();
     var tid = setTimeout(function() { controller.abort(); }, 25000);
+    
+    // Anti-cache inteligente: Adiciona apenas se for leitura (GET) no fim da URL
+    var urlFinal = API_URL + path;
+    if (method === 'GET') {
+        var sep = urlFinal.indexOf('?') === -1 ? '?' : '&';
+        urlFinal += sep + 'v=' + Date.now();
+    }
+
     var opts = {
       method: method,
       headers: { 'Content-Type': 'application/json' },
       signal: controller.signal
     };
     if (body && method !== 'GET') opts.body = JSON.stringify(body);
-    return fetch(API_URL + path, opts)
+    return fetch(urlFinal, opts)
       .then(function(r) {
         clearTimeout(tid);
         // Garante que erros HTTP (403, 404, 500…) sejam lançados corretamente
