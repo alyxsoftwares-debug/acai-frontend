@@ -241,7 +241,7 @@
     document.getElementById('inputUsuario').focus();
 
     // Carrega logo, nome da loja e favicon em background (falha silenciosa — não crítica)
-    apiPublica('GET', '/api/lojas/' + LOJA_ID + '/cardapio?v=' + Date.now())
+    apiPublica('GET', '/api/lojas/' + LOJA_ID + '/cardapio')
       .then(function (dados) {
         if (dados && dados.configuracoes) aplicarConfiguracoes(dados.configuracoes);
       })
@@ -251,13 +251,13 @@
   function aplicarConfiguracoes(config) {
     if (!config || typeof config !== 'object') return;
 
-    var nomeLoja = (config.nome_loja || '').toString().trim();
+    var nomeLoja = (config['Nome_Loja'] || '').toString().trim();
     if (nomeLoja) {
       document.getElementById('nomeLoja').textContent = nomeLoja;
       document.title = 'Acesso — ' + nomeLoja;
     }
 
-    var urlLogo = (config.url_logo || '').toString().trim();
+    var urlLogo = (config['URL_Logo'] || '').toString().trim();
     if (!urlLogo) return;
 
     // Atualiza favicon da aba do navegador
@@ -491,7 +491,7 @@
         cargo:      (resposta.cargo      || '').toString(),
         permissoes: Array.isArray(resposta.permissoes) ? resposta.permissoes : [],
         token:      (resposta.token      || '').toString(),
-        fotoPerfil: (resposta.foto_perfil || '').toString()
+        fotoPerfil: (resposta.fotoPerfil || resposta.Foto_Perfil || '').toString()
       };
       sessionStorage.setItem('pdacai_user', JSON.stringify(sessao));
     } catch (e) {
