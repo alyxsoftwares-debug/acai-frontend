@@ -2658,8 +2658,8 @@ function renderItensRows(){
   var items=((ST.dados&&ST.dados.itensFixos)||[]).slice().sort(function(a,b){ return (parseInt(a.ordem)||0) - (parseInt(b.ordem)||0); });
   if(!items.length) return '<tr><td colspan="6" style="text-align:center;padding:30px;color:#9ca3af">Nenhum item cadastrado</td></tr>';
   return items.map(function(i){
-    var disp=i.disponivel==='SIM';
-    var online=i.mostrar_online!=='NÃO'&&i.mostrar_online!=='NAO';
+    var disp=i.disponivel===true;
+    var online=i.mostrar_online!==false;
     return '<tr>'+
       '<td><div style="font-weight:700">'+esc(i.nome)+'</div><div style="font-size:12px;color:#9ca3af">'+esc(i.descricao||'')+'</div></td>'+
       '<td>'+esc(i.categoria||'--')+'</td>'+
@@ -2688,9 +2688,9 @@ function abrirFormItem(id){
     '<div class="form-row cols-3">'+
       fGroup('Preço (R$) *','f_preco','number',dados?dados.preco:'','0.00')+
       fGroup('Ordem','f_ordem','number',dados?dados.ordem||0:'','0')+
-      fGroupSel('Disponível no PDV','f_disp',['SIM','NÃO'],dados?dados.disponivel:'SIM')+
+      fGroupSel('Disponível no PDV','f_disp',['SIM','NÃO'],dados?(dados.disponivel?'SIM':'NÃO'):'SIM')+
     '</div>'+
-    fGroupSel('Aparecer no Cardápio Online','f_online',['SIM','NÃO'],dados?dados.mostrar_online||'SIM':'SIM')+
+    fGroupSel('Aparecer no Cardápio Online','f_online',['SIM','NÃO'],dados?(dados.mostrar_online===false?'NÃO':'SIM'):'SIM')+
     fGroup('URL da Foto','f_foto','url',dados?dados.foto_url:'','https://...')+
     '<div id="formMsg" class="mt-3"></div>';
   document.getElementById('modalFormFooter').innerHTML=
@@ -2707,9 +2707,9 @@ function salvarItem(){
     descricao:      document.getElementById('f_desc').value.trim(),
     preco:          parseFloat(document.getElementById('f_preco').value)||0,
     ordem:          parseInt(document.getElementById('f_ordem').value)||0,
-    disponivel:     document.getElementById('f_disp').value,
+    disponivel:     document.getElementById('f_disp').value === 'SIM',
     foto_url:       document.getElementById('f_foto').value.trim(),
-    mostrar_online: document.getElementById('f_online').value
+    mostrar_online: document.getElementById('f_online').value === 'SIM'
   };
   if(!dados.nome){ document.getElementById('formMsg').innerHTML='<p class="text-sm text-red">Nome obrigatório.</p>'; return; }
   chamarSalvar('salvarItemFixo',dados,'tbodyItens',renderItensRows,'modalFormCrud','itensFixos');
@@ -3155,25 +3155,25 @@ function renderConfigLoja(){
     '</div>'+
     '<div class="form-row cols-2">'+
       '<div class="form-group"><label class="form-label">Auto-imprimir PDV Balcão</label>'+
-        '<select class="form-control" id="cfg_print_balcao"><option value="SIM"'+(c['autoimprimir_balcao']==='SIM'?' selected':'')+'>SIM (Automático)</option><option value="NAO"'+(c['autoimprimir_balcao']!=='SIM'?' selected':'')+'>NÃO</option></select>'+
+        '<select class="form-control" id="cfg_print_balcao"><option value="SIM"'+(c['autoimprimir_balcao']===true?' selected':'')+'>SIM (Automático)</option><option value="NAO"'+(c['autoimprimir_balcao']!==true?' selected':'')+'>NÃO</option></select>'+
       '</div>'+
       '<div class="form-group"><label class="form-label">Auto-imprimir Delivery</label>'+
-        '<select class="form-control" id="cfg_print_delivery"><option value="SIM"'+(c['autoimprimir_delivery']==='SIM'?' selected':'')+'>SIM (Ao Pegar Pedido)</option><option value="NAO"'+(c['autoimprimir_delivery']!=='SIM'?' selected':'')+'>NÃO</option></select>'+
+        '<select class="form-control" id="cfg_print_delivery"><option value="SIM"'+(c['autoimprimir_delivery']===true?' selected':'')+'>SIM (Ao Pegar Pedido)</option><option value="NAO"'+(c['autoimprimir_delivery']!==true?' selected':'')+'>NÃO</option></select>'+
       '</div>'+
     '</div>'+
   '</div>'+
   '<div class="form-group">'+
     '<label class="form-label"><i class="fa-solid fa-bolt text-purple"></i> Mostrar "Açaí Rápido" no PDV</label>'+
     '<select class="form-control" id="cfg_acai_rapido">'+
-      '<option value="SIM"'+(c['mostrar_acai_rapido_pdv']!=='NAO'?' selected':'')+'>✅ SIM — Exibir atalhos no Balcão</option>'+
-      '<option value="NAO"'+(c['mostrar_acai_rapido_pdv']==='NAO'?' selected':'')+'>❌ NÃO — Ocultar no Balcão</option>'+
+      '<option value="SIM"'+(c['mostrar_acai_rapido_pdv']!==false?' selected':'')+'>✅ SIM — Exibir atalhos no Balcão</option>'+
+      '<option value="NAO"'+(c['mostrar_acai_rapido_pdv']===false?' selected':'')+'>❌ NÃO — Ocultar no Balcão</option>'+
     '</select>'+
   '</div>'+
   '<div class="form-group">'+
     '<label class="form-label"><i class="fa-solid fa-store"></i> Opção "Retirar na Loja" no Cardápio</label>'+
     '<select class="form-control" id="cfg_retirada">'+
-      '<option value="SIM"'+(c['retirada_loja_ativo']!=='NAO'?' selected':'')+'>✅ Ativado — cliente pode escolher retirar na loja</option>'+
-      '<option value="NAO"'+(c['retirada_loja_ativo']==='NAO'?' selected':'')+'>❌ Desativado — somente delivery</option>'+
+      '<option value="SIM"'+(c['retirada_loja_ativo']!==false?' selected':'')+'>✅ Ativado — cliente pode escolher retirar na loja</option>'+
+      '<option value="NAO"'+(c['retirada_loja_ativo']===false?' selected':'')+'>❌ Desativado — somente delivery</option>'+
     '</select>'+
   '</div>'+
   '<div style="border-top:1px solid #f3f4f6;margin:16px 0 14px;padding-top:14px">'+
@@ -3214,10 +3214,10 @@ function salvarConfiguracoes(){
     'instagram_url':   document.getElementById('cfg_instagram') ? document.getElementById('cfg_instagram').value.trim() : '',
     'whatsapp_link':   document.getElementById('cfg_wpp_link')  ? document.getElementById('cfg_wpp_link').value.trim()  : '',
     'facebook_url':        document.getElementById('cfg_facebook') ? document.getElementById('cfg_facebook').value.trim() : '',
-    'retirada_loja_ativo': document.getElementById('cfg_retirada')  ? document.getElementById('cfg_retirada').value  : 'SIM',
-    'autoimprimir_balcao': document.getElementById('cfg_print_balcao') ? document.getElementById('cfg_print_balcao').value : 'NAO',
-    'autoimprimir_delivery': document.getElementById('cfg_print_delivery') ? document.getElementById('cfg_print_delivery').value : 'NAO',
-    'mostrar_acai_rapido_pdv': document.getElementById('cfg_acai_rapido') ? document.getElementById('cfg_acai_rapido').value : 'SIM',
+    'retirada_loja_ativo': document.getElementById('cfg_retirada')  ? document.getElementById('cfg_retirada').value === 'SIM' : true,
+    'autoimprimir_balcao': document.getElementById('cfg_print_balcao') ? document.getElementById('cfg_print_balcao').value === 'SIM' : false,
+    'autoimprimir_delivery': document.getElementById('cfg_print_delivery') ? document.getElementById('cfg_print_delivery').value === 'SIM' : false,
+    'mostrar_acai_rapido_pdv': document.getElementById('cfg_acai_rapido') ? document.getElementById('cfg_acai_rapido').value === 'SIM' : true,
     'pix_modo':            document.getElementById('cfg_pix_modo')   ? document.getElementById('cfg_pix_modo').value   : 'MANUAL',
     'mp_access_token':      document.getElementById('cfg_mp_token')   ? document.getElementById('cfg_mp_token').value   : ''
   };
