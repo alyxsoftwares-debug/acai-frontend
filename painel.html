@@ -997,7 +997,7 @@ function construirUI(){
   var avatarEl=document.getElementById('sidebarAvatar');
       
       // Busca a foto atualizada direto da lista de usuários do banco
-      var fotoUrl = u.fotoPerfil || '';
+      var fotoUrl = u.foto_perfil || '';
       if (ST.dados && ST.dados.usuarios) {
         var userDb = ST.dados.usuarios.find(function(x) { return x.nome === u.nome; });
         if (userDb && userDb.foto_perfil) fotoUrl = userDb.foto_perfil;
@@ -1753,12 +1753,12 @@ function finalizarBalcao(){
 
   var dados={
     operador:   ST.usuario.nome,
-    pesoBruto_g:bruto, idTara:idTara, pesoTara_g:tara, precoKG:kgP,
-    itensExtras:todosItensExtras,
+    peso_bruto_g: bruto, id_tara: idTara, peso_tara_g: tara, preco_kg: kgP,
+    itens_extras: todosItensExtras,
     desconto:   parseFloat(document.getElementById('b_desconto').value||0),
-    pagamento:  pgto,
-    valorPago:  parseFloat((document.getElementById('b_valorPago')||{}).value||0),
-    nomeCliente:document.getElementById('b_nomeCliente').value.trim(),
+    metodo_pagamento: pgto,
+    valor_pago: parseFloat((document.getElementById('b_valorPago')||{}).value||0),
+    nome_cliente: document.getElementById('b_nomeCliente').value.trim(),
     telefone:   document.getElementById('b_telefone').value.trim()
   };
 
@@ -1782,12 +1782,13 @@ function finalizarBalcao(){
           id_venda: res.id||'(novo)',
           origem:'BALCAO', data_hora:dataHoraLocal,
           operador:ST.usuario.nome,
-          cliente_info:JSON.stringify({nome:dados.nomeCliente||'',telefone:dados.telefone||''}),
-          itens_comprados:'[]',
+          cliente_info:JSON.stringify({nome:dados.nome_cliente||'',telefone:dados.telefone||'',endereco:dados.endereco||''}),
+          itens_comprados:JSON.stringify(dados.itens_comprados||[]),
           total_final:res.total||0,
-          metodo_pagamento:dados.pagamento||'',
-          status:'ENTREGUE', desconto:dados.desconto||0,
-          taxa_entrega:0, subtotal:res.total||0, cancelado_por:''
+          metodo_pagamento:dados.metodo_pagamento||'',
+          status:'NOVO', desconto:dados.desconto||0,
+          taxa_entrega:dados.taxa_entrega||0,
+          subtotal:res.total-(dados.taxa_entrega||0), cancelado_por:''
         };
         if(!ST.dados) ST.dados={};
         if(!ST.dados.pedidosDia) ST.dados.pedidosDia={pedidos:[],resumo:{}};
@@ -1970,12 +1971,12 @@ function finalizarDeliveryPDV(){
 
   var dados={
     operador:   ST.usuario.nome,
-    nomeCliente:nome, telefone:tel, endereco:end,
-    itens:      ST.pdvDeliveryItens.map(function(i){ return {descricao:i.descricao,preco:i.preco}; }),
+    nome_cliente: nome, telefone: tel, endereco: end,
+    itens_comprados: ST.pdvDeliveryItens.map(function(i){ return {descricao:i.descricao,preco:i.preco}; }),
     desconto:   parseFloat(document.getElementById('d_desconto').value||0),
-    taxaEntrega:parseFloat(document.getElementById('d_taxa').value||0),
-    pagamento:  pgto,
-    valorPago:  parseFloat((document.getElementById('d_valorPago')||{}).value||0)
+    taxa_entrega: parseFloat(document.getElementById('d_taxa').value||0),
+    metodo_pagamento: pgto,
+    valor_pago: parseFloat((document.getElementById('d_valorPago')||{}).value||0)
   };
 
   api('POST', L('/pedidos/delivery'), dados)
@@ -1997,10 +1998,10 @@ function finalizarDeliveryPDV(){
           id_venda:res.id||'(novo)',
           origem:'DELIVERY', data_hora:dataHoraLocal,
           operador:ST.usuario.nome,
-          cliente_info:JSON.stringify({nome:dados.nomeCliente||'',telefone:dados.telefone||'',endereco:dados.endereco||''}),
-          itens_comprados:JSON.stringify(dados.itens||[]),
+          cliente_info:JSON.stringify({nome:dados.nome_cliente||'',telefone:dados.telefone||''}),
+          itens_comprados:'[]',
           total_final:res.total||0,
-          metodo_pagamento:dados.pagamento||'',
+          metodo_pagamento:dados.metodo_pagamento||'',
           status:'NOVO', desconto:dados.desconto||0,
           taxa_entrega:dados.taxaEntrega||0,
           subtotal:res.total-(dados.taxaEntrega||0), cancelado_por:''
@@ -2184,7 +2185,7 @@ function renderDeliveryCard(p){
 }
 
 function pegarDelivery(idVenda){
-  api('POST', L('/pedidos/') + idVenda + '/pegar-delivery', { nomeEntregador: ST.usuario.nome })
+  api('POST', L('/pedidos/') + idVenda + '/pegar-delivery', { entregador_nome: ST.usuario.nome })
     .then(function(res){
       if(res.sucesso){
         toast('Pedido atribuído a você!','success');

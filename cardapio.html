@@ -2145,10 +2145,10 @@
             '<span class="text-xs font-bold text-purple-700">Retirada na Loja</span></div>' 
           : '';
 
-        var itensHTML = p.itensResumo
+        var itensHTML = p.itens_resumo
           ? '<div class="mt-4 bg-gray-50 rounded-2xl p-3">' +
             '<p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Itens do pedido</p>' +
-            p.itensResumo.split('\n').filter(Boolean).map(function(l){
+            p.itens_resumo.split('\n').filter(Boolean).map(function(l){
               return '<p class="text-xs text-gray-600 font-medium py-0.5 border-b border-gray-100 last:border-0">' + esc(l) + '</p>';
             }).join('') + '</div>'
           : '';

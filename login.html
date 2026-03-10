@@ -489,9 +489,9 @@
         loja_id:    LOJA_ID,
         nome:       (resposta.nome       || '').toString(),
         cargo:      (resposta.cargo      || '').toString(),
-        permissoes: Array.isArray(resposta.permissoes) ? resposta.permissoes : [],
-        token:      (resposta.token      || '').toString(),
-        fotoPerfil: (resposta.fotoPerfil || resposta.foto_perfil || '').toString()
+        permissoes:  Array.isArray(resposta.permissoes) ? resposta.permissoes : [],
+        token:       (resposta.token || '').toString(),
+        foto_perfil: (resposta.foto_perfil || '').toString()
       };
       sessionStorage.setItem('pdacai_user', JSON.stringify(sessao));
     } catch (e) {
