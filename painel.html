@@ -2128,24 +2128,13 @@ function renderDelivery(){
     return;
   }
 
-  var ordenados = pedidosVisiveis.slice().sort(function(a,b){
-    var ordem = { NOVO:0, PREPARANDO:1, EM_MONTAGEM:1, A_CAMINHO:2, PRONTO:2 };
+  var ordenados = pedidos.slice().sort(function(a,b){
+    var ordem = { NOVO:0, PREPARANDO:1, EM_MONTAGEM:1, PRONTO:2 };
     var oa = ordem[(a.status||'').toUpperCase()] || 3;
     var ob = ordem[(b.status||'').toUpperCase()] || 3;
     
-    // Leitor absoluto de datas (garante que a hora maior venha primeiro)
-    function parseDt(s) {
-       if(!s) return 0;
-       var p = s.split(' ');
-       if(p.length < 2) return 0;
-       var d = p[0].split('/');
-       var t = p[1].split(':');
-       return new Date(d[2], d[1]-1, d[0], t[0], t[1], t[2]||0).getTime();
-    }
-    
-    // Organiza por Status primeiro; se for o mesmo Status, joga o MAIS NOVO pra esquerda/topo!
     if (oa !== ob) return oa - ob;
-    return parseDt(b.data_hora) - parseDt(a.data_hora);
+    return (b.data_hora || '').localeCompare(a.data_hora || '');
   });
 
   lista.innerHTML='<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:16px">'+
