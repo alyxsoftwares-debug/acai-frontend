@@ -646,9 +646,23 @@ function api(method, path, body) {
         throw new Error('Sess\u00e3o expirada');
       }
       if (!r.ok) throw new Error('HTTP ' + r.status);
-      return r.json();
-    })
-    .catch(function(e) { clearTimeout(tid); throw e; });
+      return r.json().then(function(data) {
+            // ── O TRADUTOR UNIVERSAL (Mágica do Sênior) ──
+            // O banco de dados envia true/false, mas o HTML do Painel espera "SIM"/"NAO".
+            // Isto converte tudo silenciosamente para que as caixas de seleção não voltem para "NAO".
+            function traduzirBools(obj) {
+              if (obj === null || typeof obj !== 'object') return obj;
+              for (var k in obj) {
+                if (obj[k] === true) obj[k] = 'SIM';
+                else if (obj[k] === false) obj[k] = 'NAO';
+                else if (typeof obj[k] === 'object') traduzirBools(obj[k]);
+              }
+              return obj;
+            }
+            return traduzirBools(data);
+          });
+        })
+        .catch(function(e) { clearTimeout(tid); throw e; });
 }
 
 // Mapa: nome de função GAS → [endpoint, método HTTP]
