@@ -18,12 +18,17 @@
       appId: "c7565fa8-cd8c-4264-85b4-1a9d9cf150af",
     });
     
-    // Associa o celular do entregador à loja e informa o cargo para isolar notificações
+    // Força a janela do navegador perguntando se o usuário quer receber notificações
+    OneSignal.Slidedown.promptPush();
+
+    // Associa o celular à loja e informa o cargo para isolar notificações
     try {
       var s = JSON.parse(sessionStorage.getItem('pdacai_user') || '{}');
       if (s.loja_id) {
-        OneSignal.User.addTag("loja_id", s.loja_id);
-        OneSignal.User.addTag("cargo", s.cargo || 'Operador');
+        OneSignal.User.addTags({
+          loja_id: s.loja_id,
+          cargo: s.cargo || 'Operador'
+        });
       }
     } catch(e) {}
   });
