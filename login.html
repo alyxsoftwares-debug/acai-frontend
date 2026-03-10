@@ -251,13 +251,13 @@
   function aplicarConfiguracoes(config) {
     if (!config || typeof config !== 'object') return;
 
-    var nomeLoja = (config['Nome_Loja'] || '').toString().trim();
+    var nomeLoja = (config.nome_loja || '').toString().trim();
     if (nomeLoja) {
       document.getElementById('nomeLoja').textContent = nomeLoja;
       document.title = 'Acesso — ' + nomeLoja;
     }
 
-    var urlLogo = (config['URL_Logo'] || '').toString().trim();
+    var urlLogo = (config.url_logo || '').toString().trim();
     if (!urlLogo) return;
 
     // Atualiza favicon da aba do navegador
@@ -483,7 +483,7 @@
     tentativas = 0;
     document.getElementById('tentativasWarn').classList.add('hidden');
 
-    // Persiste sessão com loja_id e cargo para uso em painel.html
+   // Persiste sessão com loja_id e cargo para uso em painel.html
     try {
       var sessao = {
         loja_id:    LOJA_ID,
@@ -491,7 +491,7 @@
         cargo:      (resposta.cargo      || '').toString(),
         permissoes: Array.isArray(resposta.permissoes) ? resposta.permissoes : [],
         token:      (resposta.token      || '').toString(),
-        fotoPerfil: (resposta.fotoPerfil || resposta.Foto_Perfil || '').toString()
+        fotoPerfil: (resposta.fotoPerfil || resposta.foto_perfil || '').toString()
       };
       sessionStorage.setItem('pdacai_user', JSON.stringify(sessao));
     } catch (e) {
