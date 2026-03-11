@@ -858,6 +858,19 @@ function concluirCarregamento(dados){
   loading(false);
   document.getElementById('app').classList.remove('hidden');
   iniciarPolling();
+
+  // CORREÇÃO ONESIGNAL: Garante que a tag salva é o UUID real do banco, e não o texto da URL
+  try {
+    var uuidReal = (dados.configuracoes && dados.configuracoes.loja_id) ? dados.configuracoes.loja_id : null;
+    if (uuidReal && window.OneSignalDeferred) {
+      OneSignalDeferred.push(function(OneSignal) {
+        OneSignal.User.addTags({
+          loja_id: uuidReal,
+          cargo: (ST.usuario && ST.usuario.cargo) ? ST.usuario.cargo : 'Operador'
+        });
+      });
+    }
+  } catch(e) {}
 }
 
 function mostrarErroCarregamento(err){
