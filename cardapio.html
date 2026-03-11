@@ -2224,12 +2224,29 @@ function api(method, path, body) {
         // Divisor se for mais de um
         var marginT = index > 0 ? 'mt-8 pt-8 border-t-2 border-dashed border-gray-200' : '';
 
+        // Formatação limpa da Data e Hora do Supabase
+        var dataFormatada = p.data_hora;
+        if (p.data_hora && p.data_hora.includes('T')) {
+            var dt = new Date(p.data_hora);
+            if (!isNaN(dt)) {
+                var dia = ('0' + dt.getDate()).slice(-2);
+                var mes = ('0' + (dt.getMonth() + 1)).slice(-2);
+                var ano = dt.getFullYear();
+                var hr = ('0' + dt.getHours()).slice(-2);
+                var mn = ('0' + dt.getMinutes()).slice(-2);
+                dataFormatada = dia + '/' + mes + '/' + ano + ' às ' + hr + ':' + mn;
+            }
+        }
+
+        // Formatação do ID (Pega apenas o primeiro bloco do UUID para ficar legível)
+        var idCurto = p.id_venda ? p.id_venda.split('-')[0].toUpperCase() : '';
+
         htmlCompleto += '<div class="fade-in ' + marginT + '">' +
           timelineHTML +
           '<div class="bg-white border border-gray-100 rounded-2xl p-4 shadow-sm">' +
           '<div class="flex justify-between items-start mb-1">' +
-          '<span class="text-[10px] font-black text-gray-400 uppercase tracking-widest">#' + esc(p.id_venda) + '</span>' +
-          '<span class="text-[10px] font-bold text-gray-400">' + esc(p.data_hora) + '</span>' +
+          '<span class="text-[10px] font-black text-gray-400 uppercase tracking-widest">#' + esc(idCurto) + '</span>' +
+          '<span class="text-[10px] font-bold text-gray-400">' + esc(dataFormatada) + '</span>' +
           '</div>' +
           (p.nomeCliente ? '<p class="font-black text-gray-800 text-sm">' + esc(p.nomeCliente) + '</p>' : '') +
           '<p class="text-xs text-gray-500 font-medium mt-0.5">' + (p.origem ? esc(p.origem) : '') + ' · ' +
