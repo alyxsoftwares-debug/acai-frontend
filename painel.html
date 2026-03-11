@@ -2343,7 +2343,7 @@ function renderRetirada(){
     return;
   }
 
-  var ordenados = pedidosVisiveis.slice().sort(function(a,b){
+  var ordenados = pedidos.slice().sort(function(a,b){
     var ordem = { NOVO:0, PREPARANDO:1, EM_MONTAGEM:1, A_CAMINHO:2, PRONTO:2 };
     var oa = ordem[(a.status||'').toUpperCase()] || 3;
     var ob = ordem[(b.status||'').toUpperCase()] || 3;
