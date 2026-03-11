@@ -491,7 +491,7 @@
         cargo:      (resposta.cargo      || '').toString(),
         permissoes: Array.isArray(resposta.permissoes) ? resposta.permissoes : [],
         token:      (resposta.token      || '').toString(),
-        fotoPerfil: (resposta.foto_perfil || '').toString()
+        fotoPerfil: (resposta.fotoPerfil || '').toString()
       };
       sessionStorage.setItem('pdacai_user', JSON.stringify(sessao));
     } catch (e) {

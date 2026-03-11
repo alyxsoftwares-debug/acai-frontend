@@ -15,7 +15,7 @@
   window.OneSignalDeferred = window.OneSignalDeferred || [];
   OneSignalDeferred.push(async function(OneSignal) {
     await OneSignal.init({
-      appId: "c7565fa8-cd8c-4264-85b4-1a9d9cf150af",
+      appId: ONESIGNAL_APP_ID,
     });
     
     // Força a janela do navegador perguntando se o usuário quer receber notificações
@@ -621,6 +621,7 @@ table.tbl tr:last-child td{border-bottom:none}
 // ═══ CONFIGURAÇÃO DA API ════════════════════════════════════════════════════
 // Altere API_URL para a URL real do seu backend no Render após o deploy.
 var API_URL = 'https://alyxsoftwares-acaiteria.onrender.com'; // ← URL do seu backend no Render
+var ONESIGNAL_APP_ID = 'c7565fa8-cd8c-4264-85b4-1a9d9cf150af';
 
 // ─── ID da loja lido da sessão (salvo pelo login.html) ─────────────────────
 var LOJA_ID = (function(){
