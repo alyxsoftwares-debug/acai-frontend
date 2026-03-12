@@ -805,7 +805,12 @@ function loading(msg){
 }
 
 function abrirModal(id){ document.getElementById(id).classList.add('open'); }
-function fecharModal(id){ document.getElementById(id).classList.remove('open'); }
+function fecharModal(id) { 
+  document.getElementById(id).classList.remove('open'); 
+  if (id === 'modalBalcao' && typeof desconectarBalanca === 'function') {
+      desconectarBalanca();
+  }
+}
 
 function toggleSidebar(){
   document.getElementById('sidebar').classList.toggle('collapsed');
@@ -1466,7 +1471,12 @@ function abrirPDVBalcao(){
       '<h3 style="font-weight:800;font-size:15px;margin-bottom:14px;color:#1e1b4b"><i class="fa-solid fa-weight-scale text-purple"></i> Pesagem</h3>'+
       '<div class="form-row cols-2">'+
         '<div class="form-group">'+
-          '<label class="form-label">Peso Bruto (g)</label>'+
+          '<label class="form-label" style="display:flex; justify-content:space-between; align-items:center;">'+
+            'Peso Bruto (g)'+
+            '<button type="button" onclick="conectarBalanca()" id="btnBalanca" style="background:#f3f4f6; border:1px solid #d1d5db; border-radius:6px; padding:2px 8px; font-size:10px; cursor:pointer; color:#6b7280; font-weight:bold;">'+
+              '<i class="fa-solid fa-link"></i> Ligar Balança'+
+            '</button>'+
+          '</label>'+
           '<input type="number" class="form-control" id="b_pesoBruto" placeholder="0" oninput="calcBalcao()"/>'+
         '</div>'+
         '<div class="form-group">'+
@@ -2078,6 +2088,112 @@ function aplicarCupom(inputId,hiddenId,msgId,callback){
     })
     .catch(function(){ msgEl.innerHTML='<span class="text-red">Erro ao validar cupom.</span>'; });
 }
+// ═══════════════════════════════════════════════════════════
+// INTEGRAÇÃO COM BALANÇA (WEB SERIAL API)
+// ═══════════════════════════════════════════════════════════
+let balancaPort;
+let balancaReader;
+let manterLeitura = false;
+
+async function conectarBalanca() {
+  if (!('serial' in navigator)) {
+    toast('Seu navegador não suporta conexão com balança. Use Google Chrome ou Edge no computador.', 'error');
+    return;
+  }
+  
+  try {
+    // Abre a janela do navegador para o usuário escolher a porta COM da balança
+    balancaPort = await navigator.serial.requestPort();
+    
+    // Abre a porta. A maioria das balanças no Brasil usa baudRate 9600, 4800 ou 2400.
+    // Se a sua for diferente, basta alterar este número.
+    await balancaPort.open({ baudRate: 9600 }); 
+
+    let btn = document.getElementById('btnBalanca');
+    if (btn) {
+       btn.innerHTML = '<i class="fa-solid fa-link-slash"></i> Conectada';
+       btn.style.color = '#16a34a'; // Verde
+       btn.style.borderColor = '#bbf7d0';
+       btn.style.background = '#f0fdf4';
+    }
+    toast('Balança conectada com sucesso!', 'success');
+
+    manterLeitura = true;
+    lerDadosBalanca();
+  } catch (e) {
+    toast('Conexão cancelada ou erro ao conectar.', 'error');
+    console.error(e);
+  }
+}
+
+async function lerDadosBalanca() {
+  while (balancaPort && balancaPort.readable && manterLeitura) {
+    const textDecoder = new TextDecoderStream();
+    const readableStreamClosed = balancaPort.readable.pipeTo(textDecoder.writable);
+    balancaReader = textDecoder.readable.getReader();
+
+    let buffer = '';
+    try {
+      while (true) {
+        const { value, done } = await balancaReader.read();
+        if (done) break;
+        if (value) {
+          buffer += value;
+          
+          // PROTOCOLO TOLEDO / ELGIN / FILIZOLA
+          // A balança envia dados entre um STX (Início do texto, código ASCII 2) 
+          // e um ETX (Fim do texto, código ASCII 3).
+          let stxIdx = buffer.lastIndexOf(String.fromCharCode(2));
+          let etxIdx = buffer.indexOf(String.fromCharCode(3), stxIdx);
+          
+          if (stxIdx !== -1 && etxIdx !== -1 && etxIdx > stxIdx) {
+            // Extrai apenas os números (Ex: "01235" = 1,235 KG = 1235g)
+            let pesoStr = buffer.substring(stxIdx + 1, etxIdx).replace(/[^0-9]/g, '');
+            
+            if (pesoStr.length >= 4) {
+              let pesoGramas = parseInt(pesoStr, 10); // Converte para gramas inteiro
+              
+              let inpPeso = document.getElementById('b_pesoBruto');
+              // Atualiza a tela só se o peso mudar (para não piscar a tela atoa)
+              if (inpPeso && parseInt(inpPeso.value || 0) !== pesoGramas) {
+                  inpPeso.value = pesoGramas;
+                  calcBalcao(); // Dispara sua função que calcula tudo automaticamente!
+              }
+            }
+            buffer = buffer.substring(etxIdx + 1); // Limpa o que já foi lido
+          }
+          
+          // Limpa buffer travado (se houver sujeira na linha serial)
+          if (buffer.length > 50) buffer = buffer.substring(buffer.length - 20);
+        }
+      }
+    } catch (error) {
+      console.error("Erro na leitura da balança:", error);
+    } finally {
+      balancaReader.releaseLock();
+    }
+  }
+}
+
+async function desconectarBalanca() {
+  manterLeitura = false;
+  if (balancaReader) {
+    await balancaReader.cancel();
+    balancaReader = null;
+  }
+  if (balancaPort) {
+    await balancaPort.close();
+    balancaPort = null;
+  }
+  let btn = document.getElementById('btnBalanca');
+  if (btn) {
+     btn.innerHTML = '<i class="fa-solid fa-link"></i> Ligar Balança';
+     btn.style.color = '#6b7280'; 
+     btn.style.borderColor = '#d1d5db';
+     btn.style.background = '#f3f4f6';
+  }
+}
+
 </script>
 <script>
 // Recarrega apenas os pedidos do dia (mais leve que getDadosPainelGeral completo)
