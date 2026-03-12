@@ -805,11 +805,8 @@ function loading(msg){
 }
 
 function abrirModal(id){ document.getElementById(id).classList.add('open'); }
-function fecharModal(id) { 
+function fecharModal(id){ 
   document.getElementById(id).classList.remove('open'); 
-  if (id === 'modalBalcao' && typeof desconectarBalanca === 'function') {
-      desconectarBalanca();
-  }
 }
 
 function toggleSidebar(){
@@ -1577,6 +1574,11 @@ function abrirPDVBalcao(){
     '</div>';
 
   abrirModal('modalBalcao');
+  
+  // Verifica se a balança já está rodando em background e deixa o botão verde
+  if (manterLeitura && balancaPort) {
+      atualizarBotaoBalanca(true);
+  }
 }
 
 var _pgtoShortcuts={'PIX':'1','CARTAO':'2','DINHEIRO':'3'};
@@ -2089,40 +2091,59 @@ function aplicarCupom(inputId,hiddenId,msgId,callback){
     .catch(function(){ msgEl.innerHTML='<span class="text-red">Erro ao validar cupom.</span>'; });
 }
 // ═══════════════════════════════════════════════════════════
-// INTEGRAÇÃO COM BALANÇA (WEB SERIAL API)
+// INTEGRAÇÃO COM BALANÇA (EM SEGUNDO PLANO)
 // ═══════════════════════════════════════════════════════════
-let balancaPort;
-let balancaReader;
+let balancaPort = null;
+let balancaReader = null;
 let manterLeitura = false;
 
 async function conectarBalanca() {
   if (!('serial' in navigator)) {
-    toast('Seu navegador não suporta conexão com balança. Use Google Chrome ou Edge no computador.', 'error');
-    return;
+    toast('Seu navegador não suporta balança.', 'error'); return;
   }
   
   try {
-    // Abre a janela do navegador para o usuário escolher a porta COM da balança
-    balancaPort = await navigator.serial.requestPort();
-    
-    // Abre a porta. A maioria das balanças no Brasil usa baudRate 9600, 4800 ou 2400.
-    // Se a sua for diferente, basta alterar este número.
-    await balancaPort.open({ baudRate: 9600 }); 
-
-    let btn = document.getElementById('btnBalanca');
-    if (btn) {
-       btn.innerHTML = '<i class="fa-solid fa-link-slash"></i> Conectada';
-       btn.style.color = '#16a34a'; // Verde
-       btn.style.borderColor = '#bbf7d0';
-       btn.style.background = '#f0fdf4';
+    // Se já estiver rodando, não faz nada
+    if (balancaPort && manterLeitura) {
+      toast('A balança já está operando em segundo plano!', 'success');
+      return;
     }
-    toast('Balança conectada com sucesso!', 'success');
 
+    // Procura portas que o usuário já autorizou antes (Reconexão Mágica)
+    const ports = await navigator.serial.getPorts();
+    if (ports.length > 0) {
+      balancaPort = ports[0]; 
+    } else {
+      // Se for a primeira vez na vida, pede permissão ao usuário
+      balancaPort = await navigator.serial.requestPort();
+    }
+
+    await balancaPort.open({ baudRate: 9600 }); 
     manterLeitura = true;
+    atualizarBotaoBalanca(true);
+    toast('Balança conectada! Deixando em segundo plano.', 'success');
+    
+    // Inicia o loop infinito de leitura
     lerDadosBalanca();
   } catch (e) {
-    toast('Conexão cancelada ou erro ao conectar.', 'error');
+    toast('Erro ao conectar balança.', 'error');
     console.error(e);
+  }
+}
+
+function atualizarBotaoBalanca(conectado) {
+  let btn = document.getElementById('btnBalanca');
+  if (!btn) return;
+  if (conectado) {
+     btn.innerHTML = '<i class="fa-solid fa-link-slash"></i> Ligada em Segundo Plano';
+     btn.style.color = '#16a34a'; 
+     btn.style.borderColor = '#bbf7d0';
+     btn.style.background = '#f0fdf4';
+  } else {
+     btn.innerHTML = '<i class="fa-solid fa-link"></i> Ligar Balança';
+     btn.style.color = '#6b7280'; 
+     btn.style.borderColor = '#d1d5db';
+     btn.style.background = '#f3f4f6';
   }
 }
 
@@ -2131,8 +2152,8 @@ async function lerDadosBalanca() {
     const textDecoder = new TextDecoderStream();
     const readableStreamClosed = balancaPort.readable.pipeTo(textDecoder.writable);
     balancaReader = textDecoder.readable.getReader();
-
     let buffer = '';
+
     try {
       while (true) {
         const { value, done } = await balancaReader.read();
@@ -2140,57 +2161,35 @@ async function lerDadosBalanca() {
         if (value) {
           buffer += value;
           
-          // PROTOCOLO TOLEDO / ELGIN / FILIZOLA
-          // A balança envia dados entre um STX (Início do texto, código ASCII 2) 
-          // e um ETX (Fim do texto, código ASCII 3).
           let stxIdx = buffer.lastIndexOf(String.fromCharCode(2));
           let etxIdx = buffer.indexOf(String.fromCharCode(3), stxIdx);
           
           if (stxIdx !== -1 && etxIdx !== -1 && etxIdx > stxIdx) {
-            // Extrai apenas os números (Ex: "01235" = 1,235 KG = 1235g)
             let pesoStr = buffer.substring(stxIdx + 1, etxIdx).replace(/[^0-9]/g, '');
             
             if (pesoStr.length >= 4) {
-              let pesoGramas = parseInt(pesoStr, 10); // Converte para gramas inteiro
-              
+              let pesoGramas = parseInt(pesoStr, 10);
               let inpPeso = document.getElementById('b_pesoBruto');
-              // Atualiza a tela só se o peso mudar (para não piscar a tela atoa)
+              
+              // O Segredo: Ele só escreve na tela se o modal do balcão estiver aberto!
               if (inpPeso && parseInt(inpPeso.value || 0) !== pesoGramas) {
                   inpPeso.value = pesoGramas;
-                  calcBalcao(); // Dispara sua função que calcula tudo automaticamente!
+                  calcBalcao();
               }
             }
-            buffer = buffer.substring(etxIdx + 1); // Limpa o que já foi lido
+            buffer = buffer.substring(etxIdx + 1); 
           }
-          
-          // Limpa buffer travado (se houver sujeira na linha serial)
           if (buffer.length > 50) buffer = buffer.substring(buffer.length - 20);
         }
       }
     } catch (error) {
-      console.error("Erro na leitura da balança:", error);
+      console.error("Cabo da balança foi desconectado:", error);
+      manterLeitura = false;
+      balancaPort = null;
+      atualizarBotaoBalanca(false);
     } finally {
       balancaReader.releaseLock();
     }
-  }
-}
-
-async function desconectarBalanca() {
-  manterLeitura = false;
-  if (balancaReader) {
-    await balancaReader.cancel();
-    balancaReader = null;
-  }
-  if (balancaPort) {
-    await balancaPort.close();
-    balancaPort = null;
-  }
-  let btn = document.getElementById('btnBalanca');
-  if (btn) {
-     btn.innerHTML = '<i class="fa-solid fa-link"></i> Ligar Balança';
-     btn.style.color = '#6b7280'; 
-     btn.style.borderColor = '#d1d5db';
-     btn.style.background = '#f3f4f6';
   }
 }
 
