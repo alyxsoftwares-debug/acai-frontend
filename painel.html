@@ -1448,7 +1448,13 @@ function abrirPDVBalcao(){
   ST.pdvAcaiItens=[];               // Reset lista de açaís
   ST.pgtoAtivo['b_pgto']='';        // Reset pagamento
   var config=ST.dados&&ST.dados.configuracoes||{};
-  var precoKG=parseFloat(config.preco_kg||39.90);
+  // Detecção Inteligente do Dia da Semana (0 = Domingo, 6 = Sábado)
+  var diasMap = ['dom', 'seg', 'ter', 'qua', 'qui', 'sex', 'sab'];
+  var hojeIdx = new Date().getDay(); 
+  var pDias = config.preco_kg_dias || {};
+  var precoHoje = pDias[diasMap[hojeIdx]] || config.preco_kg || 39.90;
+  
+  var precoKG = parseFloat(precoHoje);
   var taras=(ST.dados&&ST.dados.taras||[]).filter(function(t){ return t.ativo===true; });
   var itens=(ST.dados&&ST.dados.itensFixos||[]).filter(function(i){ return i.disponivel===true; });
   var modelos=(ST.dados&&ST.dados.acaiModelos||[]).filter(function(m){ return m.disponivel===true; });
@@ -3248,7 +3254,30 @@ function renderConfigLoja(){
   '</div>'+
   '<div class="form-group"><label class="form-label">Status da Loja</label><select class="form-control" id="cfg_status">'+statusOpts+'</select></div>'+
   '<div class="form-group"><label class="form-label">Endereço da Loja</label><input class="form-control" id="cfg_end" value="'+esc(c.endereco_loja||'')+'" placeholder="Rua, nº, bairro — Cidade/UF"/></div>'+
-  '<div class="form-group"><label class="form-label">Preço por KG (R$)</label><input type="number" step="0.01" class="form-control" id="cfg_kgp" value="'+esc(c.preco_kg||'39.90')+'"/></div>'+
+  (function(){
+    var pDias = c.preco_kg_dias || {};
+    var vDom = pDias.dom || c.preco_kg || '39.90';
+    var vSeg = pDias.seg || c.preco_kg || '39.90';
+    var vTer = pDias.ter || c.preco_kg || '39.90';
+    var vQua = pDias.qua || c.preco_kg || '39.90';
+    var vQui = pDias.qui || c.preco_kg || '39.90';
+    var vSex = pDias.sex || c.preco_kg || '39.90';
+    var vSab = pDias.sab || c.preco_kg || '39.90';
+    return '<div style="border-top:1px solid #f3f4f6;margin:16px 0 14px;padding-top:14px">'+
+      '<div style="font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px">'+
+        '<i class="fa-solid fa-scale-balanced text-purple"></i> Preço do Açaí (Por Dia da Semana)'+
+      '</div>'+
+      '<div class="grid-2" style="grid-template-columns: repeat(4, 1fr); gap: 10px;">'+
+        '<div class="form-group mb-2"><label class="form-label">Domingo</label><input type="number" step="0.01" class="form-control" id="cfg_p_dom" value="'+esc(vDom)+'"/></div>'+
+        '<div class="form-group mb-2"><label class="form-label">Segunda</label><input type="number" step="0.01" class="form-control" id="cfg_p_seg" value="'+esc(vSeg)+'"/></div>'+
+        '<div class="form-group mb-2"><label class="form-label">Terça</label><input type="number" step="0.01" class="form-control" id="cfg_p_ter" value="'+esc(vTer)+'"/></div>'+
+        '<div class="form-group mb-2"><label class="form-label">Quarta</label><input type="number" step="0.01" class="form-control" id="cfg_p_qua" value="'+esc(vQua)+'"/></div>'+
+        '<div class="form-group mb-2"><label class="form-label">Quinta</label><input type="number" step="0.01" class="form-control" id="cfg_p_qui" value="'+esc(vQui)+'"/></div>'+
+        '<div class="form-group mb-2"><label class="form-label">Sexta</label><input type="number" step="0.01" class="form-control" id="cfg_p_sex" value="'+esc(vSex)+'"/></div>'+
+        '<div class="form-group mb-2"><label class="form-label">Sábado</label><input type="number" step="0.01" class="form-control" id="cfg_p_sab" value="'+esc(vSab)+'"/></div>'+
+      '</div>'+
+    '</div>';
+  })() +
   '<div class="form-row cols-2">'+
     '<div class="form-group"><label class="form-label">Entrega Grátis a partir de (R$ 0 = desativar)</label><input type="number" step="0.01" class="form-control" id="cfg_frete_gratis" value="'+esc(c.frete_gratis||'0')+'" placeholder="Ex: 50.00"/></div>'+
     '<div class="form-group"><label class="form-label">Tempo Estimado de Entrega</label><input type="text" class="form-control" id="cfg_tempo_entrega" value="'+esc(c.tempo_entrega||'')+'" placeholder="Ex: 40 a 60 min"/></div>'+
@@ -3330,7 +3359,15 @@ function salvarConfiguracoes(){
     hora_fecha:      document.getElementById('cfg_fecha').value,
     status_loja:     document.getElementById('cfg_status').value,
     endereco_loja:   document.getElementById('cfg_end').value.trim(),
-    preco_kg:        document.getElementById('cfg_kgp').value,
+    preco_kg_dias: {
+      dom: document.getElementById('cfg_p_dom').value,
+      seg: document.getElementById('cfg_p_seg').value,
+      ter: document.getElementById('cfg_p_ter').value,
+      qua: document.getElementById('cfg_p_qua').value,
+      qui: document.getElementById('cfg_p_qui').value,
+      sex: document.getElementById('cfg_p_sex').value,
+      sab: document.getElementById('cfg_p_sab').value
+      },
     frete_gratis:    document.getElementById('cfg_frete_gratis') ? document.getElementById('cfg_frete_gratis').value : '0',
     tempo_entrega:   document.getElementById('cfg_tempo_entrega') ? document.getElementById('cfg_tempo_entrega').value.trim() : '',
     url_logo:        document.getElementById('cfg_logo').value.trim(),
