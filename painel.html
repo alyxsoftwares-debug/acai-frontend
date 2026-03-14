@@ -3248,10 +3248,33 @@ function renderConfigLoja(){
     '<label class="form-label">WhatsApp p/ pedidos (DDI+DDD+número)</label>'+
     '<input class="form-control" id="cfg_wpp" value="'+esc(c.whatsapp_numero||'')+'" placeholder="5584999990000"/>'+
   '</div>'+
-  '<div class="form-row cols-2">'+
-    '<div class="form-group"><label class="form-label">Abre às</label><input type="time" class="form-control" id="cfg_abre" value="'+esc(c.hora_abre||'')+'"/></div>'+
-    '<div class="form-group"><label class="form-label">Fecha às</label><input type="time" class="form-control" id="cfg_fecha" value="'+esc(c.hora_fecha||'')+'"/></div>'+
-  '</div>'+
+  (function(){
+    var hDias = c.horarios_dias || {};
+    var defH = { abre: c.hora_abre || '18:00', fecha: c.hora_fecha || '23:59', fechado: false };
+    var dias = [
+      {id:'dom', nome:'Domingo'}, {id:'seg', nome:'Segunda'}, {id:'ter', nome:'Terça'},
+      {id:'qua', nome:'Quarta'}, {id:'qui', nome:'Quinta'}, {id:'sex', nome:'Sexta'}, {id:'sab', nome:'Sábado'}
+    ];
+    var html = '<div style="border-top:1px solid #f3f4f6;margin:16px 0 14px;padding-top:14px">'+
+               '<div style="font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px">'+
+               '<i class="fa-regular fa-clock text-purple"></i> Horários de Funcionamento</div>';
+    dias.forEach(function(d){
+        var val = hDias[d.id] || defH;
+        var chk = val.fechado ? 'checked' : '';
+        html += '<div class="form-row cols-3" style="align-items:center; margin-bottom:8px; padding-bottom:8px; border-bottom:1px solid #f9fafb;">'+
+                '<div style="font-size:13px; font-weight:700; color:#374151; width:80px;">'+d.nome+'</div>'+
+                '<div class="flex gap-2 items-center">'+
+                  '<input type="time" class="form-control" id="cfg_h_abre_'+d.id+'" value="'+esc(val.abre)+'" '+(val.fechado?'disabled':'')+'/>'+
+                  '<span style="font-size:12px; color:#9ca3af;">às</span>'+
+                  '<input type="time" class="form-control" id="cfg_h_fecha_'+d.id+'" value="'+esc(val.fecha)+'" '+(val.fechado?'disabled':'')+'/>'+
+                '</div>'+
+                '<label class="flex items-center gap-2" style="cursor:pointer; font-size:13px; font-weight:700; color:#ef4444;">'+
+                  '<input type="checkbox" id="cfg_h_fechado_'+d.id+'" '+chk+' onchange="document.getElementById(\'cfg_h_abre_'+d.id+'\').disabled=this.checked; document.getElementById(\'cfg_h_fecha_'+d.id+'\').disabled=this.checked;" style="width:16px;height:16px;" /> Fechado'+
+                '</label>'+
+                '</div>';
+    });
+    return html + '</div>';
+  })() +
   '<div class="form-group"><label class="form-label">Status da Loja</label><select class="form-control" id="cfg_status">'+statusOpts+'</select></div>'+
   '<div class="form-group"><label class="form-label">Endereço da Loja</label><input class="form-control" id="cfg_end" value="'+esc(c.endereco_loja||'')+'" placeholder="Rua, nº, bairro — Cidade/UF"/></div>'+
   (function(){
@@ -3355,8 +3378,15 @@ function salvarConfiguracoes(){
   var dados={
     nome_loja:       document.getElementById('cfg_nome').value.trim(),
     whatsapp_numero: document.getElementById('cfg_wpp').value.trim(),
-    hora_abre:       document.getElementById('cfg_abre').value,
-    hora_fecha:      document.getElementById('cfg_fecha').value,
+    horarios_dias: {
+      dom: { abre: document.getElementById('cfg_h_abre_dom').value, fecha: document.getElementById('cfg_h_fecha_dom').value, fechado: document.getElementById('cfg_h_fechado_dom').checked },
+      seg: { abre: document.getElementById('cfg_h_abre_seg').value, fecha: document.getElementById('cfg_h_fecha_seg').value, fechado: document.getElementById('cfg_h_fechado_seg').checked },
+      ter: { abre: document.getElementById('cfg_h_abre_ter').value, fecha: document.getElementById('cfg_h_fecha_ter').value, fechado: document.getElementById('cfg_h_fechado_ter').checked },
+      qua: { abre: document.getElementById('cfg_h_abre_qua').value, fecha: document.getElementById('cfg_h_fecha_qua').value, fechado: document.getElementById('cfg_h_fechado_qua').checked },
+      qui: { abre: document.getElementById('cfg_h_abre_qui').value, fecha: document.getElementById('cfg_h_fecha_qui').value, fechado: document.getElementById('cfg_h_fechado_qui').checked },
+      sex: { abre: document.getElementById('cfg_h_abre_sex').value, fecha: document.getElementById('cfg_h_fecha_sex').value, fechado: document.getElementById('cfg_h_fechado_sex').checked },
+      sab: { abre: document.getElementById('cfg_h_abre_sab').value, fecha: document.getElementById('cfg_h_fecha_sab').value, fechado: document.getElementById('cfg_h_fechado_sab').checked }
+    },
     status_loja:     document.getElementById('cfg_status').value,
     endereco_loja:   document.getElementById('cfg_end').value.trim(),
     preco_kg_dias: {

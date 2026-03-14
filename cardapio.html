@@ -772,16 +772,27 @@
     var modo = config.status_loja || 'AUTOMATICO';
     var aberta = false;
 
+    var agora = new Date();
+    var diasMap = ['dom', 'seg', 'ter', 'qua', 'qui', 'sex', 'sab'];
+    var diaId = diasMap[agora.getDay()];
+    var hDias = config.horarios_dias || {};
+    var configHoje = hDias[diaId] || { abre: config.hora_abre || '00:00', fecha: config.hora_fecha || '23:59', fechado: false };
+    
+    // Injeta na configuração global para usarmos na mensagem de bloqueio se precisar
+    config.hora_abre_hoje = configHoje.abre;
+    config.hora_fecha_hoje = configHoje.fecha;
+
     if (modo === 'FORCAR_ABERTO') {
       aberta = true;
     } else if (modo === 'FORCAR_FECHADO') {
       aberta = false;
+    } else if (configHoje.fechado) {
+      aberta = false;
     } else {
       try {
-        var agora = new Date();
         var minAtual = agora.getHours() * 60 + agora.getMinutes();
-        var pA = (config.hora_abre  || '00:00').split(':');
-        var pF = (config.hora_fecha || '23:59').split(':');
+        var pA = (configHoje.abre || '00:00').split(':');
+        var pF = (configHoje.fecha || '23:59').split(':');
         var mA = parseInt(pA[0]) * 60 + parseInt(pA[1]);
         var mF = parseInt(pF[0]) * 60 + parseInt(pF[1]);
         aberta = mF < mA
@@ -792,12 +803,14 @@
 
     lojaEstaAberta = aberta; // persiste globalmente
 
-    if (aberta) {
-      lbl.innerHTML = '<span class="inline-block w-2 h-2 rounded-full bg-green-400 animate-pulse mr-1"></span>Aberto agora';
-      lbl.className = 'text-[9px] font-black text-green-300 uppercase tracking-[0.2em] flex items-center gap-1';
-    } else {
-      lbl.innerHTML = '<span class="inline-block w-2 h-2 rounded-full bg-red-400 mr-1"></span>Loja Fechada';
-      lbl.className = 'text-[9px] font-black text-red-300 uppercase tracking-[0.2em] flex items-center gap-1';
+    if (lbl) {
+      if (aberta) {
+        lbl.innerHTML = '<span class="inline-block w-2 h-2 rounded-full bg-green-400 animate-pulse mr-1"></span>Aberto agora';
+        lbl.className = 'text-[9px] font-black text-green-300 uppercase tracking-[0.2em] flex items-center gap-1';
+      } else {
+        lbl.innerHTML = '<span class="inline-block w-2 h-2 rounded-full bg-red-400 mr-1"></span>Loja Fechada';
+        lbl.className = 'text-[9px] font-black text-red-300 uppercase tracking-[0.2em] flex items-center gap-1';
+      }
     }
   }
 
@@ -1269,8 +1282,8 @@
     if (carrinho.itens.length === 0) return;
     if (!lojaEstaAberta) {
       // Exibe aviso visual em vez de abrir checkout
-      var hora_a = dadosBase.configuracoes.hora_abre  || '??:??';
-      var hora_f = dadosBase.configuracoes.hora_fecha || '??:??';
+      var hora_a = dadosBase.configuracoes.hora_abre_hoje || '??:??';
+      var hora_f = dadosBase.configuracoes.hora_fecha_hoje || '??:??';
       var msg = document.getElementById('msgLojaFechada');
       if (!msg) {
         msg = document.createElement('div');
