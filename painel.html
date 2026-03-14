@@ -3048,7 +3048,8 @@ function renderModelosRows(){
   if(!items.length) return '<tr><td colspan="4" style="text-align:center;padding:20px;color:#9ca3af">Nenhum tamanho</td></tr>';
   return items.map(function(m){
     var d=m.disponivel===true;
-    return '<tr><td><div style="font-weight:700">'+esc(m.nome)+'</div><div style="font-size:11px;color:#9ca3af">'+esc(m.descricao||'')+'</div></td>'+
+    return '<tr draggable="true" data-id="'+esc(m.id_modelo)+'" ondragstart="dragStartMod(event)" ondragover="dragOverMod(event)" ondrop="dropMod(event)" ondragend="dragEndMod(event)" style="cursor:grab">'+
+      '<td><div style="font-weight:700"><i class="fa-solid fa-grip-vertical text-muted" style="margin-right:8px"></i>'+esc(m.nome)+'</div><div style="font-size:11px;color:#9ca3af;margin-left:20px">'+esc(m.descricao||'')+'</div></td>'+
       '<td><strong style="color:#7c3aed">'+fmtMoeda(m.preco)+'</strong></td>'+
       '<td><span class="badge '+(d?'badge-entregue':'badge-cancelado')+'">'+(d?'Sim':'Não')+'</span></td>'+
       '<td><div class="flex gap-2">'+
@@ -3058,16 +3059,107 @@ function renderModelosRows(){
   }).join('');
 }
 
+var _dragSrcMod = null;
+function dragStartMod(e) {
+  _dragSrcMod = e.currentTarget;
+  e.dataTransfer.effectAllowed = 'move';
+  e.dataTransfer.setData('text/html', _dragSrcMod.innerHTML);
+  e.currentTarget.style.opacity = '0.5';
+}
+function dragOverMod(e) { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; return false; }
+function dragEndMod(e) { e.currentTarget.style.opacity = '1'; }
+function dropMod(e) {
+  e.stopPropagation(); e.preventDefault();
+  var tr = e.target.closest('tr');
+  if (_dragSrcMod && tr && _dragSrcMod !== tr) {
+    var tbody = tr.parentNode;
+    var items = Array.from(tbody.querySelectorAll('tr'));
+    var fromIdx = items.indexOf(_dragSrcMod);
+    var toIdx = items.indexOf(tr);
+    if(fromIdx < toIdx) tbody.insertBefore(_dragSrcMod, tr.nextSibling);
+    else tbody.insertBefore(_dragSrcMod, tr);
+    salvarOrdemModelos();
+  }
+  return false;
+}
+function salvarOrdemModelos() {
+  var rows = document.querySelectorAll('#tbodyModelos tr[data-id]');
+  var promessas = [];
+  var ordemAtual = 1;
+  rows.forEach(function(row) {
+    var id = row.getAttribute('data-id');
+    var mod = ST.dados.acaiModelos.find(function(x) { return x.id_modelo === id; });
+    if(mod && parseInt(mod.ordem) !== ordemAtual) {
+      mod.ordem = ordemAtual;
+      promessas.push(api('POST', L('/acai-modelos'), mod));
+    }
+    ordemAtual++;
+  });
+  if(promessas.length > 0) {
+     toast('Salvando nova ordem...', 'warn');
+     Promise.all(promessas).then(function() {
+        toast('Ordem dos tamanhos atualizada!', 'success');
+        recarregarMonteAcai();
+     }).catch(function() { toast('Erro ao atualizar ordem.', 'error'); });
+  }
+}
+
 function renderCatsRows(){
   var items=((ST.dados&&ST.dados.acaiCategorias)||[]).slice().sort(function(a,b){ return (parseInt(a.ordem)||0) - (parseInt(b.ordem)||0); });
   if(!items.length) return '<tr><td colspan="2" style="text-align:center;padding:20px;color:#9ca3af">Nenhuma categoria</td></tr>';
   return items.map(function(c){
-    return '<tr><td style="font-weight:600">'+esc(c.nome)+'</td>'+
+    return '<tr draggable="true" data-id="'+esc(c.id_categoria)+'" ondragstart="dragStartCat(event)" ondragover="dragOverCat(event)" ondrop="dropCat(event)" ondragend="dragEndCat(event)" style="cursor:grab">'+
+      '<td style="font-weight:600"><i class="fa-solid fa-grip-vertical text-muted" style="margin-right:8px"></i>'+esc(c.nome)+'</td>'+
       '<td><div class="flex gap-2">'+
         '<button class="btn btn-xs btn-secondary" onclick="abrirFormCategoria(\''+esc(c.id_categoria)+'\')"><i class="fa-solid fa-pen"></i></button>'+
         '<button class="btn btn-xs btn-danger" onclick="confirmarExcluir(\'Acai_Categorias\',\''+esc(c.id_categoria)+'\',\''+esc(c.nome)+'\',\'excluirAcaiCategoria\')"><i class="fa-solid fa-trash"></i></button>'+
       '</div></td></tr>';
   }).join('');
+}
+
+var _dragSrcCat = null;
+function dragStartCat(e) {
+  _dragSrcCat = e.currentTarget;
+  e.dataTransfer.effectAllowed = 'move';
+  e.dataTransfer.setData('text/html', _dragSrcCat.innerHTML);
+  e.currentTarget.style.opacity = '0.5';
+}
+function dragOverCat(e) { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; return false; }
+function dragEndCat(e) { e.currentTarget.style.opacity = '1'; }
+function dropCat(e) {
+  e.stopPropagation(); e.preventDefault();
+  var tr = e.target.closest('tr');
+  if (_dragSrcCat && tr && _dragSrcCat !== tr) {
+    var tbody = tr.parentNode;
+    var items = Array.from(tbody.querySelectorAll('tr'));
+    var fromIdx = items.indexOf(_dragSrcCat);
+    var toIdx = items.indexOf(tr);
+    if(fromIdx < toIdx) tbody.insertBefore(_dragSrcCat, tr.nextSibling);
+    else tbody.insertBefore(_dragSrcCat, tr);
+    salvarOrdemCategorias();
+  }
+  return false;
+}
+function salvarOrdemCategorias() {
+  var rows = document.querySelectorAll('#tbodyCats tr[data-id]');
+  var promessas = [];
+  var ordemAtual = 1;
+  rows.forEach(function(row) {
+    var id = row.getAttribute('data-id');
+    var cat = ST.dados.acaiCategorias.find(function(x) { return x.id_categoria === id; });
+    if(cat && parseInt(cat.ordem) !== ordemAtual) {
+      cat.ordem = ordemAtual;
+      promessas.push(api('POST', L('/acai-categorias'), cat));
+    }
+    ordemAtual++;
+  });
+  if(promessas.length > 0) {
+     toast('Salvando nova ordem...', 'warn');
+     Promise.all(promessas).then(function() {
+        toast('Ordem das categorias atualizada!', 'success');
+        recarregarMonteAcai();
+     }).catch(function() { toast('Erro ao atualizar ordem.', 'error'); });
+  }
 }
 
 function renderIngsRows(){
@@ -3189,7 +3281,8 @@ function abrirFormModelo(id){
   document.getElementById('modalFormTitle').innerHTML='<i class="fa-solid fa-ruler"></i> '+(d?'Editar Tamanho':'Novo Tamanho');
   document.getElementById('modalFormBody').innerHTML=
     '<input type="hidden" id="f_id" value="'+(d?esc(d.id_modelo):'')+'"/>'
-    +'<div class="form-row cols-3">'+fGroup('Nome *','f_nome','text',d?d.nome:'','')+fGroup('Pre\u00e7o Base (R$) *','f_preco','number',d?d.preco:'','0.00')+fGroup('Ordem','f_ordem','number',d?d.ordem||0:'','0')+'</div>'
+    +'<input type="hidden" id="f_ordem" value="'+(d?d.ordem||0:999)+'"/>'
+    +'<div class="form-row cols-2">'+fGroup('Nome *','f_nome','text',d?d.nome:'','')+fGroup('Pre\u00e7o Base (R$) *','f_preco','number',d?d.preco:'','0.00')+'</div>'
     +fGroup('Descri\u00e7\u00e3o','f_desc','text',d?d.descricao:'','Ex: Tamanho m\u00e9dio, ideal para 1 pessoa')
     +'<div class="form-group"><label class="form-label"><i class="fa-solid fa-sliders" style="margin-right:5px;color:#7c3aed"></i>Limites por Categoria</label>'
     +tabelaCats+'</div>'
@@ -3240,10 +3333,8 @@ function abrirFormCategoria(id){
   var d=id?((ST.dados&&ST.dados.acaiCategorias)||[]).find(function(x){ return x.id_categoria===id; }):null;
   document.getElementById('modalFormTitle').innerHTML='<i class="fa-solid fa-tags"></i> '+(d?'Editar Categoria':'Nova Categoria');
   document.getElementById('modalFormBody').innerHTML='<input type="hidden" id="f_id" value="'+(d?esc(d.id_categoria):'')+'"/>'+
-    '<div class="form-row cols-2">'+
-      fGroup('Nome da Categoria *','f_nome','text',d?d.nome:'','')+
-      fGroup('Ordem (Ex: 1, 2, 3...)','f_ordem','number',d?d.ordem||0:'','0')+
-    '</div>'+
+    '<input type="hidden" id="f_ordem" value="'+(d?d.ordem||0:999)+'"/>'+
+    fGroup('Nome da Categoria *','f_nome','text',d?d.nome:'','')+
     '<div id="formMsg" class="mt-3"></div>';
   document.getElementById('modalFormFooter').innerHTML='<button class="btn btn-secondary" onclick="fecharModal(\'modalFormCrud\')">Cancelar</button><button class="btn btn-primary" onclick="salvarCategoria()"><i class="fa-solid fa-check"></i>Salvar</button>';
   abrirModal('modalFormCrud');
