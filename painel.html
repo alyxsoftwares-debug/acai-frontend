@@ -3077,8 +3077,8 @@ function renderIngsRows(){
   return items.map(function(i){
     var cat=cats.find(function(c){ return c.id_categoria===i.categoria_id; });
     var d=i.disponivel===true;
-    return '<tr>'+
-      '<td style="font-weight:600">'+esc(i.nome)+'</td>'+
+    return '<tr draggable="true" data-id="'+esc(i.id_ingrediente)+'" ondragstart="dragStartIng(event)" ondragover="dragOverIng(event)" ondrop="dropIng(event)" ondragend="dragEndIng(event)" style="cursor:grab">'+
+      '<td style="font-weight:600"><i class="fa-solid fa-grip-vertical text-muted" style="margin-right:8px"></i>'+esc(i.nome)+'</td>'+
       '<td>'+esc(cat?cat.nome:'--')+'</td>'+
       '<td><strong style="color:#7c3aed">'+fmtMoeda(i.preco)+'</strong></td>'+
       '<td><span class="badge '+(d?'badge-entregue':'badge-cancelado')+'">'+(d?'Sim':'Não')+'</span></td>'+
@@ -3087,6 +3087,51 @@ function renderIngsRows(){
         '<button class="btn btn-xs btn-danger" onclick="confirmarExcluir(\'Acai_Ingredientes\',\''+esc(i.id_ingrediente)+'\',\''+esc(i.nome)+'\',\'excluirAcaiIngrediente\')"><i class="fa-solid fa-trash"></i></button>'+
       '</div></td></tr>';
   }).join('');
+}
+
+var _dragSrcEl = null;
+function dragStartIng(e) {
+  _dragSrcEl = e.currentTarget;
+  e.dataTransfer.effectAllowed = 'move';
+  e.dataTransfer.setData('text/html', _dragSrcEl.innerHTML);
+  e.currentTarget.style.opacity = '0.5';
+}
+function dragOverIng(e) { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; return false; }
+function dragEndIng(e) { e.currentTarget.style.opacity = '1'; }
+function dropIng(e) {
+  e.stopPropagation(); e.preventDefault();
+  var tr = e.target.closest('tr');
+  if (_dragSrcEl && tr && _dragSrcEl !== tr) {
+    var tbody = tr.parentNode;
+    var items = Array.from(tbody.querySelectorAll('tr'));
+    var fromIdx = items.indexOf(_dragSrcEl);
+    var toIdx = items.indexOf(tr);
+    if(fromIdx < toIdx) tbody.insertBefore(_dragSrcEl, tr.nextSibling);
+    else tbody.insertBefore(_dragSrcEl, tr);
+    salvarOrdemIngredientes();
+  }
+  return false;
+}
+function salvarOrdemIngredientes() {
+  var rows = document.querySelectorAll('#tbodyIngs tr[data-id]');
+  var promessas = [];
+  var ordemAtual = 1;
+  rows.forEach(function(row) {
+    var id = row.getAttribute('data-id');
+    var ing = ST.dados.acaiIngredientes.find(function(x) { return x.id_ingrediente === id; });
+    if(ing && parseInt(ing.ordem) !== ordemAtual) {
+      ing.ordem = ordemAtual;
+      promessas.push(api('POST', L('/acai-ingredientes'), ing));
+    }
+    ordemAtual++;
+  });
+  if(promessas.length > 0) {
+     toast('Salvando nova ordem...', 'warn');
+     Promise.all(promessas).then(function() {
+        toast('Ordem atualizada!', 'success');
+        recarregarMonteAcai();
+     }).catch(function() { toast('Erro ao atualizar ordem.', 'error'); });
+  }
 }
 
 function abrirFormModelo(id){
@@ -3217,11 +3262,11 @@ function abrirFormIngrediente(id){
   document.getElementById('modalFormTitle').innerHTML='<i class="fa-solid fa-ice-cream"></i> '+(d?'Editar Ingrediente':'Novo Ingrediente');
   document.getElementById('modalFormBody').innerHTML=
     '<input type="hidden" id="f_id" value="'+(d?esc(d.id_ingrediente):'')+'"/>'+
+    '<input type="hidden" id="f_ordem" value="'+(d?d.ordem||0:999)+'"/>'+
     '<div class="form-row cols-2">'+fGroup('Nome *','f_nome','text',d?d.nome:'','')+
     '<div class="form-group"><label class="form-label">Categoria</label><select class="form-control" id="f_cat">'+catOpts+'</select></div></div>'+
-    '<div class="form-row cols-3">'+
+    '<div class="form-row cols-2">'+
       fGroup('Preço (R$)','f_preco','number',d?d.preco:'','0.00')+
-      fGroup('Ordem (1, 2...)','f_ordem','number',d?d.ordem||0:'','0')+
       fGroupSel('Disponível','f_disp',['true','false'],(d&&d.disponivel===true?'true':'false'))+
     '</div>'+
     fGroup('Descrição','f_desc','text',d?d.descricao:'','')+
