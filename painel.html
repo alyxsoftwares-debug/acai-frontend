@@ -738,6 +738,7 @@ function api(method, path, body) {
 // Mapa: nome de função GAS → [endpoint, método HTTP]
 var _FN_MAP = {
   salvarItemFixo:         [L('/itens-fixos'),        'POST'],
+  salvarCardapioCategoria:[L('/cardapio-categorias'),'POST'],
   salvarAcaiModelo:       [L('/acai-modelos'),       'POST'],
   salvarAcaiCategoria:    [L('/acai-categorias'),    'POST'],
   salvarAcaiIngrediente:  [L('/acai-ingredientes'),  'POST'],
@@ -746,6 +747,7 @@ var _FN_MAP = {
   salvarTara:             [L('/taras'),              'POST'],
   salvarUsuario:          [L('/usuarios'),           'POST'],
   excluirItemFixo:        [L('/itens-fixos'),       'DELETE'],
+  excluirCardapioCategoria:[L('/cardapio-categorias'),'DELETE'],
   excluirAcaiModelo:      [L('/acai-modelos'),      'DELETE'],
   excluirAcaiCategoria:   [L('/acai-categorias'),   'DELETE'],
   excluirAcaiIngrediente: [L('/acai-ingredientes'), 'DELETE'],
@@ -1242,13 +1244,17 @@ function recarregarMonteAcai(){
 
 // Recarrega Itens Fixos do servidor
 function recarregarItens(){
-  api('GET', L('/cardapio'))
-    .then(function(novos){
-      if(!ST.dados) ST.dados={};
-      ST.dados.itensFixos = Array.isArray(novos) ? novos : (novos.prontos || []);
-      renderSecaoItens();
-    })
-    .catch(function(){ toast('Erro ao recarregar Itens','error'); });
+  Promise.all([
+    api('GET', L('/cardapio')),
+    api('GET', L('/cardapio-categorias'))
+  ]).then(function(res){
+    var novos = res[0];
+    var cats = res[1];
+    if(!ST.dados) ST.dados={};
+    ST.dados.itensFixos = Array.isArray(novos) ? novos : (novos.prontos || []);
+    ST.dados.cardapioCategorias = cats || [];
+    renderSecaoItens();
+  }).catch(function(){ toast('Erro ao recarregar Itens','error'); });
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -2828,32 +2834,120 @@ function breakCard(titulo,obj,icon){
 </script>
 <script>
 // ═══════════════════════════════════════════════════════════
-// ABA: ITENS FIXOS
+// ABA: ITENS FIXOS E CATEGORIAS
 // ═══════════════════════════════════════════════════════════
 function renderSecaoItens(){
   var sec=document.getElementById('abaItens');
-  sec.innerHTML=topBar('Itens Fixos','Produtos prontos do cardápio',
-    '<button class="btn btn-primary" onclick="abrirFormItem()"><i class="fa-solid fa-plus"></i>Novo Item</button>'
-  )+
-  '<div class="page-content">'+
-    '<div class="card">'+
-      '<div class="card-header"><div class="card-title"><div class="icon"><i class="fa-solid fa-burger"></i></div>Produtos Cadastrados</div></div>'+
-      '<div class="card-body" style="padding:0"><div class="table-wrap"><table class="tbl">'+
-        '<thead><tr><th>Nome</th><th>Categoria</th><th>Preço</th><th>PDV</th><th>Online</th><th>Ações</th></tr></thead>'+
-        '<tbody id="tbodyItens">'+renderItensRows()+'</tbody>'+
-      '</table></div></div>'+
+  sec.innerHTML=topBar('Itens Fixos','Produtos prontos do cardápio', '')+
+  '<div class="page-content" style="display:grid;grid-template-columns:1fr 2fr;gap:20px">'+
+    
+    '<div>'+
+      '<div class="card mb-4">'+
+        '<div class="card-header">'+
+          '<div class="card-title"><div class="icon"><i class="fa-solid fa-tags"></i></div>Categorias</div>'+
+          '<button class="btn btn-sm btn-primary" onclick="abrirFormCardapioCategoria()"><i class="fa-solid fa-plus"></i>Nova</button>'+
+        '</div>'+
+        '<div class="card-body" style="padding:0"><div class="table-wrap"><table class="tbl">'+
+          '<thead><tr><th>Nome</th><th>Ações</th></tr></thead>'+
+          '<tbody id="tbodyCardapioCats">'+renderCardapioCatsRows()+'</tbody>'+
+        '</table></div></div>'+
+      '</div>'+
     '</div>'+
+
+    '<div>'+
+      '<div class="card">'+
+        '<div class="card-header">'+
+          '<div class="card-title"><div class="icon"><i class="fa-solid fa-burger"></i></div>Produtos Cadastrados</div>'+
+          '<button class="btn btn-sm btn-primary" onclick="abrirFormItem()"><i class="fa-solid fa-plus"></i>Novo</button>'+
+        '</div>'+
+        '<div class="card-body" style="padding:0"><div class="table-wrap"><table class="tbl">'+
+          '<thead><tr><th>Nome</th><th>Categoria</th><th>Preço</th><th>PDV</th><th>Online</th><th>Ações</th></tr></thead>'+
+          '<tbody id="tbodyItens">'+renderItensRows()+'</tbody>'+
+        '</table></div></div>'+
+      '</div>'+
+    '</div>'+
+
   '</div>';
 }
 
+// -- Categorias Drag & Drop --
+function renderCardapioCatsRows(){
+  var items=((ST.dados&&ST.dados.cardapioCategorias)||[]).slice().sort(function(a,b){ return (parseInt(a.ordem)||0) - (parseInt(b.ordem)||0); });
+  if(!items.length) return '<tr><td colspan="2" style="text-align:center;padding:20px;color:#9ca3af">Nenhuma categoria</td></tr>';
+  return items.map(function(c){
+    return '<tr draggable="true" data-id="'+esc(c.id_categoria)+'" ondragstart="dragStartCardapioCat(event)" ondragover="dragOverCardapioCat(event)" ondrop="dropCardapioCat(event)" ondragend="dragEndCardapioCat(event)" style="cursor:grab">'+
+      '<td style="font-weight:600"><i class="fa-solid fa-grip-vertical text-muted" style="margin-right:8px"></i>'+esc(c.nome)+'</td>'+
+      '<td><div class="flex gap-2">'+
+        '<button class="btn btn-xs btn-secondary" onclick="abrirFormCardapioCategoria(\''+esc(c.id_categoria)+'\')"><i class="fa-solid fa-pen"></i></button>'+
+        '<button class="btn btn-xs btn-danger" onclick="confirmarExcluir(\'Cardapio_Categorias\',\''+esc(c.id_categoria)+'\',\''+esc(c.nome)+'\',\'excluirCardapioCategoria\')"><i class="fa-solid fa-trash"></i></button>'+
+      '</div></td></tr>';
+  }).join('');
+}
+
+var _dragSrcCardapioCat = null;
+function dragStartCardapioCat(e) { _dragSrcCardapioCat = e.currentTarget; e.dataTransfer.effectAllowed = 'move'; e.dataTransfer.setData('text/html', _dragSrcCardapioCat.innerHTML); e.currentTarget.style.opacity = '0.5'; }
+function dragOverCardapioCat(e) { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; return false; }
+function dragEndCardapioCat(e) { e.currentTarget.style.opacity = '1'; }
+function dropCardapioCat(e) {
+  e.stopPropagation(); e.preventDefault();
+  var tr = e.target.closest('tr');
+  if (_dragSrcCardapioCat && tr && _dragSrcCardapioCat !== tr) {
+    var tbody = tr.parentNode;
+    var items = Array.from(tbody.querySelectorAll('tr'));
+    var fromIdx = items.indexOf(_dragSrcCardapioCat);
+    var toIdx = items.indexOf(tr);
+    if(fromIdx < toIdx) tbody.insertBefore(_dragSrcCardapioCat, tr.nextSibling);
+    else tbody.insertBefore(_dragSrcCardapioCat, tr);
+    salvarOrdemCardapioCategorias();
+  }
+  return false;
+}
+function salvarOrdemCardapioCategorias() {
+  var rows = document.querySelectorAll('#tbodyCardapioCats tr[data-id]');
+  var promessas = [];
+  var ordemAtual = 1;
+  rows.forEach(function(row) {
+    var id = row.getAttribute('data-id');
+    var cat = ST.dados.cardapioCategorias.find(function(x) { return x.id_categoria === id; });
+    if(cat && parseInt(cat.ordem) !== ordemAtual) {
+      cat.ordem = ordemAtual;
+      promessas.push(api('POST', L('/cardapio-categorias'), cat));
+    }
+    ordemAtual++;
+  });
+  if(promessas.length > 0) {
+     toast('Salvando nova ordem...', 'warn');
+     Promise.all(promessas).then(function() { toast('Ordem atualizada!', 'success'); recarregarItens(); })
+     .catch(function() { toast('Erro ao atualizar ordem.', 'error'); });
+  }
+}
+
+function abrirFormCardapioCategoria(id){
+  var d=id?((ST.dados&&ST.dados.cardapioCategorias)||[]).find(function(x){ return x.id_categoria===id; }):null;
+  document.getElementById('modalFormTitle').innerHTML='<i class="fa-solid fa-tags"></i> '+(d?'Editar Categoria':'Nova Categoria');
+  document.getElementById('modalFormBody').innerHTML='<input type="hidden" id="f_id" value="'+(d?esc(d.id_categoria):'')+'"/>'+
+    '<input type="hidden" id="f_ordem" value="'+(d?d.ordem||0:999)+'"/>'+
+    fGroup('Nome da Categoria *','f_nome','text',d?d.nome:'','')+
+    '<div id="formMsg" class="mt-3"></div>';
+  document.getElementById('modalFormFooter').innerHTML='<button class="btn btn-secondary" onclick="fecharModal(\'modalFormCrud\')">Cancelar</button><button class="btn btn-primary" onclick="salvarCardapioCategoriaForm()"><i class="fa-solid fa-check"></i>Salvar</button>';
+  abrirModal('modalFormCrud');
+}
+
+function salvarCardapioCategoriaForm(){
+  var d={id_categoria:document.getElementById('f_id').value,nome:document.getElementById('f_nome').value.trim(),ordem:parseInt(document.getElementById('f_ordem').value)||0};
+  if(!d.nome){ document.getElementById('formMsg').innerHTML='<p class="text-sm text-red">Nome obrigatório.</p>'; return; }
+  api('POST', L('/cardapio-categorias'), d).then(function(res){ if(res.sucesso){ fecharModal('modalFormCrud'); toast(res.mensagem,'success'); recarregarItens(); } else document.getElementById('formMsg').innerHTML='<p class="text-sm text-red">'+esc(res.mensagem)+'</p>'; }).catch(function(e){ document.getElementById('formMsg').innerHTML='<p class="text-sm text-red">Erro: '+esc(e)+'</p>'; });
+}
+
+// -- Produtos Drag & Drop --
 function renderItensRows(){
   var items=((ST.dados&&ST.dados.itensFixos)||[]).slice().sort(function(a,b){ return (parseInt(a.ordem)||0) - (parseInt(b.ordem)||0); });
   if(!items.length) return '<tr><td colspan="6" style="text-align:center;padding:30px;color:#9ca3af">Nenhum item cadastrado</td></tr>';
   return items.map(function(i){
     var disp=i.disponivel===true;
     var online=i.mostrar_online!==false;
-    return '<tr>'+
-      '<td><div style="font-weight:700">'+esc(i.nome)+'</div><div style="font-size:12px;color:#9ca3af">'+esc(i.descricao||'')+'</div></td>'+
+    return '<tr draggable="true" data-id="'+esc(i.id_item)+'" ondragstart="dragStartItem(event)" ondragover="dragOverItem(event)" ondrop="dropItem(event)" ondragend="dragEndItem(event)" style="cursor:grab">'+
+      '<td><div style="font-weight:700"><i class="fa-solid fa-grip-vertical text-muted" style="margin-right:8px"></i>'+esc(i.nome)+'</div><div style="font-size:11px;color:#9ca3af;margin-left:20px">'+esc(i.descricao||'')+'</div></td>'+
       '<td>'+esc(i.categoria||'--')+'</td>'+
       '<td><strong style="color:#7c3aed">'+fmtMoeda(i.preco)+'</strong></td>'+
       '<td><span class="badge '+(disp?'badge-entregue':'badge-cancelado')+'">'+(disp?'Sim':'Não')+'</span></td>'+
@@ -2861,28 +2955,71 @@ function renderItensRows(){
       '<td><div class="flex gap-2">'+
         '<button class="btn btn-xs btn-secondary" onclick="abrirFormItem(\''+esc(i.id_item)+'\')"><i class="fa-solid fa-pen"></i></button>'+
         '<button class="btn btn-xs btn-danger" onclick="confirmarExcluir(\'Itens_Fixos\',\''+esc(i.id_item)+'\',\''+esc(i.nome)+'\',\'excluirItemFixo\')"><i class="fa-solid fa-trash"></i></button>'+
-      '</div></td>'+
-    '</tr>';
+      '</div></td></tr>';
   }).join('');
+}
+
+var _dragSrcItem = null;
+function dragStartItem(e) { _dragSrcItem = e.currentTarget; e.dataTransfer.effectAllowed = 'move'; e.dataTransfer.setData('text/html', _dragSrcItem.innerHTML); e.currentTarget.style.opacity = '0.5'; }
+function dragOverItem(e) { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; return false; }
+function dragEndItem(e) { e.currentTarget.style.opacity = '1'; }
+function dropItem(e) {
+  e.stopPropagation(); e.preventDefault();
+  var tr = e.target.closest('tr');
+  if (_dragSrcItem && tr && _dragSrcItem !== tr) {
+    var tbody = tr.parentNode;
+    var items = Array.from(tbody.querySelectorAll('tr'));
+    var fromIdx = items.indexOf(_dragSrcItem);
+    var toIdx = items.indexOf(tr);
+    if(fromIdx < toIdx) tbody.insertBefore(_dragSrcItem, tr.nextSibling);
+    else tbody.insertBefore(_dragSrcItem, tr);
+    salvarOrdemItensFixos();
+  }
+  return false;
+}
+function salvarOrdemItensFixos() {
+  var rows = document.querySelectorAll('#tbodyItens tr[data-id]');
+  var promessas = [];
+  var ordemAtual = 1;
+  rows.forEach(function(row) {
+    var id = row.getAttribute('data-id');
+    var item = ST.dados.itensFixos.find(function(x) { return x.id_item === id; });
+    if(item && parseInt(item.ordem) !== ordemAtual) {
+      item.ordem = ordemAtual;
+      promessas.push(api('POST', L('/itens-fixos'), item));
+    }
+    ordemAtual++;
+  });
+  if(promessas.length > 0) {
+     toast('Salvando nova ordem...', 'warn');
+     Promise.all(promessas).then(function() { toast('Ordem dos produtos atualizada!', 'success'); recarregarItens(); })
+     .catch(function() { toast('Erro ao atualizar ordem.', 'error'); });
+  }
 }
 
 function abrirFormItem(id){
   var dados=null;
   if(id){ dados=((ST.dados&&ST.dados.itensFixos)||[]).find(function(x){ return x.id_item===id; }); }
+
+  var cats=(ST.dados&&ST.dados.cardapioCategorias)||[];
+  var catOpts='<option value="">Sem categoria</option>'+cats.map(function(c){ 
+      return '<option value="'+esc(c.nome)+'"'+(dados&&dados.categoria===c.nome?' selected':'')+'>'+esc(c.nome)+'</option>'; 
+  }).join('');
+
   document.getElementById('modalFormTitle').innerHTML='<i class="fa-solid fa-burger"></i> '+(dados?'Editar Item':'Novo Item Fixo');
   document.getElementById('modalFormBody').innerHTML=
     '<input type="hidden" id="f_id" value="'+(dados?esc(dados.id_item):'')+'"/>'+
+    '<input type="hidden" id="f_ordem" value="'+(dados?dados.ordem||0:999)+'"/>'+
     '<div class="form-row cols-2">'+
       fGroup('Nome *','f_nome','text',dados?dados.nome:'','Nome do produto')+
-      fGroup('Categoria','f_cat','text',dados?dados.categoria:'','Ex: Bebidas')+
+      '<div class="form-group"><label class="form-label">Categoria</label><select class="form-control" id="f_cat">'+catOpts+'</select></div>'+
     '</div>'+
     fGroup('Descrição','f_desc','text',dados?dados.descricao:'','Descrição breve')+
     '<div class="form-row cols-3">'+
       fGroup('Preço (R$) *','f_preco','number',dados?dados.preco:'','0.00')+
-      fGroup('Ordem','f_ordem','number',dados?dados.ordem||0:'','0')+
       fGroupSel('Disponível','f_disp',['true','false'],(dados&&dados.disponivel===true?'true':'false'))+
+      fGroupSel('No Cardápio Online','f_online',['true','false'],(dados&&dados.mostrar_online!==false?'true':'false'))+
     '</div>'+
-    fGroupSel('Aparecer no Cardápio Online','f_online',['true','false'],(dados&&dados.mostrar_online!==false?'true':'false'))+
     fGroup('URL da Foto','f_foto','url',dados?dados.foto_url:'','https://...')+
     '<div id="formMsg" class="mt-3"></div>';
   document.getElementById('modalFormFooter').innerHTML=
@@ -2895,7 +3032,7 @@ function salvarItem(){
   var dados={
     id_item:        document.getElementById('f_id').value,
     nome:           document.getElementById('f_nome').value.trim(),
-    categoria:      document.getElementById('f_cat').value.trim(),
+    categoria:      document.getElementById('f_cat').value,
     descricao:      document.getElementById('f_desc').value.trim(),
     preco:          parseFloat(document.getElementById('f_preco').value)||0,
     ordem:          parseInt(document.getElementById('f_ordem').value)||0,
@@ -2912,7 +3049,12 @@ function fGroup(label,id,type,val,ph){
 }
 function fGroupSel(label,id,opts,val){
   return '<div class="form-group"><label class="form-label">'+label+'</label><select class="form-control" id="'+id+'">'+
-    opts.map(function(o){ return '<option'+(o===val?' selected':'')+'>'+esc(o)+'</option>'; }).join('')+'</select></div>';
+    opts.map(function(o){ 
+      var display = o;
+      if (o === 'true') display = 'Sim';
+      if (o === 'false') display = 'Não';
+      return '<option value="'+esc(o)+'"'+(o===val?' selected':'')+'>'+esc(display)+'</option>'; 
+    }).join('')+'</select></div>';
 }
 
 function chamarSalvar(fn,dados,tbodyId,renderFn,modalId,cacheKey){
