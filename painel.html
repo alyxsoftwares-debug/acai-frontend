@@ -231,6 +231,69 @@ nav.sidebar-nav .nav-sep{
 .badge-balcao{background:#f5f3ff;color:#7c3aed}
 .badge-delivery{background:#fff7ed;color:#ea580c}
 
+/* ── Config Tabs ─────────────────────────────────────── */
+.cfg-tabs-nav{
+  display:flex;border-bottom:1px solid #f3f4f6;
+  padding:0 20px;gap:2px;overflow-x:auto;
+  scrollbar-width:none;
+}
+.cfg-tabs-nav::-webkit-scrollbar{display:none}
+.cfg-tab-btn{
+  display:inline-flex;align-items:center;gap:5px;
+  padding:10px 13px;font-size:11.5px;font-weight:700;
+  color:#9ca3af;border:none;background:none;cursor:pointer;
+  border-bottom:2px solid transparent;white-space:nowrap;
+  transition:color .2s,border-color .2s;font-family:inherit;
+  margin-bottom:-1px;
+}
+.cfg-tab-btn i{font-size:12px}
+.cfg-tab-btn:hover{color:#7c3aed}
+.cfg-tab-btn.cfg-tab-ativo{color:#7c3aed;border-bottom:2px solid #7c3aed}
+.cfg-panel{display:none}
+.cfg-panel-ativo{display:block}
+
+/* ── Help Tooltip ────────────────────────────────────── */
+.cfg-help{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:15px;height:15px;border-radius:50%;
+  background:#ede9fe;color:#7c3aed;
+  font-size:9px;font-weight:900;cursor:default;
+  margin-left:4px;vertical-align:middle;
+  position:relative;line-height:1;
+  border:1px solid #ddd6fe;
+}
+.cfg-help::before{
+  content:attr(data-tip);
+  position:absolute;bottom:calc(100% + 8px);left:50%;
+  transform:translateX(-50%);
+  background:#1e1b4b;color:#fff;font-size:11px;font-weight:500;
+  padding:7px 11px;border-radius:9px;
+  white-space:pre-wrap;text-align:left;line-height:1.5;
+  min-width:180px;max-width:260px;
+  pointer-events:none;opacity:0;transition:opacity .15s;
+  z-index:9999;box-shadow:0 4px 16px rgba(0,0,0,.22);
+  text-transform:none;letter-spacing:0;
+}
+.cfg-help::after{
+  content:'';
+  position:absolute;bottom:calc(100% + 2px);left:50%;
+  transform:translateX(-50%);
+  border:5px solid transparent;
+  border-top:5px solid #1e1b4b;
+  pointer-events:none;opacity:0;transition:opacity .15s;z-index:9999;
+}
+.cfg-help:hover::before,.cfg-help:hover::after{opacity:1}
+
+/* ── Config Section Title ────────────────────────────── */
+.cfg-section-title{
+  font-size:10.5px;font-weight:800;color:#9ca3af;
+  text-transform:uppercase;letter-spacing:.6px;
+  margin:20px 0 14px;padding-bottom:8px;
+  border-bottom:1px solid #f3f4f6;
+  display:flex;align-items:center;gap:7px;
+}
+.cfg-section-title i{color:#a78bfa;font-size:12px}
+
 /* ── Form ───────────────────────────────────────────── */
 .form-group{margin-bottom:16px}
 .form-label{display:block;font-size:12px;font-weight:700;color:#374151;margin-bottom:6px;letter-spacing:.3px;text-transform:uppercase}
@@ -3177,15 +3240,36 @@ function salvarIngrediente(){
 // ═══════════════════════════════════════════════════════════
 // ABA: CONFIGURAÇÕES
 // ═══════════════════════════════════════════════════════════
+function cfgAbrirTab(nome){
+  document.querySelectorAll('.cfg-tab-btn').forEach(function(b){
+    b.classList.toggle('cfg-tab-ativo', b.getAttribute('data-tab')===nome);
+  });
+  document.querySelectorAll('.cfg-panel').forEach(function(p){
+    p.classList.toggle('cfg-panel-ativo', p.getAttribute('data-panel')===nome);
+  });
+}
+
+function cfgHelp(texto){
+  return ' <span class="cfg-help" data-tip="'+texto+'">?</span>';
+}
+
 function renderSecaoConfig(){
   var sec=document.getElementById('abaConfig');
   if(!sec) return;
-  sec.innerHTML=topBar('Configurações','Dados gerais da loja')+
+  sec.innerHTML=topBar('Configurações','Gerencie todos os dados da sua loja')+
   '<div class="page-content">'+
     '<div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">'+
 
     '<div class="card">'+
       '<div class="card-header"><div class="card-title"><div class="icon"><i class="fa-solid fa-store"></i></div>Dados da Loja</div></div>'+
+      '<div class="cfg-tabs-nav">'+
+        '<button class="cfg-tab-btn cfg-tab-ativo" data-tab="loja"     onclick="cfgAbrirTab(\'loja\')"><i class="fa-solid fa-store"></i>Loja</button>'+
+        '<button class="cfg-tab-btn" data-tab="horarios"  onclick="cfgAbrirTab(\'horarios\')"><i class="fa-regular fa-clock"></i>Horários</button>'+
+        '<button class="cfg-tab-btn" data-tab="delivery"  onclick="cfgAbrirTab(\'delivery\')"><i class="fa-solid fa-motorcycle"></i>Delivery</button>'+
+        '<button class="cfg-tab-btn" data-tab="contato"   onclick="cfgAbrirTab(\'contato\')"><i class="fa-solid fa-share-nodes"></i>Contato</button>'+
+        '<button class="cfg-tab-btn" data-tab="pdv"       onclick="cfgAbrirTab(\'pdv\')"><i class="fa-solid fa-cash-register"></i>PDV</button>'+
+        '<button class="cfg-tab-btn" data-tab="pix"       onclick="cfgAbrirTab(\'pix\')"><i class="fa-brands fa-pix"></i>PIX</button>'+
+      '</div>'+
       '<div class="card-body" id="configLojaBody">'+renderConfigLoja()+'</div>'+
     '</div>'+
 
@@ -3237,141 +3321,182 @@ function renderSecaoConfig(){
 
 function renderConfigLoja(){
   var c=(ST.dados&&ST.dados.configuracoes)||{};
+
+  // ── ABA 1: LOJA ─────────────────────────────────────
   var statusOpts=['AUTOMATICO','FORCAR_ABERTO','FORCAR_FECHADO'].map(function(o){
     return '<option'+(c.status_loja===o?' selected':'')+'>'+o+'</option>';
   }).join('');
-  return '<div class="form-group">'+
-    '<label class="form-label">Nome da Loja</label>'+
-    '<input class="form-control" id="cfg_nome" value="'+esc(c.nome_loja||'')+'"/>'+
-  '</div>'+
-  '<div class="form-group">'+
-    '<label class="form-label">WhatsApp p/ pedidos (DDI+DDD+número)</label>'+
-    '<input class="form-control" id="cfg_wpp" value="'+esc(c.whatsapp_numero||'')+'" placeholder="5584999990000"/>'+
-  '</div>'+
-  (function(){
-    var hDias = c.horarios_dias || {};
-    var defH = { abre: c.hora_abre || '18:00', fecha: c.hora_fecha || '23:59', fechado: false };
-    var dias = [
-      {id:'dom', nome:'Domingo'}, {id:'seg', nome:'Segunda'}, {id:'ter', nome:'Terça'},
-      {id:'qua', nome:'Quarta'}, {id:'qui', nome:'Quinta'}, {id:'sex', nome:'Sexta'}, {id:'sab', nome:'Sábado'}
-    ];
-    var html = '<div style="border-top:1px solid #f3f4f6;margin:16px 0 14px;padding-top:14px">'+
-               '<div style="font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px">'+
-               '<i class="fa-regular fa-clock text-purple"></i> Horários de Funcionamento</div>';
-    dias.forEach(function(d){
-        var val = hDias[d.id] || defH;
-        var chk = val.fechado ? 'checked' : '';
-        html += '<div class="form-row cols-3" style="align-items:center; margin-bottom:8px; padding-bottom:8px; border-bottom:1px solid #f9fafb;">'+
-                '<div style="font-size:13px; font-weight:700; color:#374151; width:80px;">'+d.nome+'</div>'+
-                '<div class="flex gap-2 items-center">'+
-                  '<input type="time" class="form-control" id="cfg_h_abre_'+d.id+'" value="'+esc(val.abre)+'" '+(val.fechado?'disabled':'')+'/>'+
-                  '<span style="font-size:12px; color:#9ca3af;">às</span>'+
-                  '<input type="time" class="form-control" id="cfg_h_fecha_'+d.id+'" value="'+esc(val.fecha)+'" '+(val.fechado?'disabled':'')+'/>'+
-                '</div>'+
-                '<label class="flex items-center gap-2" style="cursor:pointer; font-size:13px; font-weight:700; color:#ef4444;">'+
-                  '<input type="checkbox" id="cfg_h_fechado_'+d.id+'" '+chk+' onchange="document.getElementById(\'cfg_h_abre_'+d.id+'\').disabled=this.checked; document.getElementById(\'cfg_h_fecha_'+d.id+'\').disabled=this.checked;" style="width:16px;height:16px;" /> Fechado'+
-                '</label>'+
-                '</div>';
-    });
-    return html + '</div>';
-  })() +
-  '<div class="form-group"><label class="form-label">Status da Loja</label><select class="form-control" id="cfg_status">'+statusOpts+'</select></div>'+
-  '<div class="form-group"><label class="form-label">Endereço da Loja</label><input class="form-control" id="cfg_end" value="'+esc(c.endereco_loja||'')+'" placeholder="Rua, nº, bairro — Cidade/UF"/></div>'+
-  (function(){
-    var pDias = c.preco_kg_dias || {};
-    var vDom = pDias.dom || c.preco_kg || '39.90';
-    var vSeg = pDias.seg || c.preco_kg || '39.90';
-    var vTer = pDias.ter || c.preco_kg || '39.90';
-    var vQua = pDias.qua || c.preco_kg || '39.90';
-    var vQui = pDias.qui || c.preco_kg || '39.90';
-    var vSex = pDias.sex || c.preco_kg || '39.90';
-    var vSab = pDias.sab || c.preco_kg || '39.90';
-    return '<div style="border-top:1px solid #f3f4f6;margin:16px 0 14px;padding-top:14px">'+
-      '<div style="font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px">'+
-        '<i class="fa-solid fa-scale-balanced text-purple"></i> Preço do Açaí (Por Dia da Semana)'+
-      '</div>'+
-      '<div class="grid-2" style="grid-template-columns: repeat(4, 1fr); gap: 10px;">'+
-        '<div class="form-group mb-2"><label class="form-label">Domingo</label><input type="number" step="0.01" class="form-control" id="cfg_p_dom" value="'+esc(vDom)+'"/></div>'+
-        '<div class="form-group mb-2"><label class="form-label">Segunda</label><input type="number" step="0.01" class="form-control" id="cfg_p_seg" value="'+esc(vSeg)+'"/></div>'+
-        '<div class="form-group mb-2"><label class="form-label">Terça</label><input type="number" step="0.01" class="form-control" id="cfg_p_ter" value="'+esc(vTer)+'"/></div>'+
-        '<div class="form-group mb-2"><label class="form-label">Quarta</label><input type="number" step="0.01" class="form-control" id="cfg_p_qua" value="'+esc(vQua)+'"/></div>'+
-        '<div class="form-group mb-2"><label class="form-label">Quinta</label><input type="number" step="0.01" class="form-control" id="cfg_p_qui" value="'+esc(vQui)+'"/></div>'+
-        '<div class="form-group mb-2"><label class="form-label">Sexta</label><input type="number" step="0.01" class="form-control" id="cfg_p_sex" value="'+esc(vSex)+'"/></div>'+
-        '<div class="form-group mb-2"><label class="form-label">Sábado</label><input type="number" step="0.01" class="form-control" id="cfg_p_sab" value="'+esc(vSab)+'"/></div>'+
-      '</div>'+
+
+  var painelLoja=
+    '<div class="form-group">'+
+      '<label class="form-label">Nome da Loja'+cfgHelp('Nome que aparece no topo do cardápio online e no painel.')+'</label>'+
+      '<input class="form-control" id="cfg_nome" value="'+esc(c.nome_loja||'')+'"/>'+
+    '</div>'+
+    '<div class="form-group">'+
+      '<label class="form-label">URL do Logo'+cfgHelp('Link direto da imagem do logo da loja.\nRecomendado: hospede no Imgur ou Google Drive\ne cole o link público aqui.')+'</label>'+
+      '<input type="url" class="form-control" id="cfg_logo" value="'+esc(c.url_logo||'')+'" placeholder="https://..."/>'+
+    '</div>'+
+    '<div class="form-group">'+
+      '<label class="form-label">Endereço da Loja'+cfgHelp('Endereço físico completo. Aparece no rodapé\ndo cardápio e no comprovante de retirada.')+'</label>'+
+      '<input class="form-control" id="cfg_end" value="'+esc(c.endereco_loja||'')+'" placeholder="Rua, nº, bairro — Cidade/UF"/>'+
+    '</div>'+
+    '<div class="form-group">'+
+      '<label class="form-label">Status da Loja'+cfgHelp('AUTOMATICO: abre e fecha pelos horários cadastrados.\nFORCAR_ABERTO: fica aberto mesmo fora do horário.\nFORCAR_FECHADO: bloqueia novos pedidos online.')+'</label>'+
+      '<select class="form-control" id="cfg_status">'+statusOpts+'</select>'+
     '</div>';
-  })() +
-  '<div class="form-row cols-2">'+
-    '<div class="form-group"><label class="form-label">Entrega Grátis a partir de (R$ 0 = desativar)</label><input type="number" step="0.01" class="form-control" id="cfg_frete_gratis" value="'+esc(c.frete_gratis||'0')+'" placeholder="Ex: 50.00"/></div>'+
-    '<div class="form-group"><label class="form-label">Tempo Estimado de Entrega</label><input type="text" class="form-control" id="cfg_tempo_entrega" value="'+esc(c.tempo_entrega||'')+'" placeholder="Ex: 40 a 60 min"/></div>'+
-  '</div>'+
-  '<div class="form-group"><label class="form-label">URL do Logo</label><input type="url" class="form-control" id="cfg_logo" value="'+esc(c.url_logo||'')+'" placeholder="https://..."/></div>'+
-  // Seção Redes Sociais
-  '<div style="border-top:1px solid #f3f4f6;margin:16px 0 14px;padding-top:14px">'+
-    '<div style="font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px">'+
-      '<i class="fa-solid fa-share-nodes"></i> Redes Sociais (aparecem no cardápio)'+
+
+  // ── ABA 2: HORÁRIOS ──────────────────────────────────
+  var hDias = c.horarios_dias || {};
+  var defH  = { abre: c.hora_abre || '18:00', fecha: c.hora_fecha || '23:59', fechado: false };
+  var diasSemana = [
+    {id:'dom',nome:'Domingo'},{id:'seg',nome:'Segunda'},{id:'ter',nome:'Terça'},
+    {id:'qua',nome:'Quarta'},{id:'qui',nome:'Quinta'},{id:'sex',nome:'Sexta'},{id:'sab',nome:'Sábado'}
+  ];
+  var linhasHorario = diasSemana.map(function(d){
+    var val = hDias[d.id] || defH;
+    var chk = val.fechado ? 'checked' : '';
+    return '<div style="display:grid;grid-template-columns:90px 1fr auto;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #f9fafb;">'+
+      '<span style="font-size:13px;font-weight:700;color:#374151">'+d.nome+'</span>'+
+      '<div style="display:flex;align-items:center;gap:6px">'+
+        '<input type="time" class="form-control" id="cfg_h_abre_'+d.id+'" value="'+esc(val.abre)+'" style="padding:7px 10px" '+(val.fechado?'disabled':'')+' />'+
+        '<span style="font-size:11px;color:#9ca3af;flex-shrink:0">até</span>'+
+        '<input type="time" class="form-control" id="cfg_h_fecha_'+d.id+'" value="'+esc(val.fecha)+'" style="padding:7px 10px" '+(val.fechado?'disabled':'')+' />'+
+      '</div>'+
+      '<label style="display:flex;align-items:center;gap:5px;cursor:pointer;font-size:12px;font-weight:700;color:#ef4444;white-space:nowrap">'+
+        '<input type="checkbox" id="cfg_h_fechado_'+d.id+'" '+chk+
+          ' onchange="var a=document.getElementById(\'cfg_h_abre_'+d.id+'\'),f=document.getElementById(\'cfg_h_fecha_'+d.id+'\');a.disabled=this.checked;f.disabled=this.checked;"'+
+          ' style="width:15px;height:15px;accent-color:#ef4444"/> Fechado'+
+      '</label>'+
+    '</div>';
+  }).join('');
+
+  var painelHorarios=
+    '<div style="font-size:11.5px;color:#6b7280;margin-bottom:14px;background:#f5f3ff;padding:9px 12px;border-radius:9px;line-height:1.5">'+
+      '<i class="fa-solid fa-circle-info" style="color:#7c3aed"></i> '+
+      'Os horários controlam quando o cardápio aparece como <b>Aberto</b> para seus clientes. Fora do horário, novos pedidos são bloqueados automaticamente (se o status for <b>AUTOMATICO</b>).'+
     '</div>'+
-    '<div class="form-group">'+
-      '<label class="form-label"><i class="fa-brands fa-whatsapp" style="color:#25d366"></i> Link WhatsApp (contato/atendimento)</label>'+
-      '<input type="url" class="form-control" id="cfg_wpp_link" value="'+esc(c.whatsapp_link||'')+'" placeholder="https://wa.me/55849981282146"/>'+
-    '</div>'+
-    '<div class="form-group">'+
-      '<label class="form-label"><i class="fa-brands fa-instagram" style="color:#e1306c"></i> Link Instagram</label>'+
-      '<input type="url" class="form-control" id="cfg_instagram" value="'+esc(c.instagram_url||'')+'" placeholder="https://instagram.com/alyxsoftwares"/>'+
-    '</div>'+
-    '<div class="form-group">'+
-      '<label class="form-label"><i class="fa-brands fa-facebook" style="color:#1877f2"></i> Link Facebook</label>'+
-      '<input type="url" class="form-control" id="cfg_facebook" value="'+esc(c.facebook_url||'')+'" placeholder="https://facebook.com/alyxsoftwares"/>'+
-    '</div>'+
-  '</div>'+
-  '<div style="border-top:1px solid #f3f4f6;margin:16px 0 14px;padding-top:14px">'+
-    '<div style="font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px">'+
-      '<i class="fa-solid fa-print"></i> Impressão de Pedidos'+
-    '</div>'+
+    '<label class="form-label">Horários por dia da semana'+cfgHelp('Marque "Fechado" nos dias que a loja não funciona.\nOs horários definem quando o cardápio aceita pedidos.')+'</label>'+
+    linhasHorario;
+
+  // ── ABA 3: DELIVERY ──────────────────────────────────
+  var pDias = c.preco_kg_dias || {};
+  var pDefault = c.preco_kg || '39.90';
+  var camposPreco = diasSemana.map(function(d){
+    return '<div class="form-group mb-2">'+
+      '<label class="form-label" style="font-size:11px">'+d.nome+'</label>'+
+      '<input type="number" step="0.01" class="form-control" id="cfg_p_'+d.id+'" value="'+esc(pDias[d.id]||pDefault)+'"/>'+
+    '</div>';
+  }).join('');
+
+  var painelDelivery=
+    '<div class="cfg-section-title"><i class="fa-solid fa-scale-balanced"></i>Preço do Açaí (R$/kg)'+
+      cfgHelp('Define o preço por quilo do açaí pesado na balança.\nVocê pode variar o preço por dia da semana.')+'</div>'+
+    '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:4px">'+camposPreco+'</div>'+
+
+    '<div class="cfg-section-title" style="margin-top:24px"><i class="fa-solid fa-motorcycle"></i>Entrega</div>'+
     '<div class="form-row cols-2">'+
-      '<div class="form-group"><label class="form-label">Auto-imprimir PDV Balcão</label>'+
-        '<select class="form-control" id="cfg_print_balcao"><option value="true"'+(c.autoimprimir_balcao===true?' selected':'')+'>SIM (Automático)</option><option value="false"'+(c.autoimprimir_balcao!==true?' selected':'')+'>NÃO</option></select>'+
+      '<div class="form-group">'+
+        '<label class="form-label">Entrega grátis a partir de'+cfgHelp('Valor mínimo do pedido para isentar a taxa\nde entrega. Use 0 para desativar.')+'</label>'+
+        '<input type="number" step="0.01" class="form-control" id="cfg_frete_gratis" value="'+esc(c.frete_gratis||'0')+'" placeholder="Ex: 50.00"/>'+
       '</div>'+
-      '<div class="form-group"><label class="form-label">Auto-imprimir Delivery</label>'+
-        '<select class="form-control" id="cfg_print_delivery"><option value="true"'+(c.autoimprimir_delivery===true?' selected':'')+'>SIM (Ao Pegar Pedido)</option><option value="false"'+(c.autoimprimir_delivery!==true?' selected':'')+'>NÃO</option></select>'+
+      '<div class="form-group">'+
+        '<label class="form-label">Tempo estimado de entrega'+cfgHelp('Texto exibido no cardápio para o cliente.\nExemplo: 40 a 60 min')+'</label>'+
+        '<input type="text" class="form-control" id="cfg_tempo_entrega" value="'+esc(c.tempo_entrega||'')+'" placeholder="Ex: 40 a 60 min"/>'+
       '</div>'+
-    '</div>'+
-  '</div>'+
-  '<div class="form-group">'+
-    '<label class="form-label"><i class="fa-solid fa-bolt text-purple"></i> Mostrar "Açaí Rápido" no PDV</label>'+
-    '<select class="form-control" id="cfg_acai_rapido">'+
-      '<option value="true"'+(c.mostrar_acai_rapido_pdv!==false?' selected':'')+'>✅ SIM — Exibir atalhos no Balcão</option>'+
-      '<option value="false"'+(c.mostrar_acai_rapido_pdv===false?' selected':'')+'>❌ NÃO — Ocultar no Balcão</option>'+
-    '</select>'+
-  '</div>'+
-  '<div class="form-group">'+
-    '<label class="form-label"><i class="fa-solid fa-store"></i> Opção "Retirar na Loja" no Cardápio</label>'+
-    '<select class="form-control" id="cfg_retirada">'+
-      '<option value="true"'+(c.retirada_loja_ativo!==false?' selected':'')+'>✅ Ativado — cliente pode escolher retirar na loja</option>'+
-      '<option value="false"'+(c.retirada_loja_ativo===false?' selected':'')+'>❌ Desativado — somente delivery</option>'+
-    '</select>'+
-  '</div>'+
-  '<div style="border-top:1px solid #f3f4f6;margin:16px 0 14px;padding-top:14px">'+
-    '<div style="font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px">'+
-      '<i class="fa-brands fa-pix" style="color:#00bdae"></i> Pagamento PIX no Cardápio'+
     '</div>'+
     '<div class="form-group">'+
-      '<label class="form-label">Modo PIX</label>'+
+      '<label class="form-label">Opção "Retirar na Loja" no Cardápio'+cfgHelp('Permite que o cliente escolha buscar o pedido\npessoalmente, sem custo de entrega.')+'</label>'+
+      '<select class="form-control" id="cfg_retirada">'+
+        '<option value="true"'+(c.retirada_loja_ativo!==false?' selected':'')+'>✅ Ativado — cliente pode optar por retirar</option>'+
+        '<option value="false"'+(c.retirada_loja_ativo===false?' selected':'')+'>❌ Desativado — somente delivery</option>'+
+      '</select>'+
+    '</div>';
+
+  // ── ABA 4: CONTATO ───────────────────────────────────
+  var painelContato=
+    '<div class="cfg-section-title"><i class="fa-brands fa-whatsapp" style="color:#25d366"></i>WhatsApp</div>'+
+    '<div class="form-group">'+
+      '<label class="form-label">Número para pedidos'+cfgHelp('Número que recebe os pedidos enviados pelo botão\n"Pedir via WhatsApp". Formato: DDI+DDD+número.\nExemplo: 5584999990000')+'</label>'+
+      '<input class="form-control" id="cfg_wpp" value="'+esc(c.whatsapp_numero||'')+'" placeholder="5584999990000"/>'+
+    '</div>'+
+    '<div class="form-group">'+
+      '<label class="form-label">Link de atendimento'+cfgHelp('Link de WhatsApp exibido no cardápio como\nbotão de contato/dúvidas. Pode ser diferente\ndo número de pedidos.')+'</label>'+
+      '<input type="url" class="form-control" id="cfg_wpp_link" value="'+esc(c.whatsapp_link||'')+'" placeholder="https://wa.me/5584..."/>'+
+    '</div>'+
+
+    '<div class="cfg-section-title" style="margin-top:8px"><i class="fa-solid fa-share-nodes"></i>Redes Sociais'+
+      cfgHelp('Os links abaixo aparecem como ícones\nno rodapé do cardápio online.')+'</div>'+
+    '<div class="form-group">'+
+      '<label class="form-label"><i class="fa-brands fa-instagram" style="color:#e1306c"></i> Instagram</label>'+
+      '<input type="url" class="form-control" id="cfg_instagram" value="'+esc(c.instagram_url||'')+'" placeholder="https://instagram.com/suaacaiteria"/>'+
+    '</div>'+
+    '<div class="form-group">'+
+      '<label class="form-label"><i class="fa-brands fa-facebook" style="color:#1877f2"></i> Facebook</label>'+
+      '<input type="url" class="form-control" id="cfg_facebook" value="'+esc(c.facebook_url||'')+'" placeholder="https://facebook.com/suaacaiteria"/>'+
+    '</div>';
+
+  // ── ABA 5: PDV ───────────────────────────────────────
+  var painelPDV=
+    '<div class="cfg-section-title"><i class="fa-solid fa-print"></i>Impressão Automática</div>'+
+    '<div class="form-row cols-2">'+
+      '<div class="form-group">'+
+        '<label class="form-label">Auto-imprimir no Balcão'+cfgHelp('Quando ativado, imprime o cupom automaticamente\nao finalizar uma venda no balcão (PDV).')+'</label>'+
+        '<select class="form-control" id="cfg_print_balcao">'+
+          '<option value="true"'+(c.autoimprimir_balcao===true?' selected':'')+'>✅ Sim — imprime automaticamente</option>'+
+          '<option value="false"'+(c.autoimprimir_balcao!==true?' selected':'')+'>❌ Não — imprimir manualmente</option>'+
+        '</select>'+
+      '</div>'+
+      '<div class="form-group">'+
+        '<label class="form-label">Auto-imprimir no Delivery'+cfgHelp('Quando ativado, imprime o cupom automaticamente\nquando um entregador clica em "Pegar Pedido".')+'</label>'+
+        '<select class="form-control" id="cfg_print_delivery">'+
+          '<option value="true"'+(c.autoimprimir_delivery===true?' selected':'')+'>✅ Sim — imprime ao pegar</option>'+
+          '<option value="false"'+(c.autoimprimir_delivery!==true?' selected':'')+'>❌ Não — imprimir manualmente</option>'+
+        '</select>'+
+      '</div>'+
+    '</div>'+
+
+    '<div class="cfg-section-title" style="margin-top:8px"><i class="fa-solid fa-bolt"></i>Atalhos do PDV</div>'+
+    '<div class="form-group">'+
+      '<label class="form-label">Botões "Açaí Rápido" no Balcão'+cfgHelp('Exibe botões de tamanho rápido (ex: P, M, G) na\ntela de vendas do balcão para agilizar os pedidos.')+'</label>'+
+      '<select class="form-control" id="cfg_acai_rapido">'+
+        '<option value="true"'+(c.mostrar_acai_rapido_pdv!==false?' selected':'')+'>✅ Exibir atalhos no balcão</option>'+
+        '<option value="false"'+(c.mostrar_acai_rapido_pdv===false?' selected':'')+'>❌ Ocultar atalhos</option>'+
+      '</select>'+
+    '</div>';
+
+  // ── ABA 6: PIX ───────────────────────────────────────
+  var painelPIX=
+    '<div class="form-group">'+
+      '<label class="form-label">Modo de pagamento PIX'+cfgHelp('Manual: o cliente vê sua chave Pix e envia\no comprovante por WhatsApp.\n\nAutomático: gera QR Code em tempo real via\nMercado Pago (requer Access Token).')+'</label>'+
       '<select class="form-control" id="cfg_pix_modo" onchange="document.getElementById(\'grpTokenMP\').style.display=this.value===\'AUTO\'?\'block\':\'none\'">'+
-        '<option value="MANUAL"'+(c.pix_modo!=='AUTO'?' selected':'')+'>Manual — cliente vê sua chave e envia comprovante</option>'+
-        '<option value="AUTO"'+(c.pix_modo==='AUTO'?' selected':'')+'>Automático — gera QR Code via Mercado Pago</option>'+
+        '<option value="MANUAL"'+(c.pix_modo!=='AUTO'?' selected':'')+'>Manual — cliente envia comprovante</option>'+
+        '<option value="AUTO"'+(c.pix_modo==='AUTO'?' selected':'')+'>Automático — QR Code via Mercado Pago</option>'+
       '</select>'+
     '</div>'+
     '<div id="grpTokenMP" style="'+(c.pix_modo==='AUTO'?'':'display:none')+'">'+
       '<div class="form-group">'+
-        '<label class="form-label"><i class="fa-solid fa-key"></i> Access Token Mercado Pago</label>'+
+        '<label class="form-label"><i class="fa-solid fa-key" style="color:#009ee3"></i> Access Token Mercado Pago'+cfgHelp('Token de Produção do Mercado Pago.\nObtenha em:\nmercadopago.com.br/developers\n→ Suas integrações → Access Token')+'</label>'+
         '<input type="password" class="form-control" id="cfg_mp_token" value="'+esc(c.mp_access_token||'')+'" placeholder="APP_USR-..."/>'+
-        '<p style="font-size:11px;color:#9ca3af;margin-top:4px">Obtenha em mercadopago.com.br/developers → Suas integrações → Access Token de Produção</p>'+
+        '<p style="font-size:11px;color:#9ca3af;margin-top:5px"><i class="fa-solid fa-lock" style="color:#d1d5db"></i> Este token fica salvo com segurança e nunca é exibido ao cliente.</p>'+
       '</div>'+
     '</div>'+
-  '</div>'+
-  '<button class="btn btn-primary btn-full mt-2" onclick="salvarConfiguracoes()"><i class="fa-solid fa-floppy-disk"></i>Salvar Configurações</button>'+
-  '<div id="cfgMsg" class="mt-3"></div>';
+    '<div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:12px 14px;font-size:12px;color:#166534;margin-top:8px">'+
+      '<i class="fa-solid fa-circle-check" style="color:#16a34a"></i> O modo <b>Manual</b> funciona sem nenhuma configuração adicional. Basta ter uma chave Pix cadastrada no cadastro da sua loja.'+
+    '</div>';
+
+  // ── MONTAGEM FINAL ───────────────────────────────────
+  return (
+    '<div class="cfg-panel cfg-panel-ativo" data-panel="loja">'+painelLoja+'</div>'+
+    '<div class="cfg-panel" data-panel="horarios">'+painelHorarios+'</div>'+
+    '<div class="cfg-panel" data-panel="delivery">'+painelDelivery+'</div>'+
+    '<div class="cfg-panel" data-panel="contato">'+painelContato+'</div>'+
+    '<div class="cfg-panel" data-panel="pdv">'+painelPDV+'</div>'+
+    '<div class="cfg-panel" data-panel="pix">'+painelPIX+'</div>'+
+    '<div style="margin-top:20px;padding-top:16px;border-top:1px solid #f3f4f6">'+
+      '<button class="btn btn-primary btn-full" onclick="salvarConfiguracoes()"><i class="fa-solid fa-floppy-disk"></i>Salvar Configurações</button>'+
+      '<div id="cfgMsg" class="mt-3"></div>'+
+    '</div>'
+  );
 }
 
 function salvarConfiguracoes(){
