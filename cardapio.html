@@ -654,16 +654,33 @@
         return;
       }
 
-        // Cor da Loja - Anulando os gradientes roxos forçadamente
+        // Cor da Loja e Geração Dinâmica de Gradientes
         var corLoja = (p.configuracoes && p.configuracoes.cor_loja) ? p.configuracoes.cor_loja : '#000000';
+        
+        // Função matemática para criar tons mais escuros da mesma cor
+        function shade(color, percent) {
+            var num = parseInt(color.replace("#",""),16),
+            amt = Math.round(2.55 * percent),
+            R = (num >> 16) + amt,
+            G = (num >> 8 & 0x00FF) + amt,
+            B = (num & 0x0000FF) + amt;
+            return "#" + (0x1000000 + (R<255?R<1?0:R:255)*0x10000 + (G<255?G<1?0:G:255)*0x100 + (B<255?B<1?0:B:255)).toString(16).slice(1);
+        }
+        
+        var corEscura = shade(corLoja, -20);
+        var corMuitoEscura = shade(corLoja, -60);
+        var corSuperEscura = shade(corLoja, -80);
+
         var styleCor = document.createElement('style');
         styleCor.type = 'text/css';
         styleCor.innerHTML = 
           ".bg-purple-600, .bg-purple-500 { background-color: " + corLoja + " !important; }\n" +
           ".text-purple-600, .text-purple-700, .text-purple-800 { color: " + corLoja + " !important; }\n" +
           ".border-purple-600, .border-purple-500 { border-color: " + corLoja + " !important; }\n" +
-          ".header-premium, .banner-monte, .barra-carrinho { background-color: " + corLoja + " !important; background-image: none !important; }\n" +
-          ".btn-primary { background-color: " + corLoja + " !important; background-image: none !important; box-shadow: 0 6px 20px " + corLoja + "60 !important; }\n" +
+          ".header-premium { background: linear-gradient(135deg, " + corSuperEscura + " 0%, " + corMuitoEscura + " 60%, " + corSuperEscura + " 100%) !important; }\n" +
+          ".banner-monte { background: linear-gradient(135deg, " + corSuperEscura + " 0%, " + corEscura + " 50%, " + corMuitoEscura + " 100%) !important; }\n" +
+          ".barra-carrinho { background: linear-gradient(135deg, " + corSuperEscura + " 0%, " + corMuitoEscura + " 100%) !important; }\n" +
+          ".btn-primary { background: linear-gradient(135deg, " + corLoja + " 0%, " + corEscura + " 100%) !important; box-shadow: 0 6px 20px " + corLoja + "60 !important; }\n" +
           "::-webkit-scrollbar-thumb { background-color: " + corLoja + " !important; }";
         document.head.appendChild(styleCor);
 
