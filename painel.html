@@ -47,13 +47,13 @@
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Plus Jakarta Sans',sans-serif;background:#f0f2f5;color:#0f172a;min-height:100vh;overflow-x:hidden}
 :root{
-  --brand-50:#f5f3ff;--brand-100:#ede9fe;--brand-200:#ddd6fe;--brand-300:#c4b5fd;
-  --brand-400:#a78bfa;--brand-500:#8b5cf6;--brand-600:#7c3aed;--brand-700:#6d28d9;
-  --brand-800:#5b21b6;--brand-900:#4c1d95;
-  --grad-main:linear-gradient(160deg,#1a0533 0%,#2d0f5e 60%,#1a0533 100%);
-  --grad-btn:linear-gradient(135deg,#7c3aed,#a855f7);
-  --shadow-card:0 4px 24px rgba(109,40,217,.10);
-  --shadow-btn:0 4px 16px rgba(124,58,237,.35);
+  --brand-50:#eff6ff;--brand-100:#dbeafe;--brand-200:#bfdbfe;--brand-300:#93c5fd;
+  --brand-400:#60a5fa;--brand-500:#3b82f6;--brand-600:#2563eb;--brand-700:#1d4ed8;
+  --brand-800:#1e40af;--brand-900:#1e3a8a;
+  --grad-main:linear-gradient(160deg,#0f172a 0%,#1e3a8a 60%,#0f172a 100%);
+  --grad-btn:linear-gradient(135deg,#2563eb,#3b82f6);
+  --shadow-card:0 4px 24px rgba(37,99,235,.10);
+  --shadow-btn:0 4px 16px rgba(37,99,235,.35);
   --radius:16px;--radius-sm:10px;
   --sidebar-w:256px;
   --topbar-h:64px;
@@ -198,8 +198,8 @@ nav.sidebar-nav .nav-sep{height:1px;background:rgba(255,255,255,.06);margin:6px 
 }
 .btn-primary{background:var(--grad-btn);color:#fff;box-shadow:0 2px 10px rgba(124,58,237,.3)}
 .btn-primary:hover{opacity:.92;transform:translateY(-1px);box-shadow:0 4px 16px rgba(124,58,237,.4)}
-.btn-secondary{background:#f5f3ff;color:#7c3aed;border:1.5px solid #e8e3fc}
-.btn-secondary:hover{background:#ede9fe;border-color:#c4b5fd}
+.btn-secondary{background:#eff6ff;color:#2563eb;border:1.5px solid #dbeafe}
+.btn-secondary:hover{background:#dbeafe;border-color:#93c5fd}
 .btn-danger{background:#fef2f2;color:#ef4444;border:1.5px solid #fecaca}
 .btn-danger:hover{background:#fee2e2}
 .btn-success{background:#f0fdf4;color:#16a34a;border:1.5px solid #bbf7d0}
@@ -221,7 +221,7 @@ nav.sidebar-nav .nav-sep{height:1px;background:rgba(255,255,255,.06);margin:6px 
 }
 .badge-novo{background:#dbeafe;color:#1d4ed8}
 .badge-preparando{background:#ffedd5;color:#c2410c}
-.badge-em_montagem{background:#f3e8ff;color:#7e22ce}
+.badge-em_montagem{background:#dbeafe;color:#1d4ed8}
 .badge-a_caminho{background:#fef9c3;color:#854d0e}
 .badge-pronto{background:#dcfce7;color:#15803d}
 .badge-entregue{background:#dcfce7;color:#15803d}
@@ -254,11 +254,11 @@ nav.sidebar-nav .nav-sep{height:1px;background:rgba(255,255,255,.06);margin:6px 
 .cfg-help{
   display:inline-flex;align-items:center;justify-content:center;
   width:15px;height:15px;border-radius:50%;
-  background:#ede9fe;color:#7c3aed;
+  background:#dbeafe;color:#2563eb;
   font-size:9px;font-weight:900;cursor:default;
   margin-left:4px;vertical-align:middle;
   position:relative;line-height:1;
-  border:1px solid #ddd6fe;
+  border:1px solid #bfdbfe;
 }
 .cfg-help::before{
   content:attr(data-tip);
@@ -1252,10 +1252,10 @@ function construirUI(){
       document.documentElement.style.setProperty('--brand-500', corLoja);
       document.documentElement.style.setProperty('--brand-600', corLoja);
       document.documentElement.style.setProperty('--brand-700', corLoja);
-      // Compat aliases (código legado pode usar --purple-*)
-      document.documentElement.style.setProperty('--purple-500', corLoja);
-      document.documentElement.style.setProperty('--purple-600', corLoja);
-      document.documentElement.style.setProperty('--purple-700', corLoja);
+      // Compat aliases (código legado pode usar --blue-*)
+      document.documentElement.style.setProperty('--blue-500', corLoja);
+      document.documentElement.style.setProperty('--blue-600', corLoja);
+      document.documentElement.style.setProperty('--blue-700', corLoja);
       document.documentElement.style.setProperty('--grad-main', gradMain);
       document.documentElement.style.setProperty('--grad-btn', gradBtn);
 
@@ -1269,7 +1269,7 @@ function construirUI(){
         ".sidebar-logo .logo-icon { background: " + gradBtn + " !important; }\n" +
         ".user-avatar { background: " + gradBtn + " !important; }\n" +
         ".btn-primary { box-shadow: 0 4px 16px " + corLoja + "60 !important; }\n" +
-        ".text-purple { color: " + corLoja + " !important; }\n" +
+        ".text-blue { color: " + corLoja + " !important; }\n" +
         ".cfg-tab-btn.cfg-tab-ativo { color: " + corLoja + " !important; border-bottom-color: " + corLoja + " !important; }";
       document.head.appendChild(styleCor);
 
