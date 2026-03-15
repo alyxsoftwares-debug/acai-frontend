@@ -1089,6 +1089,13 @@ function construirUI(){
   var nomeLoja=config.nome_loja||'Sistema';
   document.title=nomeLoja+' — Painel';
 
+  var corLoja = config.cor_loja || '#000000';
+  document.documentElement.style.setProperty('--purple-500', corLoja);
+  document.documentElement.style.setProperty('--purple-600', corLoja);
+  document.documentElement.style.setProperty('--purple-700', corLoja);
+  document.documentElement.style.setProperty('--grad-main', corLoja);
+  document.documentElement.style.setProperty('--grad-btn', corLoja);
+
   document.getElementById('sidebarNome').textContent=u.nome||'Usuário';
   document.getElementById('sidebarCargo').textContent=u.cargo||'';
   var avatarEl=document.getElementById('sidebarAvatar');
@@ -3623,6 +3630,10 @@ function renderConfigLoja(){
       '<input type="url" class="form-control" id="cfg_logo" value="'+esc(c.url_logo||'')+'" placeholder="https://..."/>'+
     '</div>'+
     '<div class="form-group">'+
+      '<label class="form-label">Cor da Loja'+cfgHelp('Cor principal que será usada no cardápio online e no painel. O padrão é preto.')+'</label>'+
+      '<input type="color" class="form-control" style="padding:0; height:42px; cursor:pointer;" id="cfg_cor_loja" value="'+esc(c.cor_loja||'#000000')+'"/>'+
+    '</div>'+
+    '<div class="form-group">'+
       '<label class="form-label">Endereço da Loja'+cfgHelp('Endereço físico completo. Aparece no rodapé\ndo cardápio e no comprovante de retirada.')+'</label>'+
       '<input class="form-control" id="cfg_end" value="'+esc(c.endereco_loja||'')+'" placeholder="Rua, nº, bairro — Cidade/UF"/>'+
     '</div>'+
@@ -3800,6 +3811,7 @@ function salvarConfiguracoes(){
       sab: { abre: document.getElementById('cfg_h_abre_sab').value, fecha: document.getElementById('cfg_h_fecha_sab').value, fechado: document.getElementById('cfg_h_fechado_sab').checked }
     },
     status_loja:     document.getElementById('cfg_status').value,
+    cor_loja:        document.getElementById('cfg_cor_loja') ? document.getElementById('cfg_cor_loja').value : '#000000',
     endereco_loja:   document.getElementById('cfg_end').value.trim(),
     preco_kg_dias: {
       dom: document.getElementById('cfg_p_dom').value,

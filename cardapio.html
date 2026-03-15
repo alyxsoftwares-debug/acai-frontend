@@ -654,6 +654,24 @@
         return;
       }
 
+        // Cor da Loja
+        var corLoja = (p.configuracoes && p.configuracoes.cor_loja) ? p.configuracoes.cor_loja : '#000000';
+        var styleCor = document.createElement('style');
+        styleCor.innerHTML = `
+          .bg-purple-600 { background-color: ${corLoja} !important; }
+          .text-purple-600 { color: ${corLoja} !important; }
+          .border-purple-600 { border-color: ${corLoja} !important; }
+          .text-purple-700 { color: ${corLoja} !important; }
+          .bg-purple-500 { background-color: ${corLoja} !important; }
+          .text-purple-500 { color: ${corLoja} !important; }
+          .header-premium { background: ${corLoja} !important; }
+          .banner-monte { background: ${corLoja} !important; }
+          .btn-primary { background: ${corLoja} !important; box-shadow: 0 6px 22px ${corLoja}80 !important; }
+          .barra-carrinho { background: ${corLoja} !important; }
+          ::-webkit-scrollbar-thumb { background: ${corLoja} !important; }
+        `;
+        document.head.appendChild(styleCor);
+
         // Logo e Favicon Dinâmico
         if (p.configuracoes && p.configuracoes.url_logo) {
           var img = document.getElementById('imgLogoVitrine');
