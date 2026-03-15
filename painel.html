@@ -535,7 +535,7 @@ table.tbl tr:last-child td{border-bottom:none}
 <!-- Loading -->
 <div id="loadingOverlay">
   <div class="ldr-logo" id="ldrLogo">
-    <span id="ldrLogoEmoji" style="font-size:48px;animation:pulse 1.5s ease-in-out infinite;display:block">🍇</span>
+    <span id="ldrLogoEmoji" style="font-size:48px;animation:pulse 1.5s ease-in-out infinite;display:block">🍽️</span>
     <img id="ldrLogoImg" src="" alt="Logo" style="display:none;width:80px;height:80px;border-radius:20px;object-fit:cover;animation:pulse 1.5s ease-in-out infinite"/>
   </div>
   <div class="spinner"></div>
@@ -555,7 +555,7 @@ table.tbl tr:last-child td{border-bottom:none}
     </div>
 
     <div class="sidebar-logo">
-      <div class="logo-icon" id="sidebarLogoIcon" style="overflow:hidden;padding:0">🍇</div>
+      <div class="logo-icon" id="sidebarLogoIcon" style="overflow:hidden;padding:0">🍽️</div>
       <div class="logo-text" id="sidebarLogoText">Carregando...<br><span style="font-size:10px;opacity:.6">Painel de Controle</span></div>
     </div>
 
@@ -793,7 +793,7 @@ var ABAS = [
   { id:'abaRetirada',   label:'Retirada',       icon:'fa-store'          },
   { id:'abaRelatorios', label:'Relatórios',     icon:'fa-chart-bar'      },
   { id:'abaItens',      label:'Itens Fixos',    icon:'fa-burger'         },
-  { id:'abaMonteAcai',  label:'Monte Açaí',     icon:'fa-ice-cream'      },
+  { id:'abaMonteAcai',  label:'Monte seu Produto', icon:'fa-wand-magic-sparkles' },
   { id:'abaConfig',     label:'Configurações',  icon:'fa-gear'           }
 ];
 
@@ -1152,7 +1152,8 @@ function construirUI(){
   // Atualiza logo sidebar
   var logoIcon=document.getElementById('sidebarLogoIcon');
   if(logoIcon&&urlLogo){
-    logoIcon.innerHTML='<img src="'+urlLogo+'" alt="Logo" style="width:100%;height:100%;object-fit:cover;border-radius:12px" onerror="this.parentElement.textContent=\'🍇\'">';
+    var _emojiTipo = {'acaiteria':'🍇','lanchonete':'🥪','restaurante':'🍽️','pizzaria':'🍕','sorveteria':'🍦','cafeteria':'☕'}[config.tipo_negocio||'outro'] || '🏪';
+    logoIcon.innerHTML='<img src="'+urlLogo+'" alt="Logo" style="width:100%;height:100%;object-fit:cover;border-radius:12px" onerror="this.parentElement.textContent=\''+_emojiTipo+'\'">';
     logoIcon.style.background='none';
   }
   var logoText=document.getElementById('sidebarLogoText');
@@ -1175,7 +1176,7 @@ function construirUI(){
   // Monta nav
   var nav=document.getElementById('sidebarNav');
   nav.innerHTML='';
-  var textoMonteMenu = (config && config.texto_monte_acai) || 'Monte Açaí';
+  var textoMonteMenu = (config && config.texto_monte_acai) || 'Monte seu Produto';
   ABAS.forEach(function(aba){
     var labelAtual = aba.id === 'abaMonteAcai' ? textoMonteMenu : aba.label;
     if(u.permissoes.indexOf(aba.id)===-1) return;
@@ -1330,7 +1331,7 @@ function renderSecaoPedidos(){
             '<span id="contadorPedidosDia" class="badge badge-novo">0</span>'+
           '</div>'+
           '<div class="card-body" id="listaPedidosDia" style="max-height:60vh;overflow-y:auto">'+
-            '<div class="empty-state"><i class="fa-solid fa-mug-hot"></i><p>Nenhum pedido hoje</p></div>'+
+            '<div class="empty-state"><i class="fa-solid fa-utensils"></i><p>Nenhum pedido hoje</p></div>'+
           '</div>'+
         '</div>'+
       '</div>'+
@@ -1388,7 +1389,7 @@ function renderPedidosDia(){
   var lista=document.getElementById('listaPedidosDia');
   if(lista){
     var pdvs=pedidos.filter(function(p){ var o=(p.origem||'').toUpperCase(); return o==='BALCAO'||o==='DELIVERY'; });
-    lista.innerHTML=pdvs.length?pdvs.map(renderPedidoCard).join(''):'<div class="empty-state"><i class="fa-solid fa-mug-hot"></i><p>Nenhum pedido no balcão/delivery</p></div>';
+    lista.innerHTML=pdvs.length?pdvs.map(renderPedidoCard).join(''):'<div class="empty-state"><i class="fa-solid fa-utensils"></i><p>Nenhum pedido no balcão/delivery</p></div>';
   }
 
   // Lista online
@@ -3635,6 +3636,7 @@ function renderSecaoConfig(){
         '</table></div></div>'+
       '</div>'+
 
+      (((ST.dados&&ST.dados.configuracoes&&ST.dados.configuracoes.tipo_negocio)||'acaiteria')==='acaiteria'?
       '<div class="card" style="margin-top:20px">'+
         '<div class="card-header">'+
           '<div class="card-title"><div class="icon"><i class="fa-solid fa-weight-scale"></i></div>Taras (Vasilhas)</div>'+
@@ -3644,7 +3646,8 @@ function renderSecaoConfig(){
           '<thead><tr><th>Nome</th><th>Gramas</th><th>Ativo</th><th></th></tr></thead>'+
           '<tbody id="tbodyTaras">'+renderTarasRows()+'</tbody>'+
         '</table></div></div>'+
-      '</div>'+
+      '</div>'
+      :'')+
     '</div>'+
 
   '</div></div>';
@@ -3658,14 +3661,30 @@ function renderConfigLoja(){
     return '<option'+(c.status_loja===o?' selected':'')+'>'+o+'</option>';
   }).join('');
 
+  var tipoOpts = [
+    {v:'acaiteria',  l:'🍇 Açaiteria'},
+    {v:'lanchonete', l:'🥪 Lanchonete'},
+    {v:'restaurante',l:'🍽️ Restaurante'},
+    {v:'pizzaria',   l:'🍕 Pizzaria'},
+    {v:'sorveteria', l:'🍦 Sorveteria'},
+    {v:'cafeteria',  l:'☕ Cafeteria'},
+    {v:'outro',      l:'🏪 Outro'}
+  ].map(function(o){
+    return '<option value="'+o.v+'"'+(c.tipo_negocio===o.v?' selected':'')+'>'+o.l+'</option>';
+  }).join('');
+
   var painelLoja=
+    '<div class="form-group">'+
+      '<label class="form-label">Tipo de Negócio'+cfgHelp('Define o ramo do estabelecimento.\nAjusta automaticamente os módulos\ndisponíveis no painel.')+'</label>'+
+      '<select class="form-control" id="cfg_tipo_negocio" onchange="renderConfigLoja&&(document.getElementById(\'configLojaBody\').innerHTML=renderConfigLoja())">'+tipoOpts+'</select>'+
+    '</div>'+
     '<div class="form-group">'+
       '<label class="form-label">Nome da Loja'+cfgHelp('Nome que aparece no topo do cardápio online e no painel.')+'</label>'+
       '<input class="form-control" id="cfg_nome" value="'+esc(c.nome_loja||'')+'"/>'+
     '</div>'+
     '<div class="form-group">'+
-      '<label class="form-label">Texto do "Monte seu..."'+cfgHelp('Texto que substitui "Monte seu Açaí" no banner do cardápio online e nos menus do painel.')+'</label>'+
-      '<input class="form-control" id="cfg_texto_monte_acai" value="'+esc(c.texto_monte_acai||'Monte seu Açaí')+'" placeholder="Monte seu Açaí"/>'+
+      '<label class="form-label">Texto do Módulo Personalizado'+cfgHelp('Texto que aparece no menu lateral e no banner do cardápio para o módulo de montagem.\nExemplo: "Monte seu Açaí", "Monte sua Pizza", "Personalize seu Prato".')+'</label>'+
+      '<input class="form-control" id="cfg_texto_monte_acai" value="'+esc(c.texto_monte_acai||'Monte seu Produto')+'" placeholder="Ex: Monte seu Açaí, Monte sua Pizza..."/>'+
     '</div>'+
     '<div class="form-group">'+
       '<label class="form-label">URL do Logo'+cfgHelp('Link direto da imagem do logo da loja.\nRecomendado: hospede no Imgur ou Google Drive\ne cole o link público aqui.')+'</label>'+
@@ -3754,11 +3773,11 @@ function renderConfigLoja(){
       cfgHelp('Os links abaixo aparecem como ícones\nno rodapé do cardápio online.')+'</div>'+
     '<div class="form-group">'+
       '<label class="form-label"><i class="fa-brands fa-instagram" style="color:#e1306c"></i> Instagram</label>'+
-      '<input type="url" class="form-control" id="cfg_instagram" value="'+esc(c.instagram_url||'')+'" placeholder="https://instagram.com/suaacaiteria"/>'+
+      '<input type="url" class="form-control" id="cfg_instagram" value="'+esc(c.instagram_url||'')+'" placeholder="https://instagram.com/seuestablecimento"/>'+
     '</div>'+
     '<div class="form-group">'+
       '<label class="form-label"><i class="fa-brands fa-facebook" style="color:#1877f2"></i> Facebook</label>'+
-      '<input type="url" class="form-control" id="cfg_facebook" value="'+esc(c.facebook_url||'')+'" placeholder="https://facebook.com/suaacaiteria"/>'+
+      '<input type="url" class="form-control" id="cfg_facebook" value="'+esc(c.facebook_url||'')+'" placeholder="https://facebook.com/seuestablecimento"/>'+
     '</div>';
 
   // ── ABA 5: PDV ───────────────────────────────────────
@@ -3772,10 +3791,14 @@ function renderConfigLoja(){
     '</div>';
   }).join('');
   
+  var blocoPrecoKg = (c.tipo_negocio === 'acaiteria' || !c.tipo_negocio)
+    ? '<div class="cfg-section-title"><i class="fa-solid fa-scale-balanced text-purple"></i>Preço por Kg (R$/kg)'+
+        cfgHelp('Define o preço por quilo do produto pesado na balança.\nVocê pode variar o preço por dia da semana.')+'</div>'+
+      '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:4px">'+camposPreco+'</div>'
+    : '';
+
   var painelPDV=
-    '<div class="cfg-section-title"><i class="fa-solid fa-scale-balanced text-purple"></i>Preço do Açaí (R$/kg)'+
-      cfgHelp('Define o preço por quilo do açaí pesado na balança.\nVocê pode variar o preço por dia da semana.')+'</div>'+
-    '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:4px">'+camposPreco+'</div>'+
+    blocoPrecoKg+
 
     '<div class="cfg-section-title" style="margin-top:24px"><i class="fa-solid fa-print"></i>Impressão Automática</div>'+
     '<div class="form-row cols-2">'+
@@ -3797,7 +3820,7 @@ function renderConfigLoja(){
 
     '<div class="cfg-section-title" style="margin-top:8px"><i class="fa-solid fa-bolt"></i>Atalhos do PDV</div>'+
     '<div class="form-group">'+
-      '<label class="form-label">Botões "Açaí Rápido" no Balcão'+cfgHelp('Exibe botões de tamanho rápido (ex: P, M, G) na\ntela de vendas do balcão para agilizar os pedidos.')+'</label>'+
+      '<label class="form-label">Botões de Atalho no Balcão'+cfgHelp('Exibe botões de acesso rápido no PDV\n(ex: tamanhos P, M, G ou produtos frequentes)\npara agilizar o atendimento no balcão.')+'</label>'+
       '<select class="form-control" id="cfg_acai_rapido">'+
         '<option value="true"'+(c.mostrar_acai_rapido_pdv!==false?' selected':'')+'>✅ Exibir atalhos no balcão</option>'+
         '<option value="false"'+(c.mostrar_acai_rapido_pdv===false?' selected':'')+'>❌ Ocultar atalhos</option>'+
@@ -3841,8 +3864,9 @@ function renderConfigLoja(){
 
 function salvarConfiguracoes(){
   var dados={
+    tipo_negocio:    document.getElementById('cfg_tipo_negocio') ? document.getElementById('cfg_tipo_negocio').value : 'outro',
     nome_loja:       document.getElementById('cfg_nome').value.trim(),
-    texto_monte_acai: document.getElementById('cfg_texto_monte_acai') ? document.getElementById('cfg_texto_monte_acai').value.trim() : 'Monte seu Açaí',
+    texto_monte_acai: document.getElementById('cfg_texto_monte_acai') ? document.getElementById('cfg_texto_monte_acai').value.trim() : 'Monte seu Produto',
     whatsapp_numero: document.getElementById('cfg_wpp').value.trim(),
     horarios_dias: {
       dom: { abre: document.getElementById('cfg_h_abre_dom').value, fecha: document.getElementById('cfg_h_fecha_dom').value, fechado: document.getElementById('cfg_h_fechado_dom').checked },
