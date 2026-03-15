@@ -285,7 +285,7 @@
                          px-2.5 py-0.5 rounded-full font-black uppercase tracking-[0.2em] mb-2">
               Personalizável
             </span>
-            <h3 class="font-black text-2xl text-white leading-tight">Monte seu Açaí</h3>
+            <h3 id="txtBannerMonte" class="font-black text-2xl text-white leading-tight">Monte seu Açaí</h3>
             <p class="text-purple-200/80 text-xs font-medium mt-1 leading-snug">
               Escolha o tamanho e adicione seus complementos favoritos
             </p>
@@ -458,7 +458,7 @@
       <div class="bg-white px-5 py-4 border-b border-gray-100 flex justify-between
                   items-center flex-shrink-0 shadow-sm">
         <div>
-          <h2 class="text-base font-black text-gray-900">Monte seu Açaí</h2>
+          <h2 id="txtModalMonte" class="text-base font-black text-gray-900">Monte seu Açaí</h2>
           <p class="text-[10px] text-purple-500 font-bold uppercase tracking-widest mt-0.5">
             Siga os passos abaixo
           </p>
@@ -706,6 +706,13 @@
         var nomeLoja = (p.configuracoes && p.configuracoes.nome_loja) || '';
         document.getElementById('nomeLoja').innerText = nomeLoja;
         document.title = nomeLoja + ' — Cardápio Online';
+
+        // Texto personalizável do "Monte seu Açaí"
+        var textoMonte = (p.configuracoes && p.configuracoes.texto_monte_acai) || 'Monte seu Açaí';
+        var elBanner = document.getElementById('txtBannerMonte');
+        if(elBanner) elBanner.innerText = textoMonte;
+        var elModal = document.getElementById('txtModalMonte');
+        if(elModal) elModal.innerText = textoMonte;
 
         // Status
         processarStatusLoja(p.configuracoes || {});

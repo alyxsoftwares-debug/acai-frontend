@@ -1175,10 +1175,12 @@ function construirUI(){
   // Monta nav
   var nav=document.getElementById('sidebarNav');
   nav.innerHTML='';
+  var textoMonteMenu = (config && config.texto_monte_acai) || 'Monte Açaí';
   ABAS.forEach(function(aba){
+    var labelAtual = aba.id === 'abaMonteAcai' ? textoMonteMenu : aba.label;
     if(u.permissoes.indexOf(aba.id)===-1) return;
     var a=document.createElement('a');
-    a.innerHTML='<i class="fa-solid '+aba.icon+'"></i><span class="nav-label">'+aba.label+'</span>';
+    a.innerHTML='<i class="fa-solid '+aba.icon+'"></i><span class="nav-label">'+labelAtual+'</span>';
     a.onclick=function(){ navegarPara(aba.id); };
     a.dataset.aba=aba.id;
     nav.appendChild(a);
@@ -3189,7 +3191,8 @@ function confirmarExcluir(aba,id,nome,fn){
 // ═══════════════════════════════════════════════════════════
 function renderSecaoMonteAcai(){
   var sec=document.getElementById('abaMonteAcai');
-  sec.innerHTML=topBar('Monte Açaí','Tamanhos, categorias e ingredientes')+
+  var textoMonteMenu = (ST.dados && ST.dados.configuracoes && ST.dados.configuracoes.texto_monte_acai) || 'Monte Açaí';
+  sec.innerHTML=topBar(textoMonteMenu,'Tamanhos, categorias e ingredientes')+
   '<div class="page-content" style="display:grid;grid-template-columns:1fr 1fr;gap:20px">'+
 
     '<div>'+
@@ -3661,6 +3664,10 @@ function renderConfigLoja(){
       '<input class="form-control" id="cfg_nome" value="'+esc(c.nome_loja||'')+'"/>'+
     '</div>'+
     '<div class="form-group">'+
+      '<label class="form-label">Texto do "Monte seu..."'+cfgHelp('Texto que substitui "Monte seu Açaí" no banner do cardápio online e nos menus do painel.')+'</label>'+
+      '<input class="form-control" id="cfg_texto_monte_acai" value="'+esc(c.texto_monte_acai||'Monte seu Açaí')+'" placeholder="Monte seu Açaí"/>'+
+    '</div>'+
+    '<div class="form-group">'+
       '<label class="form-label">URL do Logo'+cfgHelp('Link direto da imagem do logo da loja.\nRecomendado: hospede no Imgur ou Google Drive\ne cole o link público aqui.')+'</label>'+
       '<input type="url" class="form-control" id="cfg_logo" value="'+esc(c.url_logo||'')+'" placeholder="https://..."/>'+
     '</div>'+
@@ -3835,6 +3842,7 @@ function renderConfigLoja(){
 function salvarConfiguracoes(){
   var dados={
     nome_loja:       document.getElementById('cfg_nome').value.trim(),
+    texto_monte_acai: document.getElementById('cfg_texto_monte_acai') ? document.getElementById('cfg_texto_monte_acai').value.trim() : 'Monte seu Açaí',
     whatsapp_numero: document.getElementById('cfg_wpp').value.trim(),
     horarios_dias: {
       dom: { abre: document.getElementById('cfg_h_abre_dom').value, fecha: document.getElementById('cfg_h_fecha_dom').value, fechado: document.getElementById('cfg_h_fechado_dom').checked },
