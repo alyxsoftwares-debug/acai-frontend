@@ -3029,8 +3029,9 @@ function renderItensRows(){
   return items.map(function(i){
     var disp=i.disponivel===true;
     var online=i.mostrar_online!==false;
+    var fotoHTML = i.foto_url ? '<img src="'+esc(i.foto_url)+'" style="width:28px;height:28px;border-radius:6px;object-fit:cover;margin-right:8px;display:inline-block;vertical-align:middle" onerror="this.style.display=\'none\'">' : '';
     return '<tr draggable="true" data-id="'+esc(i.id_item)+'" ondragstart="dragStartItem(event)" ondragover="dragOverItem(event)" ondrop="dropItem(event)" ondragend="dragEndItem(event)" style="cursor:grab">'+
-      '<td><div style="font-weight:700"><i class="fa-solid fa-grip-vertical text-muted" style="margin-right:8px"></i>'+esc(i.nome)+'</div><div style="font-size:11px;color:#9ca3af;margin-left:20px">'+esc(i.descricao||'')+'</div></td>'+
+      '<td><div style="font-weight:700"><i class="fa-solid fa-grip-vertical text-muted" style="margin-right:8px;vertical-align:middle"></i>'+fotoHTML+'<span style="vertical-align:middle">'+esc(i.nome)+'</span></div><div style="font-size:11px;color:#9ca3af;margin-left:'+(i.foto_url ? '52px' : '20px')+'">'+esc(i.descricao||'')+'</div></td>'+
       '<td>'+esc(i.categoria||'--')+'</td>'+
       '<td><strong style="color:#7c3aed">'+fmtMoeda(i.preco)+'</strong></td>'+
       '<td><span class="badge '+(disp?'badge-entregue':'badge-cancelado')+'">'+(disp?'Sim':'Não')+'</span></td>'+
@@ -3274,8 +3275,9 @@ function renderModelosRows(){
   if(!items.length) return '<tr><td colspan="4" style="text-align:center;padding:20px;color:#9ca3af">Nenhum tamanho</td></tr>';
   return items.map(function(m){
     var d=m.disponivel===true;
+    var fotoHTML = m.foto_url ? '<img src="'+esc(m.foto_url)+'" style="width:28px;height:28px;border-radius:6px;object-fit:cover;margin-right:8px;display:inline-block;vertical-align:middle" onerror="this.style.display=\'none\'">' : '';
     return '<tr draggable="true" data-id="'+esc(m.id_modelo)+'" ondragstart="dragStartMod(event)" ondragover="dragOverMod(event)" ondrop="dropMod(event)" ondragend="dragEndMod(event)" style="cursor:grab">'+
-      '<td><div style="font-weight:700"><i class="fa-solid fa-grip-vertical text-muted" style="margin-right:8px"></i>'+esc(m.nome)+'</div><div style="font-size:11px;color:#9ca3af;margin-left:20px">'+esc(m.descricao||'')+'</div></td>'+
+      '<td><div style="font-weight:700"><i class="fa-solid fa-grip-vertical text-muted" style="margin-right:8px;vertical-align:middle"></i>'+fotoHTML+'<span style="vertical-align:middle">'+esc(m.nome)+'</span></div><div style="font-size:11px;color:#9ca3af;margin-left:'+(m.foto_url ? '52px' : '20px')+'">'+esc(m.descricao||'')+'</div></td>'+
       '<td><strong style="color:#7c3aed">'+fmtMoeda(m.preco)+'</strong></td>'+
       '<td><span class="badge '+(d?'badge-entregue':'badge-cancelado')+'">'+(d?'Sim':'Não')+'</span></td>'+
       '<td><div class="flex gap-2">'+
@@ -3395,8 +3397,9 @@ function renderIngsRows(){
   return items.map(function(i){
     var cat=cats.find(function(c){ return c.id_categoria===i.categoria_id; });
     var d=i.disponivel===true;
+    var fotoHTML = i.foto_url ? '<img src="'+esc(i.foto_url)+'" style="width:28px;height:28px;border-radius:6px;object-fit:cover;margin-right:8px;display:inline-block;vertical-align:middle" onerror="this.style.display=\'none\'">' : '';
     return '<tr draggable="true" data-id="'+esc(i.id_ingrediente)+'" ondragstart="dragStartIng(event)" ondragover="dragOverIng(event)" ondrop="dropIng(event)" ondragend="dragEndIng(event)" style="cursor:grab">'+
-      '<td style="font-weight:600"><i class="fa-solid fa-grip-vertical text-muted" style="margin-right:8px"></i>'+esc(i.nome)+'</td>'+
+      '<td style="font-weight:600"><i class="fa-solid fa-grip-vertical text-muted" style="margin-right:8px;vertical-align:middle"></i>'+fotoHTML+'<span style="vertical-align:middle">'+esc(i.nome)+'</span></td>'+
       '<td>'+esc(cat?cat.nome:'--')+'</td>'+
       '<td><strong style="color:#7c3aed">'+fmtMoeda(i.preco)+'</strong></td>'+
       '<td><span class="badge '+(d?'badge-entregue':'badge-cancelado')+'">'+(d?'Sim':'Não')+'</span></td>'+
