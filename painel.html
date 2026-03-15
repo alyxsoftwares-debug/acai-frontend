@@ -1090,11 +1090,28 @@ function construirUI(){
   document.title=nomeLoja+' — Painel';
 
   var corLoja = config.cor_loja || '#000000';
-  document.documentElement.style.setProperty('--purple-500', corLoja);
-  document.documentElement.style.setProperty('--purple-600', corLoja);
-  document.documentElement.style.setProperty('--purple-700', corLoja);
-  document.documentElement.style.setProperty('--grad-main', corLoja);
-  document.documentElement.style.setProperty('--grad-btn', corLoja);
+      document.documentElement.style.setProperty('--purple-500', corLoja);
+      document.documentElement.style.setProperty('--purple-600', corLoja);
+      document.documentElement.style.setProperty('--purple-700', corLoja);
+      document.documentElement.style.setProperty('--grad-main', corLoja);
+      document.documentElement.style.setProperty('--grad-btn', corLoja);
+
+      // Força a cor personalizada nos elementos da barra lateral e painel que tinham cor fixa
+      var styleCor = document.getElementById('dynamic-store-style') || document.createElement('style');
+      styleCor.id = 'dynamic-store-style';
+      styleCor.type = 'text/css';
+      styleCor.innerHTML = 
+        "nav.sidebar-nav a.active { background-color: " + corLoja + "40 !important; border-left-color: " + corLoja + " !important; }\n" +
+        ".btn-collapse { background-color: " + corLoja + " !important; }\n" +
+        ".btn-collapse:hover { filter: brightness(0.85); }\n" +
+        ".sidebar-logo .logo-icon { background: " + corLoja + " !important; }\n" +
+        ".user-avatar { background: " + corLoja + " !important; }\n" +
+        ".btn-primary { box-shadow: 0 4px 16px " + corLoja + "60 !important; }\n" +
+        ".text-purple { color: " + corLoja + " !important; }\n" +
+        ".cfg-tab-btn.cfg-tab-ativo { color: " + corLoja + " !important; border-bottom-color: " + corLoja + " !important; }";
+      document.head.appendChild(styleCor);
+
+      document.getElementById('sidebarNome').textContent=u.nome||'Usuário';
 
   document.getElementById('sidebarNome').textContent=u.nome||'Usuário';
   document.getElementById('sidebarCargo').textContent=u.cargo||'';
