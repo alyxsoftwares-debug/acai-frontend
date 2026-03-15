@@ -2941,16 +2941,16 @@ function renderSecaoRetirada(){
 function recarregarRetirada(){
   var lista=document.getElementById('listaRetirada');
   if(lista) lista.innerHTML='<div style="text-align:center;padding:30px"><div class="spinner" style="margin:auto"></div></div>';
-  api('GET', L('/pedidos/dia'))
+  api('GET', L('/delivery-ativo'))
     .then(function(res){
-      if(ST.dados) ST.dados.pedidosDia=res;
+      if(ST.dados) ST.dados.deliveryAtivo=res;
       renderRetirada();
     })
     .catch(function(){ renderRetirada(); });
 }
 
 function renderRetirada(){
-  var todos = (ST.dados && ST.dados.pedidosDia && ST.dados.pedidosDia.pedidos) || [];
+  var todos = (ST.dados && ST.dados.deliveryAtivo) || [];
   var pedidos = todos.filter(function(p){
      if((p.origem||'').toUpperCase() !== 'ONLINE') return false;
      if((p.status||'').toUpperCase() === 'ENTREGUE' || (p.status||'').toUpperCase() === 'CANCELADO') return false;
@@ -3023,7 +3023,7 @@ function statusBtnRetirada(val,atual,icon,label,idVenda){
 }
 
 function verDetalheRetirada(idVenda){
-  var pedidos=(ST.dados&&ST.dados.pedidosDia&&ST.dados.pedidosDia.pedidos)||[];
+  var pedidos=(ST.dados&&ST.dados.deliveryAtivo)||[];
   var p=pedidos.find(function(x){ return x.id_venda===idVenda; });
   if(!p) { toast('Pedido não encontrado.','warn'); return; }
 
