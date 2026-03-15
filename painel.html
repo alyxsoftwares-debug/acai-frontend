@@ -398,28 +398,50 @@ table.tbl tr:last-child td{border-bottom:none}
 .caixa-itens{list-style:none;margin:0;padding:0}
 .caixa-itens li{
   display:flex;align-items:center;justify-content:space-between;
-  padding:10px 0;border-bottom:1px solid #f3f4f6;gap:8px;
+  padding:9px 10px;border-radius:9px;gap:8px;
+  border-bottom:1px solid #f1f5f9;transition:background .15s;
 }
 .caixa-itens li:last-child{border-bottom:none}
-.caixa-item-nome{flex:1;font-size:13px;font-weight:600;color:#374151}
+.caixa-itens li:hover{background:#f8fafc}
+.caixa-item-nome{flex:1;font-size:13px;font-weight:600;color:#334155}
+.caixa-item-qty{
+  font-size:11px;font-weight:800;color:#fff;background:#7c3aed;
+  border-radius:99px;padding:1px 7px;white-space:nowrap;flex-shrink:0;
+}
 .caixa-item-preco{font-size:13.5px;font-weight:800;color:#7c3aed;white-space:nowrap}
 .caixa-item-rem{
-  width:24px;height:24px;border-radius:6px;border:none;background:#fef2f2;
+  width:26px;height:26px;border-radius:7px;border:none;background:#fef2f2;
   color:#ef4444;cursor:pointer;display:flex;align-items:center;justify-content:center;
-  font-size:11px;transition:background .2s;flex-shrink:0;
+  font-size:11px;transition:all .15s;flex-shrink:0;
 }
-.caixa-item-rem:hover{background:#fee2e2}
+.caixa-item-rem:hover{background:#fee2e2;transform:scale(1.1)}
 .caixa-total{
-  background:linear-gradient(135deg,#f5f3ff,#ede9fe);
-  border-radius:12px;padding:14px 16px;margin-top:12px;
+  background:#fff;border:1px solid #e2e8f0;
+  border-radius:14px;padding:16px 18px;margin-top:14px;
+  box-shadow:0 2px 12px rgba(0,0,0,.05);
 }
-.caixa-total-row{display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px;color:#374151}
-.caixa-total-row.big{font-size:17px;font-weight:900;color:#1e1b4b;margin-top:8px;padding-top:8px;border-top:1.5px solid #ddd6fe}
+.caixa-total-row{display:flex;justify-content:space-between;align-items:center;font-size:13px;margin-bottom:8px;color:#475569}
+.caixa-total-row .lbl{display:flex;align-items:center;gap:6px}
+.caixa-total-row.big{
+  font-size:18px;font-weight:900;color:#0f172a;
+  margin-top:10px;padding-top:12px;
+  border-top:2px solid #e2e8f0;margin-bottom:0;
+}
 .caixa-troco{
-  background:#f0fdf4;border:1.5px solid #bbf7d0;border-radius:10px;
-  padding:10px 14px;margin-top:10px;text-align:center;
-  font-weight:800;color:#16a34a;font-size:16px;
+  background:#f0fdf4;border:1.5px solid #86efac;border-radius:12px;
+  padding:12px 16px;margin-top:12px;text-align:center;
+  font-weight:800;color:#15803d;font-size:17px;
+  display:flex;align-items:center;justify-content:center;gap:8px;
 }
+
+/* ── PDV Section Divider ────────────────────────────── */
+.pdv-section{
+  display:flex;align-items:center;gap:8px;
+  font-size:11px;font-weight:800;color:#64748b;text-transform:uppercase;letter-spacing:.6px;
+  margin:20px 0 14px;padding-bottom:10px;border-bottom:1.5px solid #f1f5f9;
+}
+.pdv-section i{color:#7c3aed;font-size:13px}
+.pdv-section:first-child{margin-top:4px}
 
 /* ── Pedido Card ────────────────────────────────────── */
 .pedido-card{
@@ -1614,7 +1636,7 @@ function abrirPDVBalcao(){
   document.getElementById('modalBalcaoBody').innerHTML=
     '<div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">'+
     '<div>'+
-      '<h3 style="font-weight:800;font-size:15px;margin-bottom:14px;color:#1e1b4b"><i class="fa-solid fa-weight-scale text-purple"></i> Pesagem</h3>'+
+      '<div class="pdv-section"><i class="fa-solid fa-weight-scale"></i>Pesagem</div>'+
       '<div class="form-row cols-2">'+
         '<div class="form-group">'+
           '<label class="form-label" style="display:flex; justify-content:space-between; align-items:center;">'+
@@ -1656,12 +1678,16 @@ function abrirPDVBalcao(){
         '<ul class="caixa-itens" id="b_listaAcai"></ul>'+
       '</div>'+
 
-      '<h3 style="font-weight:800;font-size:15px;margin-bottom:12px;color:#1e1b4b"><i class="fa-solid fa-plus text-purple"></i> Itens Extras</h3>'+
-      '<select class="form-control mb-3" id="b_itemSelect" onchange="adicionarItemBalcao()">'+itensOpts+'</select>'+
+      '<div class="pdv-section"><i class="fa-solid fa-plus"></i>Itens Extras</div>'+
+      '<div style="display:flex;gap:8px;margin-bottom:10px">'+
+        '<select class="form-control" id="b_itemSelect" style="flex:1">'+itensOpts+'</select>'+
+        '<input type="number" class="form-control" id="b_itemQtd" value="1" min="1" max="99" style="width:64px;text-align:center" title="Quantidade"/>'+
+        '<button class="btn btn-success btn-sm" onclick="adicionarItemBalcao()" style="white-space:nowrap"><i class="fa-solid fa-plus"></i>Add</button>'+
+      '</div>'+
       '<ul class="caixa-itens" id="b_listaItens"></ul>'+
 
       (config.mostrar_acai_rapido_pdv!==false && modelos.length?
-        '<h3 style="font-weight:800;font-size:15px;margin:16px 0 10px;color:#1e1b4b"><i class="fa-solid fa-bolt text-purple"></i> Açaí Rápido <span style="font-size:11px;font-weight:500;color:#7c3aed;margin-left:4px">preço fixo</span></h3>'+
+        '<div class="pdv-section"><i class="fa-solid fa-bolt"></i>Atalhos Rápidos <span style="font-size:10px;font-weight:600;color:#94a3b8;text-transform:none;letter-spacing:0;margin-left:4px">preço fixo</span></div>'+
         '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px;margin-bottom:12px">'+
           modelos.map(function(m){
             return '<button type="button" onclick="adicionarModeloBalcao(\''+esc(m.id_modelo)+'\',\''+esc(m.nome)+'\','+parseFloat(m.preco||0)+')" '+
@@ -1675,7 +1701,7 @@ function abrirPDVBalcao(){
           }).join('')+
         '</div>'
       :'')+
-      '<h3 style="font-weight:800;font-size:15px;margin:16px 0 12px;color:#1e1b4b"><i class="fa-solid fa-user text-purple"></i> Cliente (opcional)</h3>'+
+      '<div class="pdv-section"><i class="fa-solid fa-user"></i>Cliente (opcional)</div>'+
       '<div class="form-row cols-2">'+
         '<div class="form-group mb-2"><label class="form-label">Nome</label><input type="text" class="form-control" id="b_nomeCliente" placeholder="Nome do cliente"/></div>'+
         '<div class="form-group mb-2"><label class="form-label">Telefone</label><input type="text" class="form-control" id="b_telefone" placeholder="(84) 9xxxx-xxxx"/></div>'+
@@ -1683,7 +1709,7 @@ function abrirPDVBalcao(){
     '</div>'+
 
     '<div>'+
-      '<h3 style="font-weight:800;font-size:15px;margin-bottom:14px;color:#1e1b4b"><i class="fa-solid fa-wallet text-purple"></i> Pagamento</h3>'+
+      '<div class="pdv-section"><i class="fa-solid fa-wallet"></i>Pagamento</div>'+
       '<div class="form-group mb-3">'+
         '<label class="form-label">Forma de Pagamento</label>'+
         '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">'+
@@ -1712,11 +1738,13 @@ function abrirPDVBalcao(){
         '<div class="caixa-total-row"><span>Desconto</span><span id="b_r_desc" style="color:#16a34a">R$ 0,00</span></div>'+
         '<div class="caixa-total-row big"><span>Total</span><span id="b_r_total">R$ 0,00</span></div>'+
       '</div>'+
-      '<div id="b_trocoDisplay" class="caixa-troco hidden">Troco: <span id="b_trocoVal">R$ 0,00</span></div>'+
-      '<div style="display:flex; gap:8px; margin-top:12px;">'+
+      '<div id="b_trocoDisplay" class="caixa-troco hidden"><i class="fa-solid fa-coins"></i> Troco: <span id="b_trocoVal">R$ 0,00</span></div>'+
+      '<div class="pdv-section" style="margin-top:20px"><i class="fa-solid fa-note-sticky"></i>Observação</div>'+
+      '<textarea class="form-control mb-3" id="b_observacao" rows="2" placeholder="Alguma observação para este pedido?" style="resize:none;font-size:13px"></textarea>'+
+      '<div style="display:flex;gap:8px;margin-top:4px;">'+
         '<button class="btn btn-primary" style="flex:1" onclick="finalizarBalcao()" id="b_btnFinalizar">'+
-        '<i class="fa-solid fa-check-circle"></i>Finalizar Venda no Balcão <kbd style="font-size:9px;opacity:.65;background:rgba(255,255,255,.25);border-radius:4px;padding:1px 4px;margin-left:4px">F4</kbd></button>'+
-        '<button class="btn btn-secondary" style="padding:0 18px;" onclick="imprimirUltimaVendaBalcao()" title="Imprimir Cupom"><i class="fa-solid fa-print"></i></button>'+
+        '<i class="fa-solid fa-check-circle"></i>Finalizar Venda <kbd style="font-size:9px;opacity:.65;background:rgba(255,255,255,.25);border-radius:4px;padding:1px 4px;margin-left:4px">F4</kbd></button>'+
+        '<button class="btn btn-secondary" style="padding:0 16px;" onclick="imprimirUltimaVendaBalcao()" title="Imprimir último cupom"><i class="fa-solid fa-print"></i></button>'+
       '</div>'+
       '<div id="b_finMsg" class="mt-3"></div>'+
     '</div>'+
@@ -1731,11 +1759,17 @@ function abrirPDVBalcao(){
 }
 
 var _pgtoShortcuts={'PIX':'1','CARTAO':'2','DINHEIRO':'3'};
+var _pgtoColors={
+  DINHEIRO:{bg:'#f0fdf4',border:'#86efac',color:'#15803d',active:'#16a34a'},
+  PIX:     {bg:'#eff6ff',border:'#93c5fd',color:'#1d4ed8',active:'#2563eb'},
+  CARTAO:  {bg:'#f5f3ff',border:'#c4b5fd',color:'#6d28d9',active:'#7c3aed'}
+};
 function pgBtn(grupo,val,icon,label){
-  var sc=_pgtoShortcuts[val]?'<kbd style="font-size:8px;opacity:.5;background:#f3f4f6;border-radius:3px;padding:1px 3px;position:absolute;top:5px;right:5px">'+_pgtoShortcuts[val]+'</kbd>':'';
+  var sc=_pgtoShortcuts[val]?'<kbd style="font-size:8px;opacity:.55;background:rgba(0,0,0,.08);border-radius:3px;padding:1px 4px;position:absolute;top:5px;right:5px">'+_pgtoShortcuts[val]+'</kbd>':'';
+  var c=_pgtoColors[val]||{bg:'#fff',border:'#e5e7eb',color:'#374151'};
   return '<button type="button" onclick="selecionarPgto(\''+grupo+'\',\''+val+'\')" id="pg_'+grupo+'_'+val+'" '+
-    'style="position:relative;padding:10px;border-radius:8px;border:1.5px solid #e5e7eb;background:#fff;cursor:pointer;font-family:inherit;font-size:12px;font-weight:700;color:#374151;transition:all .2s;text-align:center">'+
-    '<i class="fa-solid '+icon+'" style="display:block;font-size:18px;margin-bottom:4px"></i>'+label+sc+'</button>';
+    'style="position:relative;padding:12px 8px;border-radius:10px;border:1.5px solid '+c.border+';background:'+c.bg+';cursor:pointer;font-family:inherit;font-size:12px;font-weight:700;color:'+c.color+';transition:all .2s;text-align:center;width:100%">'+
+    '<i class="fa-solid '+icon+'" style="display:block;font-size:20px;margin-bottom:5px"></i>'+label+sc+'</button>';
 }
 
 function selecionarPgto(grupo,val){
@@ -1747,7 +1781,11 @@ function selecionarPgto(grupo,val){
     el.style.background='#fff'; el.style.borderColor='#e5e7eb'; el.style.color='#374151';
   });
   var btn=document.getElementById('pg_'+grupo+'_'+val);
-  if(btn){ btn.style.background='#7c3aed'; btn.style.borderColor='#7c3aed'; btn.style.color='#fff'; }
+  if(btn){
+    var ac=(_pgtoColors[val]||{}).active||'#7c3aed';
+    btn.style.background=ac; btn.style.borderColor=ac; btn.style.color='#fff';
+    btn.style.boxShadow='0 4px 14px '+ac+'55';
+  }
 
   // Mostra/esconde campo de troco apenas para o modal correto
   if(grupo==='b_pgto'){
@@ -1813,9 +1851,19 @@ function adicionarItemBalcao(){
   var sel=document.getElementById('b_itemSelect');
   var opt=sel.options[sel.selectedIndex];
   if(!opt.value) return;
-  var item={id:opt.value,descricao:opt.dataset.nome,preco:parseFloat(opt.dataset.preco)||0};
+  var qtd=Math.max(1,parseInt((document.getElementById('b_itemQtd')||{}).value||1));
+  var precoUnit=parseFloat(opt.dataset.preco)||0;
+  var item={
+    id:opt.value,
+    descricao:opt.dataset.nome,
+    quantidade:qtd,
+    precoUnit:precoUnit,
+    preco:Math.round(precoUnit*qtd*100)/100
+  };
   ST.pdvBalcaoItens.push(item);
   sel.selectedIndex=0;
+  var qtdEl=document.getElementById('b_itemQtd');
+  if(qtdEl) qtdEl.value=1;
   renderListaBalcao();
   calcBalcao();
 }
@@ -1829,7 +1877,14 @@ function renderListaBalcao(){
   var ul=document.getElementById('b_listaItens');
   if(!ul) return;
   ul.innerHTML=ST.pdvBalcaoItens.map(function(item,i){
-    return '<li><span class="caixa-item-nome">'+esc(item.descricao)+'</span>'+
+    var qtd=item.quantidade||1;
+    var sub='<div style="font-size:10px;color:#94a3b8;margin-top:1px">'+fmtMoeda(item.precoUnit||item.preco)+' × '+qtd+'</div>';
+    return '<li>'+
+      '<div style="flex:1;min-width:0">'+
+        '<span class="caixa-item-nome">'+esc(item.descricao)+'</span>'+
+        (qtd>1?sub:'')+
+      '</div>'+
+      (qtd>1?'<span class="caixa-item-qty">×'+qtd+'</span>':'')+
       '<span class="caixa-item-preco">'+fmtMoeda(item.preco)+'</span>'+
       '<button class="caixa-item-rem" onclick="removerItemBalcao('+i+')"><i class="fa-solid fa-xmark"></i></button></li>';
   }).join('');
@@ -1951,7 +2006,8 @@ function finalizarBalcao(){
     pagamento:  pgto,
     valorPago:  parseFloat((document.getElementById('b_valorPago')||{}).value||0),
     nomeCliente:document.getElementById('b_nomeCliente').value.trim(),
-    telefone:   document.getElementById('b_telefone').value.trim()
+    telefone:   document.getElementById('b_telefone').value.trim(),
+    observacao: (document.getElementById('b_observacao')||{value:''}).value.trim()
   };
 
   api('POST', L('/pedidos/balcao'), dados)
@@ -2049,7 +2105,7 @@ function abrirPDVDelivery(){
     '</div>'+
 
     '<div>'+
-      '<h3 style="font-weight:800;font-size:15px;margin-bottom:14px;color:#1e1b4b"><i class="fa-solid fa-wallet text-purple"></i> Pagamento</h3>'+
+      '<div class="pdv-section"><i class="fa-solid fa-wallet"></i>Pagamento</div>'+
       '<div class="form-group mb-3">'+
         '<label class="form-label">Forma de Pagamento</label>'+
         '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">'+
@@ -2077,9 +2133,11 @@ function abrirPDVDelivery(){
         '<div class="caixa-total-row"><span>Taxa de Entrega</span><span id="d_r_taxa">R$ 0,00</span></div>'+
         '<div class="caixa-total-row big"><span>Total</span><span id="d_r_total">R$ 0,00</span></div>'+
       '</div>'+
-      '<div id="d_trocoDisplay" class="caixa-troco hidden">Troco: <span id="d_trocoVal">R$ 0,00</span></div>'+
-      '<button class="btn btn-primary btn-full mt-4" onclick="finalizarDeliveryPDV()" id="d_btnFinalizar">'+
-      '<i class="fa-solid fa-motorcycle"></i>Registrar Pedido Delivery <kbd style="font-size:9px;opacity:.65;background:rgba(255,255,255,.25);border-radius:4px;padding:1px 4px;margin-left:4px">F5</kbd></button>'+
+      '<div id="d_trocoDisplay" class="caixa-troco hidden"><i class="fa-solid fa-coins"></i> Troco: <span id="d_trocoVal">R$ 0,00</span></div>'+
+      '<div class="pdv-section" style="margin-top:20px"><i class="fa-solid fa-note-sticky"></i>Observação</div>'+
+      '<textarea class="form-control mb-3" id="d_observacao" rows="2" placeholder="Alguma observação para o entregador ou preparo?" style="resize:none;font-size:13px"></textarea>'+
+      '<button class="btn btn-primary btn-full mt-2" onclick="finalizarDeliveryPDV()" id="d_btnFinalizar">'+
+      '<i class="fa-solid fa-motorcycle"></i>Registrar Delivery <kbd style="font-size:9px;opacity:.65;background:rgba(255,255,255,.25);border-radius:4px;padding:1px 4px;margin-left:4px">F5</kbd></button>'+
       '<div id="d_finMsg" class="mt-3"></div>'+
     '</div>'+
     '</div>';
@@ -2099,8 +2157,18 @@ function adicionarItemDelivery(){
   var sel=document.getElementById('d_itemSelect');
   var opt=sel.options[sel.selectedIndex];
   if(!opt.value) return;
-  ST.pdvDeliveryItens.push({id:opt.value,descricao:opt.dataset.nome,preco:parseFloat(opt.dataset.preco)||0});
+  var qtd=Math.max(1,parseInt((document.getElementById('d_itemQtd')||{}).value||1));
+  var precoUnit=parseFloat(opt.dataset.preco)||0;
+  ST.pdvDeliveryItens.push({
+    id:opt.value,
+    descricao:opt.dataset.nome,
+    quantidade:qtd,
+    precoUnit:precoUnit,
+    preco:Math.round(precoUnit*qtd*100)/100
+  });
   sel.selectedIndex=0;
+  var qtdEl=document.getElementById('d_itemQtd');
+  if(qtdEl) qtdEl.value=1;
   renderListaDeliveryPDV(); calcDelivery();
 }
 
@@ -2112,9 +2180,19 @@ function removerItemDelivery(idx){
 function renderListaDeliveryPDV(){
   var ul=document.getElementById('d_listaItens');
   if(!ul) return;
-  if(!ST.pdvDeliveryItens.length){ ul.innerHTML='<li style="text-align:center;color:#9ca3af;font-size:13px">Nenhum item adicionado</li>'; return; }
+  if(!ST.pdvDeliveryItens.length){
+    ul.innerHTML='<li style="text-align:center;color:#94a3b8;font-size:13px;padding:12px">Nenhum item adicionado</li>';
+    return;
+  }
   ul.innerHTML=ST.pdvDeliveryItens.map(function(item,i){
-    return '<li><span class="caixa-item-nome">'+esc(item.descricao)+'</span>'+
+    var qtd=item.quantidade||1;
+    var sub='<div style="font-size:10px;color:#94a3b8;margin-top:1px">'+fmtMoeda(item.precoUnit||item.preco)+' × '+qtd+'</div>';
+    return '<li>'+
+      '<div style="flex:1;min-width:0">'+
+        '<span class="caixa-item-nome">'+esc(item.descricao)+'</span>'+
+        (qtd>1?sub:'')+
+      '</div>'+
+      (qtd>1?'<span class="caixa-item-qty">×'+qtd+'</span>':'')+
       '<span class="caixa-item-preco">'+fmtMoeda(item.preco)+'</span>'+
       '<button class="caixa-item-rem" onclick="removerItemDelivery('+i+')"><i class="fa-solid fa-xmark"></i></button></li>';
   }).join('');
@@ -2160,14 +2238,19 @@ function finalizarDeliveryPDV(){
   ST.registrando=true;
   btn.disabled=true; btn.innerHTML='<div class="spinner" style="width:18px;height:18px;border-width:2px"></div> Registrando...';
 
+  var complemento = (document.getElementById('d_complemento')||{value:''}).value.trim();
+  var referencia  = (document.getElementById('d_referencia') ||{value:''}).value.trim();
+  var endCompleto = end + (complemento?' — '+complemento:'') + (referencia?' (Ref: '+referencia+')':'');
+
   var dados={
     operador:   ST.usuario.nome,
-    nomeCliente:nome, telefone:tel, endereco:end,
-    itens:      ST.pdvDeliveryItens.map(function(i){ return {descricao:i.descricao,preco:i.preco}; }),
+    nomeCliente:nome, telefone:tel, endereco:endCompleto,
+    itens:      ST.pdvDeliveryItens.map(function(i){ return {descricao:i.descricao,preco:i.preco,quantidade:i.quantidade||1}; }),
     desconto:   parseFloat(document.getElementById('d_desconto').value||0),
     taxaEntrega:parseFloat(document.getElementById('d_taxa').value||0),
     pagamento:  pgto,
-    valorPago:  parseFloat((document.getElementById('d_valorPago')||{}).value||0)
+    valorPago:  parseFloat((document.getElementById('d_valorPago')||{}).value||0),
+    observacao: (document.getElementById('d_observacao')||{value:''}).value.trim()
   };
 
   api('POST', L('/pedidos/delivery'), dados)
@@ -2177,6 +2260,8 @@ function finalizarDeliveryPDV(){
       if(res.sucesso){
         fecharModal('modalDeliveryPDV');
         toast('Delivery registrado! Total: '+fmtMoeda(res.total),'success');
+        // Navega para aba Delivery para o operador ver o pedido na fila
+        navegarPara('abaDelivery');
         // Atualização otimista — sem segunda chamada ao servidor
         var agora=new Date();
         var dd=agora.getDate()<10?'0'+agora.getDate():agora.getDate();
