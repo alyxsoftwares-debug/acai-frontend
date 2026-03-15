@@ -654,22 +654,17 @@
         return;
       }
 
-        // Cor da Loja
+        // Cor da Loja - Anulando os gradientes roxos forçadamente
         var corLoja = (p.configuracoes && p.configuracoes.cor_loja) ? p.configuracoes.cor_loja : '#000000';
         var styleCor = document.createElement('style');
-        styleCor.innerHTML = `
-          .bg-purple-600 { background-color: ${corLoja} !important; }
-          .text-purple-600 { color: ${corLoja} !important; }
-          .border-purple-600 { border-color: ${corLoja} !important; }
-          .text-purple-700 { color: ${corLoja} !important; }
-          .bg-purple-500 { background-color: ${corLoja} !important; }
-          .text-purple-500 { color: ${corLoja} !important; }
-          .header-premium { background: ${corLoja} !important; }
-          .banner-monte { background: ${corLoja} !important; }
-          .btn-primary { background: ${corLoja} !important; box-shadow: 0 6px 22px ${corLoja}80 !important; }
-          .barra-carrinho { background: ${corLoja} !important; }
-          ::-webkit-scrollbar-thumb { background: ${corLoja} !important; }
-        `;
+        styleCor.type = 'text/css';
+        styleCor.innerHTML = 
+          ".bg-purple-600, .bg-purple-500 { background-color: " + corLoja + " !important; }\n" +
+          ".text-purple-600, .text-purple-700, .text-purple-800 { color: " + corLoja + " !important; }\n" +
+          ".border-purple-600, .border-purple-500 { border-color: " + corLoja + " !important; }\n" +
+          ".header-premium, .banner-monte, .barra-carrinho { background-color: " + corLoja + " !important; background-image: none !important; }\n" +
+          ".btn-primary { background-color: " + corLoja + " !important; background-image: none !important; box-shadow: 0 6px 20px " + corLoja + "60 !important; }\n" +
+          "::-webkit-scrollbar-thumb { background-color: " + corLoja + " !important; }";
         document.head.appendChild(styleCor);
 
         // Logo e Favicon Dinâmico
