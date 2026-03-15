@@ -36,7 +36,7 @@
 
 <style>
   @media(max-width:600px){
-  .modal-box{max-height:90dvh;overflow-y:auto;margin:5dvh auto}
+  .modal-box{max-height:95dvh;overflow-y:auto;margin:2.5dvh auto}
   .pdv-grid{gap:12px}
   .form-row.cols-2{grid-template-columns:1fr}
 }
@@ -45,204 +45,195 @@
   .sidebar-bottom span, .sidebar-bottom a{ font-size:9px; }
 }
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Plus Jakarta Sans',sans-serif;background:#f1f5f9;color:#0f172a;min-height:100vh;overflow-x:hidden}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:#f0f2f5;color:#0f172a;min-height:100vh;overflow-x:hidden}
 :root{
-  --purple-50:#f5f3ff;--purple-100:#ede9fe;--purple-200:#ddd6fe;--purple-300:#c4b5fd;
-  --purple-400:#a78bfa;--purple-500:#8b5cf6;--purple-600:#7c3aed;--purple-700:#6d28d9;
-  --purple-800:#5b21b6;--purple-900:#4c1d95;
-  --grad-main:linear-gradient(135deg,#1a0533 0%,#2d0f5e 60%,#1a0533 100%);
+  --brand-50:#f5f3ff;--brand-100:#ede9fe;--brand-200:#ddd6fe;--brand-300:#c4b5fd;
+  --brand-400:#a78bfa;--brand-500:#8b5cf6;--brand-600:#7c3aed;--brand-700:#6d28d9;
+  --brand-800:#5b21b6;--brand-900:#4c1d95;
+  --grad-main:linear-gradient(160deg,#1a0533 0%,#2d0f5e 60%,#1a0533 100%);
   --grad-btn:linear-gradient(135deg,#7c3aed,#a855f7);
   --shadow-card:0 4px 24px rgba(109,40,217,.10);
   --shadow-btn:0 4px 16px rgba(124,58,237,.35);
   --radius:16px;--radius-sm:10px;
+  --sidebar-w:256px;
+  --topbar-h:64px;
 }
 
 /* ── Scrollbar ─────────────────────────────────────── */
-::-webkit-scrollbar{width:6px;height:6px}
-::-webkit-scrollbar-track{background:#f0eeff}
-::-webkit-scrollbar-thumb{background:#c4b5fd;border-radius:99px}
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:#d1d5db;border-radius:99px}
+::-webkit-scrollbar-thumb:hover{background:#9ca3af}
 
 /* ── Layout ─────────────────────────────────────────── */
 #app{display:flex;height:100vh;overflow:hidden}
 
 /* ── Sidebar ─────────────────────────────────────────── */
 #sidebar{
-  width:260px;min-width:260px;background:var(--grad-main);
+  width:var(--sidebar-w);min-width:var(--sidebar-w);background:var(--grad-main);
   display:flex;flex-direction:column;height:100vh;
-  transition:width .3s ease;position:relative;z-index:100;
-  box-shadow:4px 0 24px rgba(0,0,0,.18);
+  transition:width .3s cubic-bezier(.4,0,.2,1);position:relative;z-index:100;
+  box-shadow:4px 0 32px rgba(0,0,0,.22);
 }
-#sidebar.collapsed{width:72px;min-width:72px}
+#sidebar.collapsed{width:68px;min-width:68px}
 .sidebar-logo{
-  padding:28px 20px 20px;display:flex;align-items:center;gap:12px;
-  border-bottom:1px solid rgba(255,255,255,.08);
+  padding:22px 16px 18px;display:flex;align-items:center;gap:11px;
+  border-bottom:1px solid rgba(255,255,255,.07);
 }
 .sidebar-logo .logo-icon{
-  width:40px;height:40px;background:linear-gradient(135deg,#a855f7,#ec4899);
-  border-radius:12px;display:flex;align-items:center;justify-content:center;
-  font-size:20px;flex-shrink:0;
+  width:38px;height:38px;background:linear-gradient(135deg,#a855f7,#ec4899);
+  border-radius:11px;display:flex;align-items:center;justify-content:center;
+  font-size:18px;flex-shrink:0;box-shadow:0 2px 12px rgba(168,85,247,.4);
 }
-.sidebar-logo .logo-text{color:#fff;font-weight:800;font-size:14px;line-height:1.3;
-  white-space:nowrap;overflow:hidden;transition:opacity .2s}
-#sidebar.collapsed .logo-text{opacity:0;width:0}
+.sidebar-logo .logo-text{color:#fff;font-weight:800;font-size:13.5px;line-height:1.35;
+  white-space:nowrap;overflow:hidden;transition:opacity .2s,width .3s}
+#sidebar.collapsed .logo-text{opacity:0;width:0;overflow:hidden}
 .sidebar-user{
-  padding:16px 20px;display:flex;align-items:center;gap:12px;
-  border-bottom:1px solid rgba(255,255,255,.08);
+  padding:12px 16px;display:flex;align-items:center;gap:11px;
+  border-bottom:1px solid rgba(255,255,255,.07);
 }
 .user-avatar{
-  width:36px;height:36px;background:linear-gradient(135deg,#7c3aed,#a855f7);
+  width:34px;height:34px;background:linear-gradient(135deg,#7c3aed,#a855f7);
   border-radius:50%;display:flex;align-items:center;justify-content:center;
-  color:#fff;font-weight:800;font-size:14px;flex-shrink:0;
+  color:#fff;font-weight:800;font-size:13px;flex-shrink:0;
+  box-shadow:0 2px 8px rgba(124,58,237,.4);
 }
 .user-avatar img{
   width:100%;height:100%;object-fit:cover;
   border-radius:50%;display:block;
 }
-.user-info{overflow:hidden;transition:opacity .2s}
-.user-info .name{color:#fff;font-weight:700;font-size:13px;white-space:nowrap}
+.user-info{overflow:hidden;transition:opacity .2s,width .3s;min-width:0}
+.user-info .name{color:#fff;font-weight:700;font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .user-info .cargo-badge{
-  display:inline-block;background:rgba(168,85,247,.3);color:#d8b4fe;
-  font-size:10px;font-weight:700;padding:2px 8px;border-radius:99px;margin-top:2px;
+  display:inline-block;background:rgba(255,255,255,.12);color:rgba(255,255,255,.75);
+  font-size:9.5px;font-weight:700;padding:2px 8px;border-radius:99px;margin-top:3px;
+  letter-spacing:.3px;text-transform:uppercase;
 }
-#sidebar.collapsed .user-info{opacity:0;width:0}
+#sidebar.collapsed .user-info{opacity:0;width:0;overflow:hidden}
 
-nav.sidebar-nav{flex:1;overflow-y:auto;padding:12px 0}
+nav.sidebar-nav{flex:1;overflow-y:auto;padding:10px 0;scrollbar-width:none}
+nav.sidebar-nav::-webkit-scrollbar{display:none}
 nav.sidebar-nav a{
-  display:flex;align-items:center;gap:14px;padding:10px 12px;
-  margin:2px 10px;border-radius:10px;
-  color:rgba(255,255,255,.6);text-decoration:none;font-weight:600;font-size:13.5px;
-  transition:all .2s;cursor:pointer;white-space:nowrap;
-  border-left:none;
+  display:flex;align-items:center;gap:12px;padding:9px 10px;
+  margin:1px 8px;border-radius:10px;
+  color:rgba(255,255,255,.55);text-decoration:none;font-weight:600;font-size:13px;
+  transition:all .18s;cursor:pointer;white-space:nowrap;
 }
-nav.sidebar-nav a:hover{color:#fff;background:rgba(255,255,255,.09)}
+nav.sidebar-nav a:hover{color:#fff;background:rgba(255,255,255,.1)}
 nav.sidebar-nav a.active{
-  color:#fff;background:rgba(168,85,247,.30);
-  box-shadow:0 2px 12px rgba(168,85,247,.25);
+  color:#fff;background:rgba(255,255,255,.14);
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.12);
 }
-nav.sidebar-nav a i{font-size:16px;width:22px;text-align:center;flex-shrink:0}
-nav.sidebar-nav .nav-label{overflow:hidden;transition:opacity .2s}
-#sidebar.collapsed nav.sidebar-nav .nav-label{opacity:0;width:0}
-nav.sidebar-nav .nav-sep{
-  height:1px;background:rgba(255,255,255,.07);margin:8px 20px;
-}
+nav.sidebar-nav a i{font-size:15px;width:20px;text-align:center;flex-shrink:0;opacity:.85}
+nav.sidebar-nav a.active i{opacity:1}
+nav.sidebar-nav .nav-label{overflow:hidden;transition:opacity .2s,width .3s}
+#sidebar.collapsed nav.sidebar-nav .nav-label{opacity:0;width:0;overflow:hidden}
+nav.sidebar-nav .nav-sep{height:1px;background:rgba(255,255,255,.06);margin:6px 18px}
 
-.sidebar-bottom{padding:16px 20px;border-top:1px solid rgba(255,255,255,.08)}
-/* Créditos — esconde ao comprimir */
+.sidebar-bottom{padding:14px 16px;border-top:1px solid rgba(255,255,255,.07)}
 #sidebar.collapsed .sidebar-bottom .nav-label,
 #sidebar.collapsed .sidebar-bottom span,
-#sidebar.collapsed .sidebar-bottom a{
-  opacity:0;
-  width:0;
-  overflow:hidden;
-  display:none;
-}
-#sidebar.collapsed .sidebar-bottom{
-  padding:12px 0;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-}
-#sidebar.collapsed .btn-logout{
-  justify-content:center;
-  padding:8px;
-}
+#sidebar.collapsed .sidebar-bottom a{opacity:0;width:0;overflow:hidden;display:none}
+#sidebar.collapsed .sidebar-bottom{padding:10px 0;display:flex;align-items:center;justify-content:center}
+#sidebar.collapsed .btn-logout{justify-content:center;padding:8px}
 .btn-logout{
-  display:flex;align-items:center;gap:12px;color:rgba(255,255,255,.5);
-  background:none;border:none;cursor:pointer;font-family:inherit;font-size:13px;
-  font-weight:600;width:100%;padding:8px 0;transition:color .2s;
+  display:flex;align-items:center;gap:12px;color:rgba(255,255,255,.45);
+  background:none;border:none;cursor:pointer;font-family:inherit;font-size:12.5px;
+  font-weight:600;width:100%;padding:7px 0;transition:color .18s;border-radius:8px;
 }
 .btn-logout:hover{color:#f87171}
 .btn-collapse{
-  position:absolute;top:50%;right:-14px;transform:translateY(-50%);
-  width:28px;height:28px;background:#7c3aed;border:2px solid #f0eeff;
+  position:absolute;top:50%;right:-13px;transform:translateY(-50%);
+  width:26px;height:26px;background:var(--grad-btn);border:2px solid #f8f4ff;
   border-radius:50%;display:flex;align-items:center;justify-content:center;
-  cursor:pointer;z-index:10;transition:all .2s;
+  cursor:pointer;z-index:10;transition:all .2s;box-shadow:0 2px 8px rgba(124,58,237,.4);
 }
-.btn-collapse:hover{background:#6d28d9}
-.btn-collapse i{color:#fff;font-size:11px;transition:transform .3s}
+.btn-collapse:hover{transform:translateY(-50%) scale(1.1)}
+.btn-collapse i{color:#fff;font-size:10px;transition:transform .3s}
 #sidebar.collapsed .btn-collapse i{transform:rotate(180deg)}
 
 /* ── Main ───────────────────────────────────────────── */
-#main{flex:1;overflow-y:auto;display:flex;flex-direction:column;min-width:0}
+#main{flex:1;overflow-y:auto;display:flex;flex-direction:column;min-width:0;background:#f0f2f5}
 .top-bar{
-  background:rgba(255,255,255,.95);padding:16px 28px;display:flex;align-items:center;
-  justify-content:space-between;border-bottom:1px solid #e2e8f0;
+  background:#fff;padding:0 28px;height:var(--topbar-h);display:flex;align-items:center;
+  justify-content:space-between;border-bottom:1px solid #e8ecf0;
   position:sticky;top:0;z-index:50;
-  backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
-  box-shadow:0 1px 12px rgba(0,0,0,.06);
+  box-shadow:0 1px 0 #e8ecf0;
 }
-.top-bar h1{font-size:21px;font-weight:800;color:#0f172a;letter-spacing:-.02em}
-.top-bar p{color:#6b7280;font-size:13px;margin-top:2px}
-.top-bar-actions{display:flex;align-items:center;gap:12px}
+.top-bar h1{font-size:19px;font-weight:800;color:#0f172a;letter-spacing:-.025em;line-height:1}
+.top-bar p{color:#94a3b8;font-size:12.5px;margin-top:3px;font-weight:500}
+.top-bar-actions{display:flex;align-items:center;gap:10px}
 .btn-refresh{
-  width:38px;height:38px;border-radius:10px;border:1.5px solid #ede9fe;
+  width:36px;height:36px;border-radius:9px;border:1.5px solid #e8ecf0;
   background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;
-  color:#7c3aed;transition:all .2s;
+  color:#7c3aed;transition:all .18s;
 }
 .btn-refresh:hover{background:#f5f3ff;border-color:#c4b5fd}
 
-.page-content{flex:1;padding:24px 28px}
+.page-content{flex:1;padding:22px 28px}
 
 /* ── Cards ──────────────────────────────────────────── */
 .card{
   background:#fff;border-radius:var(--radius);
-  box-shadow:0 2px 16px rgba(0,0,0,.06),0 1px 4px rgba(0,0,0,.04);
-  border:1px solid #e2e8f0;
+  box-shadow:0 1px 3px rgba(0,0,0,.05),0 1px 8px rgba(0,0,0,.04);
+  border:1px solid #e8ecf0;
 }
 .card-header{
-  padding:16px 20px;border-bottom:1px solid #f3f4f6;
+  padding:15px 20px;border-bottom:1px solid #f3f4f6;
   display:flex;align-items:center;justify-content:space-between;
 }
-.card-title{font-weight:800;font-size:15px;color:#0f172a;display:flex;align-items:center;gap:10px}
+.card-title{font-weight:800;font-size:14.5px;color:#0f172a;display:flex;align-items:center;gap:10px}
 .card-title .icon{
-  width:32px;height:32px;border-radius:9px;background:var(--purple-100);
-  display:flex;align-items:center;justify-content:center;color:#7c3aed;font-size:14px;
+  width:30px;height:30px;border-radius:8px;background:var(--brand-100);
+  display:flex;align-items:center;justify-content:center;color:#7c3aed;font-size:13px;
 }
-.card-body{padding:20px}
+.card-body{padding:18px}
 
 /* ── Buttons ────────────────────────────────────────── */
 .btn{
-  display:inline-flex;align-items:center;gap:8px;padding:10px 18px;
-  border-radius:10px;border:none;cursor:pointer;font-family:inherit;
-  font-weight:700;font-size:13.5px;transition:all .2s;text-decoration:none;
+  display:inline-flex;align-items:center;gap:7px;padding:9px 16px;
+  border-radius:9px;border:none;cursor:pointer;font-family:inherit;
+  font-weight:700;font-size:13px;transition:all .18s;text-decoration:none;
+  letter-spacing:-.01em;
 }
-.btn-primary{background:var(--grad-btn);color:#fff;box-shadow:var(--shadow-btn)}
-.btn-primary:hover{opacity:.9;transform:translateY(-1px)}
-.btn-secondary{background:#f5f3ff;color:#7c3aed;border:1.5px solid #ede9fe}
-.btn-secondary:hover{background:#ede9fe}
-.btn-danger{background:#fef2f2;color:#ef4444;border:1.5px solid #fee2e2}
+.btn-primary{background:var(--grad-btn);color:#fff;box-shadow:0 2px 10px rgba(124,58,237,.3)}
+.btn-primary:hover{opacity:.92;transform:translateY(-1px);box-shadow:0 4px 16px rgba(124,58,237,.4)}
+.btn-secondary{background:#f5f3ff;color:#7c3aed;border:1.5px solid #e8e3fc}
+.btn-secondary:hover{background:#ede9fe;border-color:#c4b5fd}
+.btn-danger{background:#fef2f2;color:#ef4444;border:1.5px solid #fecaca}
 .btn-danger:hover{background:#fee2e2}
-.btn-success{background:#f0fdf4;color:#22c55e;border:1.5px solid #dcfce7}
+.btn-success{background:#f0fdf4;color:#16a34a;border:1.5px solid #bbf7d0}
 .btn-success:hover{background:#dcfce7}
-.btn-warning{background:#fffbeb;color:#f59e0b;border:1.5px solid #fef3c7}
+.btn-warning{background:#fffbeb;color:#d97706;border:1.5px solid #fde68a}
 .btn-warning:hover{background:#fef3c7}
-.btn-sm{padding:7px 13px;font-size:12px;border-radius:8px}
-.btn-xs{padding:5px 10px;font-size:11px;border-radius:7px}
+.btn-dark{background:#1e293b;color:#fff;border:none}
+.btn-dark:hover{background:#0f172a}
+.btn-sm{padding:6px 12px;font-size:12px;border-radius:7px}
+.btn-xs{padding:4px 9px;font-size:11px;border-radius:6px}
 .btn-full{width:100%;justify-content:center}
-.btn:disabled{opacity:.5;cursor:not-allowed;pointer-events:none}
+.btn:disabled{opacity:.45;cursor:not-allowed;pointer-events:none;transform:none!important}
 
 /* ── Badges ─────────────────────────────────────────── */
 .badge{
-  display:inline-flex;align-items:center;gap:5px;padding:4px 11px;
-  border-radius:99px;font-size:11px;font-weight:700;
+  display:inline-flex;align-items:center;gap:4px;padding:3px 10px;
+  border-radius:99px;font-size:10.5px;font-weight:700;
   letter-spacing:.02em;white-space:nowrap;
 }
-.badge-novo{background:#eff6ff;color:#2563eb}
-.badge-preparando{background:#fff7ed;color:#ea580c}
-.badge-em_montagem{background:#fdf4ff;color:#9333ea}
+.badge-novo{background:#dbeafe;color:#1d4ed8}
+.badge-preparando{background:#ffedd5;color:#c2410c}
+.badge-em_montagem{background:#f3e8ff;color:#7e22ce}
 .badge-a_caminho{background:#fef9c3;color:#854d0e}
-.badge-pronto{background:#f0fdf4;color:#16a34a}
-.badge-entregue{background:#f0fdf4;color:#16a34a}
-.badge-cancelado{background:#fef2f2;color:#dc2626}
-.badge-online{background:#eff6ff;color:#2563eb}
-.badge-balcao{background:#f5f3ff;color:#7c3aed}
-.badge-delivery{background:#fff7ed;color:#ea580c}
+.badge-pronto{background:#dcfce7;color:#15803d}
+.badge-entregue{background:#dcfce7;color:#15803d}
+.badge-cancelado{background:#fee2e2;color:#b91c1c}
+.badge-online{background:#dbeafe;color:#1d4ed8}
+.badge-balcao{background:#ede9fe;color:#6d28d9}
+.badge-delivery{background:#ffedd5;color:#c2410c}
 
 /* ── Config Tabs ─────────────────────────────────────── */
 .cfg-tabs-nav{
-  display:flex;border-bottom:1px solid #f3f4f6;
-  padding:0 20px;gap:2px;overflow-x:auto;
-  scrollbar-width:none;
+  display:flex;border-bottom:1px solid #f0f2f5;
+  padding:0 20px;gap:2px;overflow-x:auto;scrollbar-width:none;
 }
 .cfg-tabs-nav::-webkit-scrollbar{display:none}
 .cfg-tab-btn{
@@ -250,12 +241,12 @@ nav.sidebar-nav .nav-sep{
   padding:10px 13px;font-size:11.5px;font-weight:700;
   color:#9ca3af;border:none;background:none;cursor:pointer;
   border-bottom:2px solid transparent;white-space:nowrap;
-  transition:color .2s,border-color .2s;font-family:inherit;
+  transition:color .18s,border-color .18s;font-family:inherit;
   margin-bottom:-1px;
 }
-.cfg-tab-btn i{font-size:12px}
+.cfg-tab-btn i{font-size:11px}
 .cfg-tab-btn:hover{color:#7c3aed}
-.cfg-tab-btn.cfg-tab-ativo{color:#7c3aed;border-bottom:2px solid #7c3aed}
+.cfg-tab-btn.cfg-tab-ativo{color:#7c3aed;border-bottom-color:#7c3aed}
 .cfg-panel{display:none}
 .cfg-panel-ativo{display:block}
 
@@ -282,94 +273,102 @@ nav.sidebar-nav .nav-sep{
   text-transform:none;letter-spacing:0;
 }
 .cfg-help::after{
-  content:'';
-  position:absolute;bottom:calc(100% + 2px);left:50%;
-  transform:translateX(-50%);
-  border:5px solid transparent;
-  border-top:5px solid #1e1b4b;
-  pointer-events:none;opacity:0;transition:opacity .15s;z-index:9999;
+  content:'';position:absolute;bottom:calc(100% + 2px);left:50%;
+  transform:translateX(-50%);border:5px solid transparent;
+  border-top:5px solid #1e1b4b;pointer-events:none;opacity:0;transition:opacity .15s;z-index:9999;
 }
 .cfg-help:hover::before,.cfg-help:hover::after{opacity:1}
 
 /* ── Config Section Title ────────────────────────────── */
 .cfg-section-title{
-  font-size:10.5px;font-weight:800;color:#9ca3af;
-  text-transform:uppercase;letter-spacing:.6px;
-  margin:20px 0 14px;padding-bottom:8px;
-  border-bottom:1px solid #f3f4f6;
+  font-size:10px;font-weight:800;color:#94a3b8;
+  text-transform:uppercase;letter-spacing:.7px;
+  margin:22px 0 14px;padding-bottom:8px;
+  border-bottom:1px solid #f0f2f5;
   display:flex;align-items:center;gap:7px;
 }
 .cfg-section-title i{color:#a78bfa;font-size:12px}
 
 /* ── Form ───────────────────────────────────────────── */
-.form-group{margin-bottom:16px}
-.form-label{display:block;font-size:12px;font-weight:700;color:#374151;margin-bottom:6px;letter-spacing:.3px;text-transform:uppercase}
+.form-group{margin-bottom:14px}
+.form-label{display:block;font-size:11px;font-weight:700;color:#64748b;margin-bottom:5px;letter-spacing:.4px;text-transform:uppercase}
 .form-control{
-  width:100%;padding:10px 14px;border:1.5px solid #e2e8f0;border-radius:12px;
+  width:100%;padding:9px 13px;border:1.5px solid #e2e8f0;border-radius:10px;
   font-family:inherit;font-size:13.5px;color:#0f172a;background:#fff;
-  transition:border-color .2s,box-shadow .2s;outline:none;
+  transition:border-color .18s,box-shadow .18s;outline:none;
 }
-.form-control:focus{border-color:#7c3aed;box-shadow:0 0 0 3.5px rgba(124,58,237,.12),0 1px 4px rgba(124,58,237,.08)}
+.form-control:focus{border-color:#7c3aed;box-shadow:0 0 0 3px rgba(124,58,237,.1)}
 .form-control:disabled{background:#f8fafc;color:#94a3b8}
 select.form-control{cursor:pointer}
-.form-row{display:grid;gap:16px}
+.form-row{display:grid;gap:14px}
 .form-row.cols-2{grid-template-columns:1fr 1fr}
 .form-row.cols-3{grid-template-columns:1fr 1fr 1fr}
 
 /* ── Modal ──────────────────────────────────────────── */
 .modal-overlay{
-  position:fixed;inset:0;background:rgba(15,5,40,.65);z-index:1000;
+  position:fixed;inset:0;background:rgba(10,5,30,.7);z-index:1000;
   display:flex;align-items:center;justify-content:center;padding:16px;
-  opacity:0;pointer-events:none;transition:opacity .25s;backdrop-filter:blur(4px);
+  opacity:0;pointer-events:none;transition:opacity .22s;backdrop-filter:blur(6px);
 }
 .modal-overlay.open{opacity:1;pointer-events:all}
 .modal-box{
   background:#fff;border-radius:20px;width:100%;max-width:580px;
-  max-height:90vh;overflow-y:auto;
-  transform:translateY(24px) scale(.97);transition:transform .25s;
+  max-height:92vh;overflow-y:auto;
+  transform:translateY(20px) scale(.98);transition:transform .22s cubic-bezier(.34,1.2,.64,1);
+  box-shadow:0 24px 80px rgba(0,0,0,.22);
 }
 .modal-overlay.open .modal-box{transform:translateY(0) scale(1)}
 .modal-box.modal-lg{max-width:780px}
-.modal-box.modal-xl{max-width:960px}
-.modal-header{
-  padding:20px 24px 16px;display:flex;align-items:center;justify-content:space-between;
-  border-bottom:1px solid #f3f4f6;position:sticky;top:0;background:#fff;z-index:2;border-radius:20px 20px 0 0;
+.modal-box.modal-xl{max-width:1000px}
+/* PDV modal — ocupa quase toda a tela com layout interno que não scrolle */
+.modal-box.modal-pdv{
+  max-width:1180px;max-height:calc(100vh - 32px);
+  display:flex;flex-direction:column;overflow:hidden;
 }
-.modal-title{font-weight:800;font-size:17px;color:#1e1b4b;display:flex;align-items:center;gap:10px}
+.modal-box.modal-pdv .modal-body{
+  flex:1;overflow:hidden;padding:0;
+  display:flex;flex-direction:column;
+}
+.modal-header{
+  padding:16px 22px 14px;display:flex;align-items:center;justify-content:space-between;
+  border-bottom:1px solid #f0f2f5;flex-shrink:0;
+  background:#fff;border-radius:20px 20px 0 0;
+}
+.modal-title{font-weight:800;font-size:16px;color:#1e1b4b;display:flex;align-items:center;gap:10px}
 .modal-close{
-  width:32px;height:32px;border-radius:8px;border:1.5px solid #e5e7eb;
+  width:30px;height:30px;border-radius:8px;border:1.5px solid #e5e7eb;
   background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;
-  color:#6b7280;font-size:16px;transition:all .2s;
+  color:#6b7280;font-size:15px;transition:all .18s;
 }
 .modal-close:hover{background:#fef2f2;border-color:#fecaca;color:#ef4444}
-.modal-body{padding:24px}
+.modal-body{padding:22px}
 .modal-footer{
-  padding:16px 24px;border-top:1px solid #f3f4f6;
-  display:flex;gap:12px;justify-content:flex-end;
+  padding:14px 22px;border-top:1px solid #f0f2f5;
+  display:flex;gap:10px;justify-content:flex-end;flex-shrink:0;
 }
 
 /* ── Stat Cards ─────────────────────────────────────── */
-.stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:24px}
+.stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:14px;margin-bottom:22px}
 .stat-card{
-  background:#fff;border-radius:var(--radius);padding:20px;
-  border:1px solid #e8edf3;box-shadow:0 2px 12px rgba(0,0,0,.05);
-  border-left:4px solid #e8edf3;transition:box-shadow .2s;
+  background:#fff;border-radius:var(--radius);padding:18px 20px;
+  border:1px solid #e8ecf0;box-shadow:0 1px 4px rgba(0,0,0,.04);
+  border-left:3px solid #e8ecf0;transition:box-shadow .18s,border-left-color .18s;
 }
-.stat-card:hover{box-shadow:0 4px 24px rgba(0,0,0,.09)}
-.stat-card .stat-label{font-size:12px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.5px}
-.stat-card .stat-value{font-size:28px;font-weight:900;color:#1e1b4b;margin-top:4px;line-height:1}
-.stat-card .stat-sub{font-size:12px;color:#9ca3af;margin-top:4px}
+.stat-card:hover{box-shadow:0 4px 20px rgba(0,0,0,.08)}
+.stat-card .stat-label{font-size:11px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.6px}
+.stat-card .stat-value{font-size:26px;font-weight:900;color:#0f172a;margin-top:4px;line-height:1;letter-spacing:-.03em}
+.stat-card .stat-sub{font-size:11.5px;color:#94a3b8;margin-top:4px}
 .stat-card .stat-icon{
-  width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;
-  font-size:20px;margin-bottom:12px;
+  width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;
+  font-size:18px;margin-bottom:10px;
 }
 .stat-purple .stat-icon{background:#f5f3ff;color:#7c3aed}
-.stat-green  .stat-icon{background:#f0fdf4;color:#22c55e}
+.stat-green  .stat-icon{background:#f0fdf4;color:#16a34a}
 .stat-orange .stat-icon{background:#fff7ed;color:#f97316}
 .stat-blue   .stat-icon{background:#eff6ff;color:#3b82f6}
 .stat-pink   .stat-icon{background:#fdf2f8;color:#ec4899}
 .stat-purple{border-left-color:#7c3aed}
-.stat-green {border-left-color:#22c55e}
+.stat-green {border-left-color:#16a34a}
 .stat-orange{border-left-color:#f97316}
 .stat-blue  {border-left-color:#3b82f6}
 .stat-pink  {border-left-color:#ec4899}
@@ -378,78 +377,152 @@ select.form-control{cursor:pointer}
 .table-wrap{overflow-x:auto}
 table.tbl{width:100%;border-collapse:collapse}
 table.tbl th{
-  background:#f8fafc;padding:10px 14px;text-align:left;
-  font-size:11px;font-weight:800;color:#64748b;text-transform:uppercase;
-  letter-spacing:.6px;border-bottom:2px solid #e2e8f0;white-space:nowrap;
+  background:#f8fafc;padding:9px 14px;text-align:left;
+  font-size:10.5px;font-weight:800;color:#64748b;text-transform:uppercase;
+  letter-spacing:.6px;border-bottom:2px solid #e8ecf0;white-space:nowrap;
 }
 table.tbl td{
-  padding:13px 14px;border-bottom:1px solid #f1f5f9;
-  font-size:13.5px;color:#334155;vertical-align:middle;
+  padding:12px 14px;border-bottom:1px solid #f0f2f5;
+  font-size:13px;color:#334155;vertical-align:middle;
 }
 table.tbl tr:hover td{background:#f8fafc}
 table.tbl tr:last-child td{border-bottom:none}
 
 /* ── PDV ─────────────────────────────────────────────── */
-.pdv-grid{display:grid;grid-template-columns:1fr 360px;gap:20px;height:calc(100vh - 160px)}
+.pdv-grid{display:grid;grid-template-columns:1fr 340px;gap:18px;height:calc(100vh - 160px)}
 .pdv-left{overflow-y:auto}
 .pdv-right{overflow-y:auto}
+
+/* ── PDV 3 colunas (dentro do modal) ─────────────────── */
+.pdv-3col{
+  display:grid;
+  grid-template-columns:340px 1fr 320px;
+  height:100%;
+  gap:0;
+  overflow:hidden;
+}
+.pdv-col{
+  display:flex;flex-direction:column;
+  border-right:1px solid #f0f2f5;
+  overflow:hidden;
+}
+.pdv-col:last-child{border-right:none}
+.pdv-col-header{
+  padding:14px 18px;
+  border-bottom:1px solid #f0f2f5;
+  flex-shrink:0;background:#fff;
+}
+.pdv-col-header h3{
+  font-size:12px;font-weight:800;color:#64748b;
+  text-transform:uppercase;letter-spacing:.6px;
+  display:flex;align-items:center;gap:7px;
+}
+.pdv-col-header h3 i{font-size:13px;color:#7c3aed}
+.pdv-col-body{
+  flex:1;overflow-y:auto;padding:14px 16px;
+}
+
+/* ── PDV Peso Display ─────────────────────────────────── */
+.peso-display{
+  background:linear-gradient(135deg,#f8f4ff,#ede9fe);
+  border:1px solid #ddd6fe;border-radius:12px;
+  padding:14px 16px;margin-bottom:14px;
+  text-align:center;
+}
+.peso-display .lbl{font-size:10px;font-weight:800;color:#7c3aed;text-transform:uppercase;letter-spacing:.6px;margin-bottom:4px}
+.peso-display .valor{font-size:32px;font-weight:900;color:#1e1b4b;line-height:1;font-variant-numeric:tabular-nums}
+.peso-display .preco{font-size:14px;font-weight:700;color:#7c3aed;margin-top:4px}
+
+/* ── PDV Atalhos Rápidos ─────────────────────────────── */
+.pdv-atalhos{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:7px;
+}
+.pdv-atalho-btn{
+  padding:10px 6px;border-radius:10px;border:1.5px solid #e8ecf0;
+  background:#fff;cursor:pointer;font-family:inherit;text-align:center;
+  transition:all .15s;line-height:1.3;
+}
+.pdv-atalho-btn:hover{border-color:#7c3aed;background:#f5f3ff;transform:translateY(-1px)}
+.pdv-atalho-btn .nome{font-size:11px;font-weight:800;color:#1e1b4b;display:block;margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pdv-atalho-btn .preco{font-size:12px;font-weight:700;color:#16a34a;display:block;margin-top:2px}
+
+/* ── PDV Carrinho ─────────────────────────────────────── */
+.pdv-cart-empty{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  height:100%;color:#94a3b8;text-align:center;padding:24px;gap:12px;
+}
+.pdv-cart-empty i{font-size:36px;color:#d1d5db}
+.pdv-cart-empty p{font-size:13px;font-weight:600}
 
 /* ── Caixa ──────────────────────────────────────────── */
 .caixa-itens{list-style:none;margin:0;padding:0}
 .caixa-itens li{
   display:flex;align-items:center;justify-content:space-between;
   padding:9px 10px;border-radius:9px;gap:8px;
-  border-bottom:1px solid #f1f5f9;transition:background .15s;
+  border-bottom:1px solid #f0f2f5;transition:background .12s;
 }
 .caixa-itens li:last-child{border-bottom:none}
 .caixa-itens li:hover{background:#f8fafc}
-.caixa-item-nome{flex:1;font-size:13px;font-weight:600;color:#334155}
+.caixa-item-nome{flex:1;font-size:12.5px;font-weight:600;color:#334155;line-height:1.35;min-width:0;overflow:hidden}
 .caixa-item-qty{
-  font-size:11px;font-weight:800;color:#fff;background:#7c3aed;
+  font-size:10px;font-weight:800;color:#fff;background:#7c3aed;
   border-radius:99px;padding:1px 7px;white-space:nowrap;flex-shrink:0;
 }
-.caixa-item-preco{font-size:13.5px;font-weight:800;color:#7c3aed;white-space:nowrap}
+.caixa-item-preco{font-size:13px;font-weight:800;color:#7c3aed;white-space:nowrap;flex-shrink:0}
 .caixa-item-rem{
-  width:26px;height:26px;border-radius:7px;border:none;background:#fef2f2;
+  width:24px;height:24px;border-radius:6px;border:none;background:#fef2f2;
   color:#ef4444;cursor:pointer;display:flex;align-items:center;justify-content:center;
-  font-size:11px;transition:all .15s;flex-shrink:0;
+  font-size:10px;transition:all .12s;flex-shrink:0;
 }
 .caixa-item-rem:hover{background:#fee2e2;transform:scale(1.1)}
+
+/* ── Caixa Total ─────────────────────────────────────── */
 .caixa-total{
-  background:#fff;border:1px solid #e2e8f0;
-  border-radius:14px;padding:16px 18px;margin-top:14px;
-  box-shadow:0 2px 12px rgba(0,0,0,.05);
+  background:#f8fafc;border:1px solid #e8ecf0;
+  border-radius:12px;padding:14px 16px;
 }
-.caixa-total-row{display:flex;justify-content:space-between;align-items:center;font-size:13px;margin-bottom:8px;color:#475569}
+.caixa-total-row{display:flex;justify-content:space-between;align-items:center;font-size:12.5px;margin-bottom:7px;color:#64748b}
 .caixa-total-row .lbl{display:flex;align-items:center;gap:6px}
 .caixa-total-row.big{
-  font-size:18px;font-weight:900;color:#0f172a;
-  margin-top:10px;padding-top:12px;
+  font-size:17px;font-weight:900;color:#0f172a;
+  margin-top:10px;padding-top:10px;
   border-top:2px solid #e2e8f0;margin-bottom:0;
 }
 .caixa-troco{
-  background:#f0fdf4;border:1.5px solid #86efac;border-radius:12px;
-  padding:12px 16px;margin-top:12px;text-align:center;
-  font-weight:800;color:#15803d;font-size:17px;
+  background:#f0fdf4;border:1.5px solid #86efac;border-radius:10px;
+  padding:10px 14px;margin-top:10px;text-align:center;
+  font-weight:800;color:#15803d;font-size:15px;
   display:flex;align-items:center;justify-content:center;gap:8px;
 }
 
 /* ── PDV Section Divider ────────────────────────────── */
 .pdv-section{
-  display:flex;align-items:center;gap:8px;
-  font-size:11px;font-weight:800;color:#64748b;text-transform:uppercase;letter-spacing:.6px;
-  margin:20px 0 14px;padding-bottom:10px;border-bottom:1.5px solid #f1f5f9;
+  display:flex;align-items:center;gap:7px;
+  font-size:10px;font-weight:800;color:#64748b;text-transform:uppercase;letter-spacing:.7px;
+  margin:16px 0 10px;padding-bottom:8px;border-bottom:1px solid #f0f2f5;
 }
-.pdv-section i{color:#7c3aed;font-size:13px}
-.pdv-section:first-child{margin-top:4px}
+.pdv-section i{color:#7c3aed;font-size:12px}
+.pdv-section:first-child{margin-top:2px}
+
+/* ── Pagamento Botões ─────────────────────────────────── */
+.pgto-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:2px}
+.pgto-btn{
+  position:relative;padding:11px 6px;border-radius:10px;border:2px solid #e8ecf0;
+  background:#fff;cursor:pointer;font-family:inherit;
+  font-size:11.5px;font-weight:700;color:#64748b;
+  transition:all .15s;text-align:center;width:100%;
+}
+.pgto-btn:hover:not(.pgto-ativo){border-color:#c4b5fd;color:#7c3aed;background:#f8f4ff}
+.pgto-btn i{display:block;font-size:18px;margin-bottom:4px;opacity:.8}
+.pgto-btn.pgto-ativo{box-shadow:0 2px 12px rgba(0,0,0,.12)}
 
 /* ── Pedido Card ────────────────────────────────────── */
 .pedido-card{
-  background:#fff;border-radius:14px;border:1px solid #e2e8f0;
-  border-left:4px solid #e2e8f0;
-  padding:14px 16px;margin-bottom:10px;transition:all .2s;
+  background:#fff;border-radius:12px;border:1px solid #e8ecf0;
+  border-left:3px solid #e8ecf0;
+  padding:13px 15px;margin-bottom:8px;transition:all .18s;
 }
-.pedido-card:hover{border-color:#c4b5fd;border-left-color:#7c3aed;box-shadow:0 4px 20px rgba(109,40,217,.08)}
+.pedido-card:hover{border-color:#ddd6fe;border-left-color:#7c3aed;box-shadow:0 3px 16px rgba(109,40,217,.07)}
 .pedido-card[data-status="NOVO"]{border-left-color:#3b82f6}
 .pedido-card[data-status="PREPARANDO"]{border-left-color:#f97316}
 .pedido-card[data-status="EM_MONTAGEM"]{border-left-color:#a855f7}
@@ -457,48 +530,48 @@ table.tbl tr:last-child td{border-bottom:none}
 .pedido-card[data-status="PRONTO"]{border-left-color:#22c55e}
 .pedido-card[data-status="ENTREGUE"]{border-left-color:#16a34a}
 .pedido-card[data-status="CANCELADO"]{border-left-color:#ef4444}
-.pedido-card-header{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:10px}
-.pedido-card-id{font-size:11px;font-weight:700;color:#9ca3af}
-.pedido-card-cliente{font-weight:800;font-size:14px;color:#1e1b4b;margin-top:2px}
-.pedido-card-hora{font-size:11px;color:#9ca3af}
-.pedido-card-body{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
-.pedido-card-footer{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
-.pedido-card-total{font-size:16px;font-weight:900;color:#7c3aed}
+.pedido-card-header{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:9px}
+.pedido-card-id{font-size:10.5px;font-weight:700;color:#94a3b8;font-variant-numeric:tabular-nums}
+.pedido-card-cliente{font-weight:800;font-size:13.5px;color:#1e1b4b;margin-top:2px}
+.pedido-card-hora{font-size:10.5px;color:#94a3b8;display:flex;align-items:center;gap:4px}
+.pedido-card-body{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.pedido-card-footer{display:flex;gap:7px;margin-top:10px;flex-wrap:wrap}
+.pedido-card-total{font-size:15px;font-weight:900;color:#7c3aed}
 
 /* ── Delivery Card ──────────────────────────────────── */
 .delivery-card{
-  background:#fff;border-radius:14px;border:1.5px solid #f3f4f6;
-  padding:16px 18px;margin-bottom:12px;transition:all .2s;
+  background:#fff;border-radius:12px;border:1.5px solid #f0f2f5;
+  padding:15px 17px;margin-bottom:10px;transition:all .18s;
 }
-.delivery-card:hover{border-color:#fed7aa;box-shadow:0 4px 20px rgba(249,115,22,.08)}
+.delivery-card:hover{border-color:#fed7aa;box-shadow:0 4px 20px rgba(249,115,22,.07)}
 .delivery-card.picked{border-color:#bbf7d0}
 .entregador-chip{
-  display:inline-flex;align-items:center;gap:6px;
+  display:inline-flex;align-items:center;gap:5px;
   background:#f0fdf4;border:1px solid #bbf7d0;border-radius:99px;
-  padding:4px 10px;font-size:11px;font-weight:700;color:#16a34a;
+  padding:3px 10px;font-size:10.5px;font-weight:700;color:#15803d;
 }
 
 /* ── Status steps ───────────────────────────────────── */
-.status-steps{display:flex;gap:8px;flex-wrap:wrap}
+.status-steps{display:flex;gap:6px;flex-wrap:wrap}
 .status-step-btn{
-  flex:1;min-width:90px;padding:8px 12px;border-radius:9px;border:1.5px solid #e5e7eb;
-  background:#fff;cursor:pointer;font-family:inherit;font-size:12px;font-weight:700;
-  color:#6b7280;transition:all .2s;text-align:center;
+  flex:1;min-width:88px;padding:7px 10px;border-radius:8px;border:1.5px solid #e5e7eb;
+  background:#fff;cursor:pointer;font-family:inherit;font-size:11.5px;font-weight:700;
+  color:#6b7280;transition:all .15s;text-align:center;
 }
-.status-step-btn.active{background:#7c3aed;border-color:#7c3aed;color:#fff}
+.status-step-btn.active{background:#7c3aed;border-color:#7c3aed;color:#fff;box-shadow:0 2px 8px rgba(124,58,237,.3)}
 .status-step-btn:hover:not(.active){border-color:#c4b5fd;color:#7c3aed;background:#f5f3ff}
 
 /* ── Filtros Relatório ──────────────────────────────── */
 .filter-bar{
-  background:#fff;border-radius:var(--radius);padding:18px 20px;
-  border:1.5px solid #ede9fe;margin-bottom:20px;
+  background:#fff;border-radius:var(--radius);padding:16px 20px;
+  border:1px solid #e8ecf0;margin-bottom:18px;
 }
-.filter-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;align-items:end}
+.filter-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;align-items:end}
 
 /* ── Spinner ────────────────────────────────────────── */
 .spinner{
-  width:32px;height:32px;border:3px solid #ede9fe;border-top-color:#7c3aed;
-  border-radius:50%;animation:spin .7s linear infinite;
+  width:28px;height:28px;border:2.5px solid #e8ecf0;border-top-color:#7c3aed;
+  border-radius:50%;animation:spin .7s linear infinite;flex-shrink:0;
 }
 @keyframes spin{to{transform:rotate(360deg)}}
 
@@ -512,43 +585,47 @@ table.tbl tr:last-child td{border-bottom:none}
 #loadingOverlay p{font-weight:700;color:#a78bfa;font-size:15px;letter-spacing:.04em}
 
 /* ── Toast ──────────────────────────────────────────── */
-#toastContainer{position:fixed;bottom:24px;right:24px;z-index:9999;display:flex;flex-direction:column;gap:10px}
+#toastContainer{position:fixed;bottom:20px;right:20px;z-index:9999;display:flex;flex-direction:column;gap:8px;max-width:340px}
 .toast{
-  background:#1e293b;color:#f1f5f9;padding:13px 18px;border-radius:14px;
-  font-size:13px;font-weight:600;max-width:340px;
-  animation:slideIn .3s cubic-bezier(.34,1.56,.64,1);
-  box-shadow:0 8px 32px rgba(0,0,0,.28),0 2px 8px rgba(0,0,0,.14);
-  display:flex;align-items:center;gap:12px;
-  border-left:4px solid #475569;
+  background:#1e293b;color:#f1f5f9;padding:12px 16px;border-radius:12px;
+  font-size:13px;font-weight:600;
+  animation:slideIn .25s cubic-bezier(.34,1.4,.64,1);
+  box-shadow:0 8px 28px rgba(0,0,0,.25);
+  display:flex;align-items:center;gap:10px;
+  border-left:3px solid #475569;
 }
 .toast.success{background:#0f2b1e;border-left-color:#22c55e;color:#dcfce7}
 .toast.error  {background:#2b0f0f;border-left-color:#ef4444;color:#fee2e2}
 .toast.warn   {background:#2b1d0f;border-left-color:#f97316;color:#ffedd5}
-@keyframes slideIn{from{opacity:0;transform:translateX(30px)}to{opacity:1;transform:translateX(0)}}
+@keyframes slideIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)}}
 
 /* ── Pesquisa ───────────────────────────────────────── */
 .search-bar{position:relative}
-.search-bar input{padding-left:38px}
-.search-bar i{position:absolute;left:13px;top:50%;transform:translateY(-50%);color:#9ca3af;font-size:14px}
+.search-bar input{padding-left:36px}
+.search-bar i{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:#9ca3af;font-size:13px}
 
 /* ── Auth Supervisor modal ──────────────────────────── */
-.auth-panel{
-  background:#fff7ed;border:1.5px solid #fed7aa;border-radius:14px;padding:18px 20px;
-}
+.auth-panel{background:#fff7ed;border:1.5px solid #fed7aa;border-radius:12px;padding:16px 18px}
 
 /* ── Responsivo ─────────────────────────────────────── */
+@media(max-width:1100px){
+  .pdv-3col{grid-template-columns:300px 1fr 290px}
+}
 @media(max-width:900px){
-  #sidebar{width:72px;min-width:72px}
-  #sidebar .logo-text,#sidebar .user-info,#sidebar .nav-label{opacity:0;width:0}
+  #sidebar{width:68px;min-width:68px}
+  #sidebar .logo-text,#sidebar .user-info,#sidebar .nav-label{opacity:0;width:0;overflow:hidden}
   .pdv-grid{grid-template-columns:1fr;height:auto}
+  .pdv-3col{grid-template-columns:1fr;height:auto;overflow:auto}
+  .pdv-col{min-height:300px;border-right:none;border-bottom:1px solid #f0f2f5}
   .form-row.cols-3{grid-template-columns:1fr 1fr}
   .form-row.cols-2{grid-template-columns:1fr}
-  .page-content{padding:16px}
+  .page-content{padding:14px}
 }
 @media(max-width:600px){
   .stat-grid{grid-template-columns:1fr 1fr}
   .filter-grid{grid-template-columns:1fr 1fr}
-  .top-bar{padding:14px 16px}
+  .top-bar{padding:0 14px}
+  .pdv-3col{grid-template-columns:1fr}
 }
 .hidden{display:none!important}
 .flex{display:flex}.items-center{align-items:center}.justify-between{justify-content:space-between}
@@ -561,16 +638,15 @@ table.tbl tr:last-child td{border-bottom:none}
 .text-red{color:#ef4444}.text-orange{color:#f97316}
 .text-center{text-align:center}.w-full{width:100%}
 .rounded{border-radius:8px}.p-3{padding:12px}.p-4{padding:16px}
-.bg-light{background:#f9fafb}.border{border:1.5px solid #f3f4f6}
-.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-.empty-state{text-align:center;padding:48px 20px;color:#94a3b8}
+.bg-light{background:#f8fafc}.border{border:1px solid #e8ecf0}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.empty-state{text-align:center;padding:40px 20px;color:#94a3b8}
 .empty-state i{
-  font-size:44px;color:#cbd5e1;display:block;margin-bottom:16px;
-  background:#f8fafc;width:80px;height:80px;line-height:80px;
-  border-radius:20px;margin-left:auto;margin-right:auto;
-  border:1px solid #e2e8f0;
+  font-size:40px;color:#d1d5db;display:block;margin-bottom:14px;
+  background:#f8fafc;width:72px;height:72px;line-height:72px;
+  border-radius:18px;margin-left:auto;margin-right:auto;border:1px solid #e8ecf0;
 }
-.empty-state p{font-weight:600;font-size:14px;color:#64748b}
+.empty-state p{font-weight:600;font-size:13.5px;color:#64748b}
 </style>
 <script>
     document.addEventListener('contextmenu', function(e) { e.preventDefault(); });
@@ -685,10 +761,19 @@ table.tbl tr:last-child td{border-bottom:none}
 
 <!-- Modal PDV Balcão -->
 <div class="modal-overlay" id="modalBalcao">
-  <div class="modal-box modal-xl">
+  <div class="modal-box modal-pdv">
     <div class="modal-header">
-      <div class="modal-title"><i class="fa-solid fa-cash-register text-purple"></i>PDV — Balcão</div>
-      <button class="modal-close" onclick="fecharModal('modalBalcao')"><i class="fa-solid fa-xmark"></i></button>
+      <div class="modal-title">
+        <i class="fa-solid fa-cash-register text-purple"></i>
+        PDV — Venda Balcão
+        <span style="font-size:11px;font-weight:600;color:#94a3b8;margin-left:4px" id="b_horaAtual"></span>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <button class="btn btn-secondary btn-sm" onclick="imprimirUltimaVendaBalcao()" title="Imprimir último cupom" style="padding:6px 10px">
+          <i class="fa-solid fa-print"></i>
+        </button>
+        <button class="modal-close" onclick="fecharModal('modalBalcao')"><i class="fa-solid fa-xmark"></i></button>
+      </div>
     </div>
     <div class="modal-body" id="modalBalcaoBody"></div>
   </div>
@@ -696,9 +781,13 @@ table.tbl tr:last-child td{border-bottom:none}
 
 <!-- Modal PDV Delivery -->
 <div class="modal-overlay" id="modalDeliveryPDV">
-  <div class="modal-box modal-xl">
+  <div class="modal-box modal-pdv">
     <div class="modal-header">
-      <div class="modal-title"><i class="fa-solid fa-motorcycle text-orange"></i>PDV — Delivery</div>
+      <div class="modal-title">
+        <i class="fa-solid fa-motorcycle text-orange"></i>
+        PDV — Delivery
+        <span style="font-size:11px;font-weight:600;color:#94a3b8;margin-left:4px" id="d_horaAtual"></span>
+      </div>
       <button class="modal-close" onclick="fecharModal('modalDeliveryPDV')"><i class="fa-solid fa-xmark"></i></button>
     </div>
     <div class="modal-body" id="modalDeliveryPDVBody"></div>
@@ -1160,6 +1249,10 @@ function construirUI(){
       var gradMain = "linear-gradient(135deg, " + corSuperEscura + " 0%, " + corMuitoEscura + " 60%, " + corSuperEscura + " 100%)";
       var gradBtn = "linear-gradient(135deg, " + corLoja + " 0%, " + corEscura + " 100%)";
 
+      document.documentElement.style.setProperty('--brand-500', corLoja);
+      document.documentElement.style.setProperty('--brand-600', corLoja);
+      document.documentElement.style.setProperty('--brand-700', corLoja);
+      // Compat aliases (código legado pode usar --purple-*)
       document.documentElement.style.setProperty('--purple-500', corLoja);
       document.documentElement.style.setProperty('--purple-600', corLoja);
       document.documentElement.style.setProperty('--purple-700', corLoja);
@@ -1610,7 +1703,7 @@ function abrirPDVBalcao(){
   ST.registrando=false;
   ST._cupomAtivo=null;              // Reset cupom
   ST.pdvBalcaoItens=[];
-  ST.pdvAcaiItens=[];               // Reset lista de açaís
+  ST.pdvAcaiItens=[];               // Reset lista de itens por peso
   ST.pgtoAtivo['b_pgto']='';        // Reset pagamento
   var config=ST.dados&&ST.dados.configuracoes||{};
   // Detecção Inteligente do Dia da Semana (0 = Domingo, 6 = Sábado)
@@ -1624,138 +1717,216 @@ function abrirPDVBalcao(){
   var itens=(ST.dados&&ST.dados.itensFixos||[]).filter(function(i){ return i.disponivel===true; });
   var modelos=(ST.dados&&ST.dados.acaiModelos||[]).filter(function(m){ return m.disponivel===true; });
 
+  // Atualiza hora no header
+  var agora=new Date();
+  var hh=agora.getHours()<10?'0'+agora.getHours():agora.getHours();
+  var min=agora.getMinutes()<10?'0'+agora.getMinutes():agora.getMinutes();
+  var elHora=document.getElementById('b_horaAtual');
+  if(elHora) elHora.textContent=hh+':'+min;
+
   var tarasOpts=taras.map(function(t){
     return '<option value="'+esc(t.id_tara)+'" data-peso="'+esc(t.gramas)+'">'+esc(t.nome)+' ('+esc(t.gramas)+'g)</option>';
   }).join('');
 
-  var itensOpts='<option value="">+ Adicionar item avulso...</option>'+
+  var itensOpts='<option value="">+ Selecionar item...</option>'+
     itens.map(function(i){
       return '<option value="'+esc(i.id_item)+'" data-nome="'+esc(i.nome)+'" data-preco="'+esc(i.preco)+'">'+esc(i.nome)+' — '+fmtMoeda(i.preco)+'</option>';
     }).join('');
 
   document.getElementById('modalBalcaoBody').innerHTML=
-    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">'+
-    '<div>'+
-      '<div class="pdv-section"><i class="fa-solid fa-weight-scale"></i>Pesagem</div>'+
-      '<div class="form-row cols-2">'+
-        '<div class="form-group">'+
-          '<label class="form-label" style="display:flex; justify-content:space-between; align-items:center;">'+
-            'Peso Bruto (g)'+
-            '<button type="button" onclick="conectarBalanca()" id="btnBalanca" style="background:#f3f4f6; border:1px solid #d1d5db; border-radius:6px; padding:2px 8px; font-size:10px; cursor:pointer; color:#6b7280; font-weight:bold;">'+
-              '<i class="fa-solid fa-link"></i> Ligar Balança'+
+  '<div class="pdv-3col">'+
+
+  // ── COLUNA 1: PESAGEM E PRODUTOS ────────────────────────
+  '<div class="pdv-col">'+
+    '<div class="pdv-col-header">'+
+      '<h3><i class="fa-solid fa-weight-scale"></i>Pesagem & Produtos</h3>'+
+    '</div>'+
+    '<div class="pdv-col-body">'+
+
+      // Peso display
+      '<div class="peso-display">'+
+        '<div class="lbl">Peso Líquido</div>'+
+        '<div class="valor" id="b_pesoLiqVal">0 g</div>'+
+        '<div class="preco" id="b_valorAcaiVal">R$ 0,00</div>'+
+      '</div>'+
+
+      // Campos de peso
+      '<div class="form-row cols-2 mb-3">'+
+        '<div class="form-group mb-2">'+
+          '<label class="form-label">Peso Bruto (g)</label>'+
+          '<input type="number" class="form-control" id="b_pesoBruto" placeholder="0" oninput="calcBalcao()" style="font-size:15px;font-weight:700;text-align:center"/>'+
+        '</div>'+
+        '<div class="form-group mb-2">'+
+          '<label class="form-label" style="display:flex;justify-content:space-between;align-items:center">'+
+            'Tara (g)'+
+            '<button type="button" onclick="conectarBalanca()" id="btnBalanca" style="background:#f1f5f9;border:1px solid #e2e8f0;border-radius:6px;padding:2px 7px;font-size:9px;cursor:pointer;color:#64748b;font-weight:700;transition:all .15s">'+
+              '<i class="fa-solid fa-link"></i> Balança'+
             '</button>'+
           '</label>'+
-          '<input type="number" class="form-control" id="b_pesoBruto" placeholder="0" oninput="calcBalcao()"/>'+
-        '</div>'+
-        '<div class="form-group">'+
-          '<label class="form-label">Tara</label>'+
           '<select class="form-control" id="b_tara" onchange="selecionarTara()">'+
             '<option value="" data-peso="0">Sem tara</option>'+tarasOpts+
           '</select>'+
         '</div>'+
       '</div>'+
       '<div class="form-row cols-2 mb-3">'+
-        '<div class="form-group">'+
-          '<label class="form-label">Peso da Tara (g)</label>'+
+        '<div class="form-group mb-2">'+
+          '<label class="form-label">Tara Manual (g)</label>'+
           '<input type="number" class="form-control" id="b_pesoTara" value="0" oninput="calcBalcao()"/>'+
         '</div>'+
-        '<div class="form-group">'+
-          '<label class="form-label">Preço/KG (R$)</label>'+
+        '<div class="form-group mb-2">'+
+          '<label class="form-label">Preço/kg (R$)</label>'+
           '<input type="number" class="form-control" id="b_precoKG" value="'+precoKG+'" step="0.01" oninput="calcBalcao()"/>'+
         '</div>'+
       '</div>'+
-      '<div id="b_pesoLiqBox" style="background:#f5f3ff;border-radius:10px;padding:12px;margin-bottom:10px;text-align:center">'+
-        '<div style="font-size:11px;font-weight:700;color:#7c3aed;text-transform:uppercase">Peso Líquido Atual</div>'+
-        '<div style="font-size:28px;font-weight:900;color:#1e1b4b" id="b_pesoLiqVal">0 g</div>'+
-        '<div style="font-size:13px;color:#7c3aed;font-weight:700" id="b_valorAcaiVal">R$ 0,00</div>'+
-      '</div>'+
-      '<button type="button" class="btn btn-primary btn-full mb-3" onclick="adicionarAcaiBalcao()" id="b_btnAdicionarAcai" style="background:linear-gradient(135deg,#059669,#047857)">'+
-        '<i class="fa-solid fa-plus"></i> Adicionar Açaí ao Carrinho <kbd style="font-size:9px;opacity:.65;background:rgba(255,255,255,.25);border-radius:4px;padding:1px 4px;margin-left:4px">F6</kbd>'+
+
+      '<button type="button" class="btn btn-success btn-full mb-3" onclick="adicionarAcaiBalcao()" id="b_btnAdicionarAcai">'+
+        '<i class="fa-solid fa-scale-balanced"></i> Adicionar ao Carrinho (por peso)'+
+        '<kbd style="font-size:9px;opacity:.55;background:rgba(255,255,255,.3);border-radius:4px;padding:1px 5px;margin-left:4px">F6</kbd>'+
       '</button>'+
 
-      '<div id="b_listaAcaiWrap" style="display:none;margin-bottom:12px">'+
-        '<div style="font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;margin-bottom:6px"><i class="fa-solid fa-ice-cream"></i> Açaís no Carrinho</div>'+
-        '<ul class="caixa-itens" id="b_listaAcai"></ul>'+
-      '</div>'+
-
-      '<div class="pdv-section"><i class="fa-solid fa-plus"></i>Itens Extras</div>'+
-      '<div style="display:flex;gap:8px;margin-bottom:10px">'+
+      // Separador Itens Avulsos
+      '<div class="pdv-section"><i class="fa-solid fa-boxes-stacked"></i>Itens Avulsos</div>'+
+      '<div style="display:flex;gap:7px;margin-bottom:10px">'+
         '<select class="form-control" id="b_itemSelect" style="flex:1">'+itensOpts+'</select>'+
-        '<input type="number" class="form-control" id="b_itemQtd" value="1" min="1" max="99" style="width:64px;text-align:center" title="Quantidade"/>'+
-        '<button class="btn btn-success btn-sm" onclick="adicionarItemBalcao()" style="white-space:nowrap"><i class="fa-solid fa-plus"></i>Add</button>'+
+        '<input type="number" class="form-control" id="b_itemQtd" value="1" min="1" max="99" style="width:60px;text-align:center;font-weight:700" title="Quantidade"/>'+
+        '<button class="btn btn-primary btn-sm" onclick="adicionarItemBalcao()" style="white-space:nowrap;padding:6px 12px"><i class="fa-solid fa-plus"></i></button>'+
       '</div>'+
-      '<ul class="caixa-itens" id="b_listaItens"></ul>'+
 
+      // Atalhos rápidos (modelos)
       (config.mostrar_acai_rapido_pdv!==false && modelos.length?
-        '<div class="pdv-section"><i class="fa-solid fa-bolt"></i>Atalhos Rápidos <span style="font-size:10px;font-weight:600;color:#94a3b8;text-transform:none;letter-spacing:0;margin-left:4px">preço fixo</span></div>'+
-        '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px;margin-bottom:12px">'+
+        '<div class="pdv-section"><i class="fa-solid fa-bolt"></i>Atalhos Rápidos <span style="font-size:10px;font-weight:500;color:#94a3b8;text-transform:none;letter-spacing:0;margin-left:4px">preço fixo</span></div>'+
+        '<div class="pdv-atalhos mb-3">'+
           modelos.map(function(m){
-            return '<button type="button" onclick="adicionarModeloBalcao(\''+esc(m.id_modelo)+'\',\''+esc(m.nome)+'\','+parseFloat(m.preco||0)+')" '+
-              'style="padding:10px 8px;border-radius:10px;border:1.5px solid #ddd6fe;background:#f5f3ff;cursor:pointer;font-family:inherit;text-align:center;transition:all .15s;line-height:1.3" '+
-              'onmouseover="this.style.background=\'#ede9fe\';this.style.borderColor=\'#7c3aed\'" '+
-              'onmouseout="this.style.background=\'#f5f3ff\';this.style.borderColor=\'#ddd6fe\'">'+
-              '<i class="fa-solid fa-ice-cream" style="font-size:16px;color:#7c3aed;display:block;margin-bottom:4px"></i>'+
-              '<span style="font-size:11px;font-weight:800;color:#1e1b4b;display:block">'+esc(m.nome)+'</span>'+
-              '<span style="font-size:12px;font-weight:700;color:#16a34a">'+fmtMoeda(m.preco||0)+'</span>'+
+            return '<button type="button" onclick="adicionarModeloBalcao(\''+esc(m.id_modelo)+'\',\''+esc(m.nome)+'\','+parseFloat(m.preco||0)+')" class="pdv-atalho-btn">'+
+              '<i class="fa-solid fa-tag" style="font-size:13px;color:#7c3aed;display:block"></i>'+
+              '<span class="nome">'+esc(m.nome)+'</span>'+
+              '<span class="preco">'+fmtMoeda(m.preco||0)+'</span>'+
             '</button>';
           }).join('')+
         '</div>'
       :'')+
-      '<div class="pdv-section"><i class="fa-solid fa-user"></i>Cliente (opcional)</div>'+
-      '<div class="form-row cols-2">'+
-        '<div class="form-group mb-2"><label class="form-label">Nome</label><input type="text" class="form-control" id="b_nomeCliente" placeholder="Nome do cliente"/></div>'+
-        '<div class="form-group mb-2"><label class="form-label">Telefone</label><input type="text" class="form-control" id="b_telefone" placeholder="(84) 9xxxx-xxxx"/></div>'+
-      '</div>'+
-    '</div>'+
 
-    '<div>'+
-      '<div class="pdv-section"><i class="fa-solid fa-wallet"></i>Pagamento</div>'+
-      '<div class="form-group mb-3">'+
-        '<label class="form-label">Forma de Pagamento</label>'+
-        '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">'+
-          pgBtn('b_pgto','DINHEIRO','fa-money-bill-wave','Dinheiro')+
-          pgBtn('b_pgto','PIX','fa-qrcode','PIX')+
-          pgBtn('b_pgto','CARTAO','fa-credit-card','Cartão')+
-        '</div>'+
+      // Dados do cliente (opcional)
+      '<div class="pdv-section"><i class="fa-solid fa-user"></i>Cliente <span style="font-size:10px;font-weight:500;color:#94a3b8;text-transform:none;letter-spacing:0;margin-left:4px">opcional</span></div>'+
+      '<div class="form-row cols-2">'+
+        '<div class="form-group mb-2"><label class="form-label">Nome</label><input type="text" class="form-control" id="b_nomeCliente" placeholder="Nome"/></div>'+
+        '<div class="form-group mb-2"><label class="form-label">Telefone</label><input type="text" class="form-control" id="b_telefone" placeholder="(xx) xxxxx-xxxx"/></div>'+
       '</div>'+
+
+    '</div>'+ // fim pdv-col-body col1
+  '</div>'+ // fim col1
+
+  // ── COLUNA 2: CARRINHO ────────────────────────────────────
+  '<div class="pdv-col">'+
+    '<div class="pdv-col-header" style="display:flex;justify-content:space-between;align-items:center">'+
+      '<h3><i class="fa-solid fa-cart-shopping"></i>Carrinho</h3>'+
+      '<span id="b_qtdItens" style="font-size:11px;font-weight:700;color:#94a3b8">0 iten(s)</span>'+
+    '</div>'+
+    '<div class="pdv-col-body" id="b_carrinhoBody">'+
+
+      // Itens por peso (acai)
+      '<div id="b_listaAcaiWrap" style="display:none;margin-bottom:4px">'+
+        '<div style="font-size:10px;font-weight:800;color:#64748b;text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px;display:flex;align-items:center;gap:6px">'+
+          '<i class="fa-solid fa-scale-balanced" style="color:#16a34a"></i> Itens por Peso'+
+        '</div>'+
+        '<ul class="caixa-itens" id="b_listaAcai"></ul>'+
+        '<div style="height:1px;background:#f0f2f5;margin:10px 0"></div>'+
+      '</div>'+
+
+      // Itens avulsos
+      '<ul class="caixa-itens" id="b_listaItens"></ul>'+
+
+      // Estado vazio
+      '<div id="b_carrinhoVazio" class="pdv-cart-empty">'+
+        '<i class="fa-solid fa-cart-shopping"></i>'+
+        '<p>Nenhum item adicionado</p>'+
+        '<span style="font-size:12px;color:#cbd5e1">Use os controles ao lado</span>'+
+      '</div>'+
+
+    '</div>'+ // fim pdv-col-body col2
+  '</div>'+ // fim col2
+
+  // ── COLUNA 3: PAGAMENTO ────────────────────────────────────
+  '<div class="pdv-col" style="background:#fafafa">'+
+    '<div class="pdv-col-header">'+
+      '<h3><i class="fa-solid fa-wallet"></i>Pagamento</h3>'+
+    '</div>'+
+    '<div class="pdv-col-body">'+
+
+      // Botões de pagamento
+      '<label class="form-label mb-2">Forma de Pagamento</label>'+
+      '<div class="pgto-grid mb-3">'+
+        pgBtn('b_pgto','DINHEIRO','fa-money-bill-wave','Dinheiro')+
+        pgBtn('b_pgto','PIX','fa-qrcode','PIX')+
+        pgBtn('b_pgto','CARTAO','fa-credit-card','Cartão')+
+      '</div>'+
+
+      // Troco (dinheiro)
+      '<div class="form-group mb-3" id="b_trocoGroup" style="display:none">'+
+        '<label class="form-label">Valor Recebido (R$)</label>'+
+        '<input type="number" class="form-control" id="b_valorPago" step="0.01" placeholder="0,00" oninput="calcBalcao()" style="font-size:16px;font-weight:700;text-align:center"/>'+
+      '</div>'+
+
+      // Cupom
       '<div class="form-group mb-3">'+
         '<label class="form-label">Cupom de Desconto</label>'+
-        '<div style="display:flex;gap:8px">'+
+        '<div style="display:flex;gap:7px">'+
           '<input type="text" class="form-control" id="b_cupom" placeholder="Código do cupom" style="flex:1"/>'+
           '<button class="btn btn-secondary btn-sm" onclick="aplicarCupom(\'b_cupom\',\'b_desconto\',\'b_cupomMsg\',function(){ calcBalcao(); })">Aplicar</button>'+
         '</div>'+
         '<div id="b_cupomMsg" class="text-xs mt-2"></div>'+
         '<input type="hidden" id="b_desconto" value="0"/>'+
       '</div>'+
-      '<div class="form-group mb-3" id="b_trocoGroup" style="display:none">'+
-        '<label class="form-label">Valor Recebido (R$)</label>'+
-        '<input type="number" class="form-control" id="b_valorPago" step="0.01" placeholder="0,00" oninput="calcBalcao()"/>'+
-      '</div>'+
-      '<div class="caixa-total" id="b_resumoCaixa">'+
-        '<div class="caixa-total-row"><span>Açaí (leitura atual)</span><span id="b_r_acai">R$ 0,00</span></div>'+
-        '<div class="caixa-total-row"><span id="b_r_acai_label">Açaís no carrinho</span><span id="b_r_acai_extra">R$ 0,00</span></div>'+
-        '<div class="caixa-total-row"><span>Itens extras</span><span id="b_r_extras">R$ 0,00</span></div>'+
-        '<div class="caixa-total-row"><span>Desconto</span><span id="b_r_desc" style="color:#16a34a">R$ 0,00</span></div>'+
+
+      // Resumo financeiro
+      '<div class="caixa-total mb-3">'+
+        '<div class="caixa-total-row"><span>Item (Pesagem)</span><span id="b_r_acai">R$ 0,00</span></div>'+
+        '<div class="caixa-total-row"><span id="b_r_acai_label">Itens por Peso</span><span id="b_r_acai_extra">R$ 0,00</span></div>'+
+        '<div class="caixa-total-row"><span>Itens Avulsos</span><span id="b_r_extras">R$ 0,00</span></div>'+
+        '<div class="caixa-total-row"><span style="color:#16a34a">Desconto</span><span id="b_r_desc" style="color:#16a34a">− R$ 0,00</span></div>'+
         '<div class="caixa-total-row big"><span>Total</span><span id="b_r_total">R$ 0,00</span></div>'+
       '</div>'+
+
+      // Troco display
       '<div id="b_trocoDisplay" class="caixa-troco hidden"><i class="fa-solid fa-coins"></i> Troco: <span id="b_trocoVal">R$ 0,00</span></div>'+
-      '<div class="pdv-section" style="margin-top:20px"><i class="fa-solid fa-note-sticky"></i>Observação</div>'+
-      '<textarea class="form-control mb-3" id="b_observacao" rows="2" placeholder="Alguma observação para este pedido?" style="resize:none;font-size:13px"></textarea>'+
-      '<div style="display:flex;gap:8px;margin-top:4px;">'+
-        '<button class="btn btn-primary" style="flex:1" onclick="finalizarBalcao()" id="b_btnFinalizar">'+
-        '<i class="fa-solid fa-check-circle"></i>Finalizar Venda <kbd style="font-size:9px;opacity:.65;background:rgba(255,255,255,.25);border-radius:4px;padding:1px 4px;margin-left:4px">F4</kbd></button>'+
-        '<button class="btn btn-secondary" style="padding:0 16px;" onclick="imprimirUltimaVendaBalcao()" title="Imprimir último cupom"><i class="fa-solid fa-print"></i></button>'+
+
+      // Observação
+      '<div class="form-group mt-3 mb-3">'+
+        '<label class="form-label">Observação</label>'+
+        '<textarea class="form-control" id="b_observacao" rows="2" placeholder="Alguma observação para este pedido?" style="resize:none;font-size:12.5px"></textarea>'+
       '</div>'+
+
+      // Botão finalizar
+      '<button class="btn btn-primary btn-full" style="padding:13px;font-size:14px" onclick="finalizarBalcao()" id="b_btnFinalizar">'+
+        '<i class="fa-solid fa-check-circle"></i>Finalizar Venda'+
+        '<kbd style="font-size:9px;opacity:.55;background:rgba(255,255,255,.25);border-radius:4px;padding:1px 5px;margin-left:4px">F4</kbd>'+
+      '</button>'+
+
       '<div id="b_finMsg" class="mt-3"></div>'+
-    '</div>'+
-    '</div>';
+
+    '</div>'+ // fim pdv-col-body col3
+  '</div>'+ // fim col3
+
+  '</div>'; // fim pdv-3col
 
   abrirModal('modalBalcao');
   
+  // Atualiza estado vazio do carrinho
+  _atualizarCarrinhoBalcao();
+
   // Verifica se a balança já está rodando em background e deixa o botão verde
   if (manterLeitura && balancaPort) {
       atualizarBotaoBalanca(true);
   }
+}
+
+// Helper para atualizar o estado vazio/preenchido do carrinho balcão
+function _atualizarCarrinhoBalcao(){
+  var totalItens = ST.pdvAcaiItens.length + ST.pdvBalcaoItens.length;
+  var vazio = document.getElementById('b_carrinhoVazio');
+  var counter = document.getElementById('b_qtdItens');
+  if(vazio) vazio.style.display = totalItens > 0 ? 'none' : 'flex';
+  if(counter) counter.textContent = totalItens + ' item(ns)';
 }
 
 var _pgtoShortcuts={'PIX':'1','CARTAO':'2','DINHEIRO':'3'};
@@ -1765,26 +1936,38 @@ var _pgtoColors={
   CARTAO:  {bg:'#f5f3ff',border:'#c4b5fd',color:'#6d28d9',active:'#7c3aed'}
 };
 function pgBtn(grupo,val,icon,label){
-  var sc=_pgtoShortcuts[val]?'<kbd style="font-size:8px;opacity:.55;background:rgba(0,0,0,.08);border-radius:3px;padding:1px 4px;position:absolute;top:5px;right:5px">'+_pgtoShortcuts[val]+'</kbd>':'';
+  var sc=_pgtoShortcuts[val]?'<kbd style="font-size:8px;opacity:.5;background:rgba(0,0,0,.07);border-radius:3px;padding:1px 4px;position:absolute;top:5px;right:5px">'+_pgtoShortcuts[val]+'</kbd>':'';
   var c=_pgtoColors[val]||{bg:'#fff',border:'#e5e7eb',color:'#374151'};
   return '<button type="button" onclick="selecionarPgto(\''+grupo+'\',\''+val+'\')" id="pg_'+grupo+'_'+val+'" '+
-    'style="position:relative;padding:12px 8px;border-radius:10px;border:1.5px solid '+c.border+';background:'+c.bg+';cursor:pointer;font-family:inherit;font-size:12px;font-weight:700;color:'+c.color+';transition:all .2s;text-align:center;width:100%">'+
-    '<i class="fa-solid '+icon+'" style="display:block;font-size:20px;margin-bottom:5px"></i>'+label+sc+'</button>';
+    'class="pgto-btn" '+
+    'style="background:'+c.bg+';border-color:'+c.border+';color:'+c.color+'">'+
+    '<i class="fa-solid '+icon+'"></i>'+label+sc+'</button>';
 }
 
 function selecionarPgto(grupo,val){
   // Salva no estado (resolve bug de múltiplos cliques)
   ST.pgtoAtivo[grupo]=val;
 
-  // Reseta visual de todos os botões do grupo
+  // Reseta visual de todos os botões do grupo para estado neutro
   document.querySelectorAll('[id^="pg_'+grupo+'_"]').forEach(function(el){
-    el.style.background='#fff'; el.style.borderColor='#e5e7eb'; el.style.color='#374151';
+    var _val=el.id.replace('pg_'+grupo+'_','');
+    var c=_pgtoColors[_val]||{bg:'#fff',border:'#e5e7eb',color:'#374151'};
+    el.style.background=c.bg;
+    el.style.borderColor=c.border;
+    el.style.color=c.color;
+    el.style.boxShadow='none';
+    el.style.transform='none';
   });
+
+  // Ativa o botão selecionado
   var btn=document.getElementById('pg_'+grupo+'_'+val);
   if(btn){
     var ac=(_pgtoColors[val]||{}).active||'#7c3aed';
-    btn.style.background=ac; btn.style.borderColor=ac; btn.style.color='#fff';
-    btn.style.boxShadow='0 4px 14px '+ac+'55';
+    btn.style.background=ac;
+    btn.style.borderColor=ac;
+    btn.style.color='#fff';
+    btn.style.boxShadow='0 3px 12px '+ac+'50';
+    btn.style.transform='translateY(-1px)';
   }
 
   // Mostra/esconde campo de troco apenas para o modal correto
@@ -1888,6 +2071,7 @@ function renderListaBalcao(){
       '<span class="caixa-item-preco">'+fmtMoeda(item.preco)+'</span>'+
       '<button class="caixa-item-rem" onclick="removerItemBalcao('+i+')"><i class="fa-solid fa-xmark"></i></button></li>';
   }).join('');
+  _atualizarCarrinhoBalcao();
 }
 
 // ─── Multi-açaí: adicionar pesagem ao carrinho ───────────────
@@ -1906,7 +2090,7 @@ function adicionarAcaiBalcao(){
 
   ST.pdvAcaiItens.push({
     tipo:'acai_balanca',
-    descricao:'Açaí — '+liq+'g',
+    descricao:'Produto — '+liq+'g',
     detalhes:bruto+'g bruto − '+tara+'g tara',
     preco:preco,
     pesoBruto:bruto, pesoTara:tara, pesoLiq:liq
@@ -1921,7 +2105,7 @@ function adicionarAcaiBalcao(){
 
   renderListaAcaiBalcao();
   calcBalcao();
-  toast('Açaí de '+liq+'g adicionado ao carrinho!','success');
+  toast(liq+'g adicionado ao carrinho!','success');
 }
 
 // ─── Açaí rápido: adicionar modelo de preço fixo ao carrinho ───────────
@@ -1951,19 +2135,21 @@ function renderListaAcaiBalcao(){
   if(!ST.pdvAcaiItens.length){
     if(wrap) wrap.style.display='none';
     ul.innerHTML='';
+    _atualizarCarrinhoBalcao();
     return;
   }
   if(wrap) wrap.style.display='block';
   ul.innerHTML=ST.pdvAcaiItens.map(function(item,i){
     return '<li style="background:#f0fdf4;border-radius:8px;padding:8px 10px;margin-bottom:4px">'+
-      '<div style="flex:1">'+
-        '<span class="caixa-item-nome" style="color:#166534"><i class="fa-solid fa-ice-cream"></i> '+esc(item.descricao)+'</span>'+
-        '<div style="font-size:11px;color:#6b7280">'+esc(item.detalhes)+'</div>'+
+      '<div style="flex:1;min-width:0">'+
+        '<span class="caixa-item-nome" style="color:#166534"><i class="fa-solid fa-scale-balanced" style="margin-right:4px"></i>'+esc(item.descricao)+'</span>'+
+        '<div style="font-size:10px;color:#6b7280;margin-top:1px">'+esc(item.detalhes)+'</div>'+
       '</div>'+
       '<span class="caixa-item-preco" style="color:#16a34a">'+fmtMoeda(item.preco)+'</span>'+
       '<button class="caixa-item-rem" onclick="removerAcaiBalcao('+i+')"><i class="fa-solid fa-xmark"></i></button>'+
     '</li>';
   }).join('');
+  _atualizarCarrinhoBalcao();
 }
 
 function getPgtoSelecionado(grupo){
@@ -1983,7 +2169,7 @@ function finalizarBalcao(){
   // Aceita: peso atual > 0 OU itens de açaí no carrinho
   var temAcaiCarrinho=ST.pdvAcaiItens.length>0;
   if(bruto<=0&&!temAcaiCarrinho&&!ST.pdvBalcaoItens.length){
-    msg.innerHTML='<p class="text-sm text-red"><i class="fa-solid fa-exclamation-circle"></i> Pese um açaí ou adicione itens ao carrinho.</p>'; return;
+    msg.innerHTML='<p class="text-sm text-red"><i class="fa-solid fa-exclamation-circle"></i> Adicione ao menos um produto ao carrinho.</p>'; return;
   }
   if(!pgto){ msg.innerHTML='<p class="text-sm text-red"><i class="fa-solid fa-exclamation-circle"></i> Selecione a forma de pagamento.</p>'; return; }
 
@@ -2013,7 +2199,7 @@ function finalizarBalcao(){
   api('POST', L('/pedidos/balcao'), dados)
     .then(function(res){
       ST.registrando=false;
-      btn.disabled=false; btn.innerHTML='<i class="fa-solid fa-check-circle"></i>Finalizar Venda no Balcão';
+      btn.disabled=false; btn.innerHTML='<i class="fa-solid fa-check-circle"></i>Finalizar Venda';
       if(res.sucesso){
         fecharModal('modalBalcao');
         toast('Venda registrada! Total: '+fmtMoeda(res.total),'success');
@@ -2053,7 +2239,7 @@ function finalizarBalcao(){
     })
     .catch(function(e){
       ST.registrando=false;
-      btn.disabled=false; btn.innerHTML='<i class="fa-solid fa-check-circle"></i>Finalizar Venda no Balcão';
+      btn.disabled=false; btn.innerHTML='<i class="fa-solid fa-check-circle"></i>Finalizar Venda';
       msg.innerHTML='<p class="text-sm text-red">Erro: '+esc(e)+'</p>';
     });
 }
@@ -2071,76 +2257,164 @@ function abrirPDVDelivery(){
   var itens=(ST.dados&&ST.dados.itensFixos||[]).filter(function(i){ return i.disponivel===true; });
   var modelos=(ST.dados&&ST.dados.acaiModelos||[]).filter(function(m){ return m.disponivel===true; });
 
+  // Atualiza hora no header
+  var agora=new Date();
+  var hh=agora.getHours()<10?'0'+agora.getHours():agora.getHours();
+  var min=agora.getMinutes()<10?'0'+agora.getMinutes():agora.getMinutes();
+  var elHora=document.getElementById('d_horaAtual');
+  if(elHora) elHora.textContent=hh+':'+min;
+
   var bairrosOpts='<option value="">Selecione o bairro...</option>'+
     bairros.map(function(b){
-      return '<option value="'+esc(b.id_bairro)+'" data-taxa="'+esc(b.taxa_entrega)+'">'+esc(b.nome)+' — Taxa: '+fmtMoeda(b.taxa_entrega)+'</option>';
+      return '<option value="'+esc(b.id_bairro)+'" data-taxa="'+esc(b.taxa_entrega)+'">'+esc(b.nome)+' — '+fmtMoeda(b.taxa_entrega)+'</option>';
     }).join('');
 
   var produtosOpts='<option value="">+ Adicionar produto...</option>'+
     itens.map(function(i){
-      return '<option value="'+esc(i.id_item)+'" data-nome="'+esc(i.nome)+'" data-preco="'+esc(i.preco)+'">[Fixo] '+esc(i.nome)+' — '+fmtMoeda(i.preco)+'</option>';
+      return '<option value="'+esc(i.id_item)+'" data-nome="'+esc(i.nome)+'" data-preco="'+esc(i.preco)+'">[Item] '+esc(i.nome)+' — '+fmtMoeda(i.preco)+'</option>';
     }).join('')+
     modelos.map(function(m){
-      return '<option value="'+esc(m.id_modelo)+'" data-nome="'+esc(m.nome)+'" data-preco="'+esc(m.preco)+'">[Açaí] '+esc(m.nome)+' — '+fmtMoeda(m.preco)+'</option>';
+      return '<option value="'+esc(m.id_modelo)+'" data-nome="'+esc(m.nome)+'" data-preco="'+esc(m.preco)+'">[Fixo] '+esc(m.nome)+' — '+fmtMoeda(m.preco)+'</option>';
     }).join('');
 
   document.getElementById('modalDeliveryPDVBody').innerHTML=
-    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">'+
-    '<div>'+
-      '<h3 style="font-weight:800;font-size:15px;margin-bottom:14px;color:#1e1b4b"><i class="fa-solid fa-user text-purple"></i> Dados do Cliente</h3>'+
+  '<div class="pdv-3col">'+
+
+  // ── COLUNA 1: CLIENTE & ENDEREÇO ─────────────────────────
+  '<div class="pdv-col">'+
+    '<div class="pdv-col-header">'+
+      '<h3><i class="fa-solid fa-user"></i>Dados do Cliente</h3>'+
+    '</div>'+
+    '<div class="pdv-col-body">'+
+
       '<div class="form-row cols-2">'+
-        '<div class="form-group"><label class="form-label">Nome *</label><input type="text" class="form-control" id="d_nome" placeholder="Nome completo"/></div>'+
-        '<div class="form-group"><label class="form-label">Telefone *</label><input type="text" class="form-control" id="d_tel" placeholder="(84) 9xxxx-xxxx"/></div>'+
+        '<div class="form-group"><label class="form-label">Nome *</label><input type="text" class="form-control" id="d_nome" placeholder="Nome completo" autocomplete="name"/></div>'+
+        '<div class="form-group"><label class="form-label">Telefone *</label><input type="text" class="form-control" id="d_tel" placeholder="(xx) xxxxx-xxxx" autocomplete="tel"/></div>'+
       '</div>'+
-      '<div class="form-group"><label class="form-label">Endereço Completo *</label><input type="text" class="form-control" id="d_end" placeholder="Rua, número, bairro..."/></div>'+
+      '<div class="form-group">'+
+        '<label class="form-label">Endereço *</label>'+
+        '<input type="text" class="form-control" id="d_end" placeholder="Rua, número, bairro..." autocomplete="street-address"/>'+
+      '</div>'+
+      '<div class="form-row cols-2">'+
+        '<div class="form-group mb-2">'+
+          '<label class="form-label">Complemento</label>'+
+          '<input type="text" class="form-control" id="d_complemento" placeholder="Apto, bloco..."/>'+
+        '</div>'+
+        '<div class="form-group mb-2">'+
+          '<label class="form-label">Referência</label>'+
+          '<input type="text" class="form-control" id="d_referencia" placeholder="Próximo a..."/>'+
+        '</div>'+
+      '</div>'+
+
+      // Bairro e taxa
+      '<div class="pdv-section"><i class="fa-solid fa-map-pin"></i>Entrega</div>'+
       '<div class="form-group">'+
         '<label class="form-label">Bairro / Taxa de Entrega</label>'+
         '<select class="form-control" id="d_bairro" onchange="selecionarBairro()">'+bairrosOpts+'</select>'+
       '</div>'+
-      '<div class="form-group"><label class="form-label">Taxa de Entrega (R$)</label><input type="number" class="form-control" id="d_taxa" value="0" step="0.01" oninput="calcDelivery()"/></div>'+
-
-      '<h3 style="font-weight:800;font-size:15px;margin:16px 0 12px;color:#1e1b4b"><i class="fa-solid fa-basket-shopping text-purple"></i> Produtos</h3>'+
-      '<select class="form-control mb-3" id="d_itemSelect" onchange="adicionarItemDelivery()">'+produtosOpts+'</select>'+
-      '<ul class="caixa-itens" id="d_listaItens"><li style="text-align:center;color:#9ca3af;font-size:13px">Nenhum item adicionado</li></ul>'+
-    '</div>'+
-
-    '<div>'+
-      '<div class="pdv-section"><i class="fa-solid fa-wallet"></i>Pagamento</div>'+
-      '<div class="form-group mb-3">'+
-        '<label class="form-label">Forma de Pagamento</label>'+
-        '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">'+
-          pgBtn('d_pgto','DINHEIRO','fa-money-bill-wave','Dinheiro')+
-          pgBtn('d_pgto','PIX','fa-qrcode','PIX')+
-          pgBtn('d_pgto','CARTAO','fa-credit-card','Cartão')+
-        '</div>'+
+      '<div class="form-group">'+
+        '<label class="form-label">Taxa de Entrega (R$)</label>'+
+        '<input type="number" class="form-control" id="d_taxa" value="0" step="0.01" oninput="calcDelivery()" style="font-size:15px;font-weight:700"/>'+
       '</div>'+
+
+      // Observação
+      '<div class="pdv-section"><i class="fa-solid fa-note-sticky"></i>Observação</div>'+
+      '<textarea class="form-control" id="d_observacao" rows="3" placeholder="Alguma observação para o entregador ou preparo?" style="resize:none;font-size:12.5px"></textarea>'+
+
+    '</div>'+
+  '</div>'+
+
+  // ── COLUNA 2: PRODUTOS ────────────────────────────────────
+  '<div class="pdv-col">'+
+    '<div class="pdv-col-header" style="display:flex;justify-content:space-between;align-items:center">'+
+      '<h3><i class="fa-solid fa-basket-shopping"></i>Produtos</h3>'+
+      '<span id="d_qtdItens" style="font-size:11px;font-weight:700;color:#94a3b8">0 item(ns)</span>'+
+    '</div>'+
+    '<div class="pdv-col-body">'+
+
+      // Adicionar produto
+      '<div style="display:flex;gap:7px;margin-bottom:12px">'+
+        '<select class="form-control" id="d_itemSelect" onchange="adicionarItemDelivery()" style="flex:1">'+produtosOpts+'</select>'+
+      '</div>'+
+
+      // Atalhos rápidos (modelos)
+      (modelos.length?
+        '<div class="pdv-atalhos mb-3">'+
+          modelos.map(function(m){
+            return '<button type="button" onclick="(function(){ var sel=document.getElementById(\'d_itemSelect\'); for(var i=0;i<sel.options.length;i++){ if(sel.options[i].dataset.nome===\''+esc(m.nome)+'\'){sel.selectedIndex=i;adicionarItemDelivery();return;}} })()" class="pdv-atalho-btn">'+
+              '<i class="fa-solid fa-tag" style="font-size:13px;color:#f97316;display:block"></i>'+
+              '<span class="nome">'+esc(m.nome)+'</span>'+
+              '<span class="preco">'+fmtMoeda(m.preco||0)+'</span>'+
+            '</button>';
+          }).join('')+
+        '</div>'
+      :'')+
+
+      // Lista de itens no carrinho
+      '<ul class="caixa-itens" id="d_listaItens">'+
+        '<li style="justify-content:center;color:#94a3b8;font-size:12.5px;padding:24px 0;flex-direction:column;gap:8px">'+
+          '<i class="fa-solid fa-basket-shopping" style="font-size:28px;opacity:.3;display:block;text-align:center"></i>'+
+          'Nenhum produto adicionado'+
+        '</li>'+
+      '</ul>'+
+
+    '</div>'+
+  '</div>'+
+
+  // ── COLUNA 3: PAGAMENTO ────────────────────────────────────
+  '<div class="pdv-col" style="background:#fafafa">'+
+    '<div class="pdv-col-header">'+
+      '<h3><i class="fa-solid fa-wallet"></i>Pagamento</h3>'+
+    '</div>'+
+    '<div class="pdv-col-body">'+
+
+      // Botões de pagamento
+      '<label class="form-label mb-2">Forma de Pagamento</label>'+
+      '<div class="pgto-grid mb-3">'+
+        pgBtn('d_pgto','DINHEIRO','fa-money-bill-wave','Dinheiro')+
+        pgBtn('d_pgto','PIX','fa-qrcode','PIX')+
+        pgBtn('d_pgto','CARTAO','fa-credit-card','Cartão')+
+      '</div>'+
+
+      // Troco (dinheiro)
+      '<div class="form-group mb-3" id="d_trocoGroup" style="display:none">'+
+        '<label class="form-label">Valor Recebido (R$)</label>'+
+        '<input type="number" class="form-control" id="d_valorPago" step="0.01" placeholder="0,00" oninput="calcDelivery()" style="font-size:16px;font-weight:700;text-align:center"/>'+
+      '</div>'+
+
+      // Cupom
       '<div class="form-group mb-3">'+
         '<label class="form-label">Cupom de Desconto</label>'+
-        '<div style="display:flex;gap:8px">'+
+        '<div style="display:flex;gap:7px">'+
           '<input type="text" class="form-control" id="d_cupom" placeholder="Código" style="flex:1"/>'+
           '<button class="btn btn-secondary btn-sm" onclick="aplicarCupom(\'d_cupom\',\'d_desconto\',\'d_cupomMsg\',function(){ calcDelivery(); })">Aplicar</button>'+
         '</div>'+
         '<div id="d_cupomMsg" class="text-xs mt-2"></div>'+
         '<input type="hidden" id="d_desconto" value="0"/>'+
       '</div>'+
-      '<div class="form-group mb-3" id="d_trocoGroup" style="display:none">'+
-        '<label class="form-label">Valor Recebido (R$)</label>'+
-        '<input type="number" class="form-control" id="d_valorPago" step="0.01" placeholder="0,00" oninput="calcDelivery()"/>'+
-      '</div>'+
-      '<div class="caixa-total" id="d_resumoCaixa">'+
+
+      // Resumo financeiro
+      '<div class="caixa-total mb-3">'+
         '<div class="caixa-total-row"><span>Subtotal</span><span id="d_r_sub">R$ 0,00</span></div>'+
-        '<div class="caixa-total-row"><span>Desconto</span><span id="d_r_desc" style="color:#16a34a">R$ 0,00</span></div>'+
+        '<div class="caixa-total-row"><span style="color:#16a34a">Desconto</span><span id="d_r_desc" style="color:#16a34a">− R$ 0,00</span></div>'+
         '<div class="caixa-total-row"><span>Taxa de Entrega</span><span id="d_r_taxa">R$ 0,00</span></div>'+
         '<div class="caixa-total-row big"><span>Total</span><span id="d_r_total">R$ 0,00</span></div>'+
       '</div>'+
+
       '<div id="d_trocoDisplay" class="caixa-troco hidden"><i class="fa-solid fa-coins"></i> Troco: <span id="d_trocoVal">R$ 0,00</span></div>'+
-      '<div class="pdv-section" style="margin-top:20px"><i class="fa-solid fa-note-sticky"></i>Observação</div>'+
-      '<textarea class="form-control mb-3" id="d_observacao" rows="2" placeholder="Alguma observação para o entregador ou preparo?" style="resize:none;font-size:13px"></textarea>'+
-      '<button class="btn btn-primary btn-full mt-2" onclick="finalizarDeliveryPDV()" id="d_btnFinalizar">'+
-      '<i class="fa-solid fa-motorcycle"></i>Registrar Delivery <kbd style="font-size:9px;opacity:.65;background:rgba(255,255,255,.25);border-radius:4px;padding:1px 4px;margin-left:4px">F5</kbd></button>'+
+
+      // Botão finalizar
+      '<button class="btn btn-primary btn-full mt-3" style="padding:13px;font-size:14px;background:linear-gradient(135deg,#ea580c,#f97316)" onclick="finalizarDeliveryPDV()" id="d_btnFinalizar">'+
+        '<i class="fa-solid fa-motorcycle"></i>Registrar Pedido Delivery'+
+        '<kbd style="font-size:9px;opacity:.55;background:rgba(255,255,255,.25);border-radius:4px;padding:1px 5px;margin-left:4px">F5</kbd>'+
+      '</button>'+
+
       '<div id="d_finMsg" class="mt-3"></div>'+
+
     '</div>'+
-    '</div>';
+  '</div>'+
+
+  '</div>'; // fim pdv-3col
 
   abrirModal('modalDeliveryPDV');
 }
@@ -2180,8 +2454,10 @@ function removerItemDelivery(idx){
 function renderListaDeliveryPDV(){
   var ul=document.getElementById('d_listaItens');
   if(!ul) return;
+  var counter=document.getElementById('d_qtdItens');
+  if(counter) counter.textContent=ST.pdvDeliveryItens.length+' item(ns)';
   if(!ST.pdvDeliveryItens.length){
-    ul.innerHTML='<li style="text-align:center;color:#94a3b8;font-size:13px;padding:12px">Nenhum item adicionado</li>';
+    ul.innerHTML='<li style="justify-content:center;color:#94a3b8;font-size:12.5px;padding:24px 0;flex-direction:column;gap:8px"><i class="fa-solid fa-basket-shopping" style="font-size:28px;opacity:.3;display:block;text-align:center"></i>Nenhum produto adicionado</li>';
     return;
   }
   ul.innerHTML=ST.pdvDeliveryItens.map(function(item,i){
