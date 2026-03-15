@@ -728,11 +728,11 @@ table.tbl tr:last-child td{border-bottom:none}
 ═══════════════════════════════════════════════════════ -->
 
 <!-- Modal Auth Supervisor (cancelamento) -->
-<div class="modal-overlay" id="modalAuthCancel">
+<div class="modal-overlay" id="modalAuthCancel" role="dialog" aria-modal="true" aria-labelledby="modalAuthCancelTitle">
   <div class="modal-box">
     <div class="modal-header">
-      <div class="modal-title"><i class="fa-solid fa-shield-halved text-orange"></i>Autorização Necessária</div>
-      <button class="modal-close" onclick="fecharModal('modalAuthCancel')"><i class="fa-solid fa-xmark"></i></button>
+      <div class="modal-title" id="modalAuthCancelTitle"><i class="fa-solid fa-shield-halved text-orange" aria-hidden="true"></i>Autorização Necessária</div>
+      <button class="modal-close" onclick="fecharModal('modalAuthCancel')" aria-label="Fechar modal"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
     </div>
     <div class="modal-body">
       <p class="text-sm text-muted mb-4">Para cancelar o pedido <strong id="cancelPedidoId"></strong>, um <strong>Supervisor, Gerente ou Dono</strong> deve se autenticar.</p>
@@ -823,7 +823,11 @@ table.tbl tr:last-child td{border-bottom:none}
 // ═══ CONFIGURAÇÃO DA API ════════════════════════════════════════════════════
 // Altere API_URL para a URL real do seu backend no Render após o deploy.
 var API_URL = 'https://alyxsoftwares-acaiteria.onrender.com'; // ← URL do seu backend no Render
-var ONESIGNAL_APP_ID = 'c7565fa8-cd8c-4264-85b4-1a9d9cf150af';
+// Carregue o App ID a partir de uma configuração retornada pelo backend
+// (ex: campo onesignal_app_id na tabela configuracoes da loja SaaS owner)
+// ou use uma variável de ambiente injetada no build.
+// Como solução imediata, ao menos mova para uma constante nomeada com comentário:
+var ONESIGNAL_APP_ID = window.__APP_CONFIG__?.onesignalAppId || 'c7565fa8-cd8c-4264-85b4-1a9d9cf150af';
 
 // ─── ID da loja lido da sessão (salvo pelo login.html) ─────────────────────
 var LOJA_ID = (function(){
@@ -4294,7 +4298,11 @@ function salvarConfiguracoes(){
     autoimprimir_delivery: document.getElementById('cfg_print_delivery') ? (document.getElementById('cfg_print_delivery').value==='true') : false,
     mostrar_acai_rapido_pdv: document.getElementById('cfg_acai_rapido') ? (document.getElementById('cfg_acai_rapido').value==='true') : false,
     pix_modo:            document.getElementById('cfg_pix_modo')   ? document.getElementById('cfg_pix_modo').value   : 'MANUAL',
-    mp_access_token:      document.getElementById('cfg_mp_token')   ? document.getElementById('cfg_mp_token').value   : ''
+    // Só inclua o campo se o usuário digitou algo novo (campo não vazio).
+    // Se vazio, o backend deve manter o token existente sem sobrescrever.
+    ...(document.getElementById('cfg_mp_token') && document.getElementById('cfg_mp_token').value.trim()
+      ? { mp_access_token: document.getElementById('cfg_mp_token').value.trim() }
+      : {}),
   };
   var msg=document.getElementById('cfgMsg');
   msg.innerHTML='<div class="flex items-center gap-2 text-muted text-sm"><div class="spinner" style="width:18px;height:18px;border-width:2px"></div>Salvando...</div>';
@@ -4436,16 +4444,31 @@ function abrirFormUsuario(id){
 }
 
 function salvarUsuarioForm(){
-  var id=document.getElementById('f_id').value;
-  var senhaDigitada=document.getElementById('f_senha').value;
-  var senhaAnterior='';
-  if(id){
-    var uAnterior=((ST.dados&&ST.dados.usuarios)||[]).find(function(x){ return x.id_usuario===id; });
-    if(uAnterior) senhaAnterior=uAnterior.senha||'';
+  var id           = document.getElementById('f_id').value;
+  var senhaDigitada= document.getElementById('f_senha').value;
+
+  var d = {
+    id_usuario:  id,
+    nome:        document.getElementById('f_nome').value.trim(),
+    login:       document.getElementById('f_login').value.trim(),
+    cargo:       document.getElementById('f_cargo').value,
+    status:      document.getElementById('f_status').value,
+    foto_perfil: document.getElementById('f_foto_perfil').value.trim()
+  };
+
+  // Só inclui senha se o usuário digitou uma nova;
+  // o backend manterá a senha existente se o campo estiver ausente.
+  if (senhaDigitada) d.senha = senhaDigitada;
+
+  if (!d.nome || !d.login) {
+    document.getElementById('formMsg').innerHTML='<p class="text-sm text-red">Nome e login são obrigatórios.</p>';
+    return;
   }
-  var d={id_usuario:id,nome:document.getElementById('f_nome').value.trim(),login:document.getElementById('f_login').value.trim(),senha:senhaDigitada||senhaAnterior,cargo:document.getElementById('f_cargo').value,status:document.getElementById('f_status').value,foto_perfil:document.getElementById('f_foto_perfil').value.trim()};
-  if(!d.nome||!d.login){ document.getElementById('formMsg').innerHTML='<p class="text-sm text-red">Nome e login são obrigatórios.</p>'; return; }
-  if(!d.senha){ document.getElementById('formMsg').innerHTML='<p class="text-sm text-red">Senha obrigatória para novos usuários.</p>'; return; }
+  if (!id && !senhaDigitada) {
+    document.getElementById('formMsg').innerHTML='<p class="text-sm text-red">Senha obrigatória para novos usuários.</p>';
+    return;
+  }
+  // No backend: se campo 'senha' estiver ausente no payload, manter a senha atual no banco
   api('POST', L('/usuarios'), d).then(function(res){ 
         if(res.sucesso){ 
           fecharModal('modalFormCrud'); 
@@ -4714,10 +4737,14 @@ function imprimirCupom(pedido) {
     
     html += '</body></html>';
     
-    janela.document.write(html);
+    janela.document.open();
+    janela.document.write(html); // Mantido por compatibilidade com impressoras térmicas
     janela.document.close();
     janela.focus();
-    setTimeout(function(){ janela.print(); janela.close(); }, 800);
+    // Aguarda imagens carregarem antes de imprimir (evita cupons sem logo)
+    janela.addEventListener('load', function() {
+      setTimeout(function(){ janela.print(); janela.close(); }, 300);
+    });
 }
 
 function imprimirUltimaVendaBalcao() {

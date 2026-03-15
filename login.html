@@ -205,11 +205,13 @@
   var API_URL = 'https://alyxsoftwares-acaiteria.onrender.com'; // ← URL do seu backend
 
   // ─── Lê o loja_id obrigatório da URL: login.html?loja=minha-acaiteria ──────
-  var LOJA_ID = (function () {
+  // Loja resolvida da URL; se ausente, pode ser preenchida pelo campo de input
+  let lojaIdFromURL = (function () {
     try {
       return new URLSearchParams(window.location.search).get('loja') || '';
     } catch (e) { return ''; }
   })();
+  let LOJA_ID = lojaIdFromURL; // reatribuível explicitamente apenas no fluxo de login
 
   // ─── Constantes ──────────────────────────────────────────
   var ESTADO_IDLE    = 'idle';
@@ -231,11 +233,17 @@
   window.addEventListener('DOMContentLoaded', function () {
     // Se não há loja_id na URL, exibe o campo para digitar e esconde o erro
     if (!LOJA_ID) {
-      document.getElementById('alertaLojaInvalida').classList.add('hidden');
-      document.getElementById('divCodigoLoja').style.display = 'block';
-      document.getElementById('inputCodigoLoja').focus();
-      return;
+    // O alerta de "link inválido" só faz sentido se houve uma tentativa de URL com loja errada
+    // Para acesso direto sem parâmetro, apenas exibe o campo de código
+    const temParamLoja = new URLSearchParams(window.location.search).has('loja');
+    if (temParamLoja) {
+      // Veio com ?loja=algo mas slug não resolveu (tratado pelo backend)
+      document.getElementById('alertaLojaInvalida').classList.remove('hidden');
     }
+    document.getElementById('divCodigoLoja').style.display = 'block';
+    document.getElementById('inputCodigoLoja').focus();
+    return;
+  }
 
     document.getElementById('inputUsuario').focus();
 
@@ -304,12 +312,13 @@
   function alternarVisibilidadeSenha() {
     var input   = document.getElementById('inputSenha');
     var icone   = document.getElementById('iconeOlho');
-    var visivel = input.type === 'text';
+    var visivel = input.type === 'text'; // true = senha atualmente visível
 
     input.type      = visivel ? 'password' : 'text';
     icone.className = visivel ? 'fa-solid fa-eye text-sm' : 'fa-solid fa-eye-slash text-sm';
+    // Quando visível=true, o botão vai OCULTAR → aria-label = "Ocultar senha"
     document.getElementById('btnVerSenha').setAttribute(
-      'aria-label', visivel ? 'Mostrar senha' : 'Ocultar senha'
+      'aria-label', visivel ? 'Ocultar senha' : 'Mostrar senha'
     );
   }
 
