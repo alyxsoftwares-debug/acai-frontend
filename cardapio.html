@@ -18,14 +18,14 @@
     /* ── Scrollbar ── */
     ::-webkit-scrollbar { width: 4px; height: 4px; }
     ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: #c084fc; border-radius: 99px; }
+    ::-webkit-scrollbar-thumb { background: #60a5fa; border-radius: 99px; }
     .no-scrollbar::-webkit-scrollbar { display: none; }
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     .no-select { user-select: none; -webkit-user-select: none; }
 
     /* ── Header ── */
     .header-premium {
-      background: linear-gradient(135deg, #1a0533 0%, #2d0f5e 60%, #1a0533 100%);
+      background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 60%, #0f172a 100%);
       backdrop-filter: blur(16px);
       -webkit-backdrop-filter: blur(16px);
       box-shadow: 0 4px 32px rgba(0,0,0,0.35);
@@ -40,33 +40,33 @@
       transition: all 0.22s ease;
     }
     .card-produto:hover {
-      border-color: #e9d5ff;
-      box-shadow: 0 8px 32px rgba(124,58,237,0.10);
+      border-color: #bfdbfe;
+      box-shadow: 0 8px 32px rgba(37,99,235,0.10);
       transform: translateY(-2px);
     }
 
     /* ── Banner Monte Açaí ── */
     .banner-monte {
-      background: linear-gradient(135deg, #1a0533 0%, #4c1d95 50%, #2d0f5e 100%);
+      background: linear-gradient(135deg, #0f172a 0%, #1e40af 50%, #1e3a8a 100%);
       border-radius: 24px;
       position: relative;
       overflow: hidden;
       cursor: pointer;
       transition: all 0.22s ease;
-      box-shadow: 0 8px 32px rgba(91,33,182,0.35);
+      box-shadow: 0 8px 32px rgba(30,64,175,0.35);
     }
-    .banner-monte:hover { transform: translateY(-3px); box-shadow: 0 14px 40px rgba(91,33,182,0.45); }
+    .banner-monte:hover { transform: translateY(-3px); box-shadow: 0 14px 40px rgba(30,64,175,0.45); }
     .banner-monte:active { transform: scale(0.99); }
     .banner-monte::before {
       content: '';
       position: absolute; inset: 0;
-      background: radial-gradient(circle at 80% 50%, rgba(167,139,250,0.15) 0%, transparent 60%);
+      background: radial-gradient(circle at 80% 50%, rgba(96,165,250,0.15) 0%, transparent 60%);
     }
 
     /* ── Botão primário ── */
     .btn-primary {
-      background: linear-gradient(135deg, #7c3aed 0%, #5b21b6 100%);
-      box-shadow: 0 6px 22px rgba(91,33,182,0.45), inset 0 1px 0 rgba(255,255,255,0.15);
+      background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+      box-shadow: 0 6px 22px rgba(30,64,175,0.45), inset 0 1px 0 rgba(255,255,255,0.15);
       transition: all 0.22s cubic-bezier(0.34,1.56,0.64,1);
     }
     .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(91,33,182,0.55); }
@@ -85,7 +85,7 @@
 
     /* ── Barra carrinho mobile ── */
     .barra-carrinho {
-      background: linear-gradient(135deg, #1a0533 0%, #2d0f5e 100%);
+      background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%);
       box-shadow: 0 -8px 32px rgba(0,0,0,0.25);
     }
 
@@ -94,7 +94,7 @@
       background: #fff;
       border: 1.5px solid #f3f4f6;
       border-radius: 24px;
-      box-shadow: 0 4px 24px rgba(124,58,237,0.07);
+      box-shadow: 0 4px 24px rgba(37,99,235,0.07);
     }
 
     /* ── Campos de input ── */
@@ -105,8 +105,8 @@
       outline: none; transition: all 0.2s; font-size: 0.9rem;
     }
     .campo-texto:focus {
-      border-color: #7c3aed; background: #fff;
-      box-shadow: 0 0 0 3px rgba(124,58,237,0.12);
+      border-color: #2563eb; background: #fff;
+      box-shadow: 0 0 0 3px rgba(37,99,235,0.12);
     }
     .campo-select {
       width: 100%; padding: 12px 16px;
@@ -115,14 +115,14 @@
       outline: none; transition: all 0.2s;
     }
     .campo-select:focus {
-      border-color: #7c3aed; background: #fff;
-      box-shadow: 0 0 0 3px rgba(124,58,237,0.12);
+      border-color: #2563eb; background: #fff;
+      box-shadow: 0 0 0 3px rgba(37,99,235,0.12);
     }
 
     /* ── Footer ── */
     .footer-creditos {
-      background: linear-gradient(180deg, transparent 0%, rgba(26,5,51,0.04) 100%);
-      border-top: 1px solid rgba(124,58,237,0.10);
+      background: linear-gradient(180deg, transparent 0%, rgba(15,23,42,0.04) 100%);
+      border-top: 1px solid rgba(37,99,235,0.10);
     }
 
     /* ── Animações ── */
@@ -147,7 +147,7 @@
       100% { background-position: 200% 0; }
     }
     .skeleton {
-      background: linear-gradient(90deg, #f3f4f6 25%, #e9d5ff30 50%, #f3f4f6 75%);
+      background: linear-gradient(90deg, #f3f4f6 25%, #bfdbfe30 50%, #f3f4f6 75%);
       background-size: 200% 100%;
       animation: shimmer 1.4s infinite;
       border-radius: 12px;
@@ -174,7 +174,7 @@
 </head>
 </head>
 
-<body class="bg-[#f5f3ff] font-sans pb-32 md:pb-0 min-h-screen flex flex-col">
+<body class="bg-[#eff6ff] font-sans pb-32 md:pb-0 min-h-screen flex flex-col">
 
   <!-- ══════════════════════════════
        HEADER PREMIUM
