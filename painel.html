@@ -2874,8 +2874,9 @@ function renderCardapioCatsRows(){
   var items=((ST.dados&&ST.dados.cardapioCategorias)||[]).slice().sort(function(a,b){ return (parseInt(a.ordem)||0) - (parseInt(b.ordem)||0); });
   if(!items.length) return '<tr><td colspan="2" style="text-align:center;padding:20px;color:#9ca3af">Nenhuma categoria</td></tr>';
   return items.map(function(c){
+    var fotoHTML = c.foto_url ? '<img src="'+esc(c.foto_url)+'" style="width:28px;height:28px;border-radius:6px;object-fit:cover;margin-right:8px;display:inline-block;vertical-align:middle" onerror="this.style.display=\'none\'">' : '';
     return '<tr draggable="true" data-id="'+esc(c.id_categoria)+'" ondragstart="dragStartCardapioCat(event)" ondragover="dragOverCardapioCat(event)" ondrop="dropCardapioCat(event)" ondragend="dragEndCardapioCat(event)" style="cursor:grab">'+
-      '<td style="font-weight:600"><i class="fa-solid fa-grip-vertical text-muted" style="margin-right:8px"></i>'+esc(c.nome)+'</td>'+
+      '<td style="font-weight:600"><i class="fa-solid fa-grip-vertical text-muted" style="margin-right:8px;vertical-align:middle"></i>'+fotoHTML+esc(c.nome)+'</td>'+
       '<td><div class="flex gap-2">'+
         '<button class="btn btn-xs btn-secondary" onclick="abrirFormCardapioCategoria(\''+esc(c.id_categoria)+'\')"><i class="fa-solid fa-pen"></i></button>'+
         '<button class="btn btn-xs btn-danger" onclick="confirmarExcluir(\'Cardapio_Categorias\',\''+esc(c.id_categoria)+'\',\''+esc(c.nome)+'\',\'excluirCardapioCategoria\')"><i class="fa-solid fa-trash"></i></button>'+
@@ -2926,14 +2927,22 @@ function abrirFormCardapioCategoria(id){
   document.getElementById('modalFormTitle').innerHTML='<i class="fa-solid fa-tags"></i> '+(d?'Editar Categoria':'Nova Categoria');
   document.getElementById('modalFormBody').innerHTML='<input type="hidden" id="f_id" value="'+(d?esc(d.id_categoria):'')+'"/>'+
     '<input type="hidden" id="f_ordem" value="'+(d?d.ordem||0:999)+'"/>'+
-    fGroup('Nome da Categoria *','f_nome','text',d?d.nome:'','')+
+    '<div class="form-row cols-2">'+
+      fGroup('Nome da Categoria *','f_nome','text',d?d.nome:'','')+
+      fGroup('URL da Foto','f_foto','url',d?d.foto_url:'','https://...')+
+    '</div>'+
     '<div id="formMsg" class="mt-3"></div>';
   document.getElementById('modalFormFooter').innerHTML='<button class="btn btn-secondary" onclick="fecharModal(\'modalFormCrud\')">Cancelar</button><button class="btn btn-primary" onclick="salvarCardapioCategoriaForm()"><i class="fa-solid fa-check"></i>Salvar</button>';
   abrirModal('modalFormCrud');
 }
 
 function salvarCardapioCategoriaForm(){
-  var d={id_categoria:document.getElementById('f_id').value,nome:document.getElementById('f_nome').value.trim(),ordem:parseInt(document.getElementById('f_ordem').value)||0};
+  var d={
+    id_categoria: document.getElementById('f_id').value,
+    nome: document.getElementById('f_nome').value.trim(),
+    foto_url: document.getElementById('f_foto').value.trim(),
+    ordem: parseInt(document.getElementById('f_ordem').value)||0
+  };
   if(!d.nome){ document.getElementById('formMsg').innerHTML='<p class="text-sm text-red">Nome obrigatório.</p>'; return; }
   api('POST', L('/cardapio-categorias'), d).then(function(res){ if(res.sucesso){ fecharModal('modalFormCrud'); toast(res.mensagem,'success'); recarregarItens(); } else document.getElementById('formMsg').innerHTML='<p class="text-sm text-red">'+esc(res.mensagem)+'</p>'; }).catch(function(e){ document.getElementById('formMsg').innerHTML='<p class="text-sm text-red">Erro: '+esc(e)+'</p>'; });
 }

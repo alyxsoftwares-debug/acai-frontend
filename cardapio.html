@@ -298,14 +298,22 @@
       </div>
 
       <!-- Itens prontos -->
-      <div id="areaItensProntos" class="hidden">
+      <div id="areaCategoriasCardapio" class="hidden">
         <h3 class="font-black text-gray-700 text-sm mb-4 flex items-center gap-2 uppercase tracking-wider">
           <span class="w-7 h-7 bg-yellow-50 border border-yellow-200 rounded-xl
                        flex items-center justify-center">
-            <i class="fa-solid fa-star text-yellow-400 text-xs"></i>
+            <i class="fa-solid fa-tags text-yellow-400 text-xs"></i>
           </span>
-          Prontos para Levar
+          Categorias
         </h3>
+        <div id="listaCategoriasReal" class="grid grid-cols-1 sm:grid-cols-2 gap-4 pb-4"></div>
+      </div>
+
+      <div id="areaItensCategoria" class="hidden">
+        <button onclick="voltarParaCategorias()" class="mb-4 text-purple-600 font-bold text-sm flex items-center gap-2 hover:text-purple-800 bg-purple-50 px-4 py-2 rounded-xl border border-purple-100 transition-colors w-max">
+          <i class="fa-solid fa-arrow-left"></i> Voltar para Categorias
+        </button>
+        <h3 id="tituloCategoriaAtual" class="font-black text-gray-800 text-xl mb-4 flex items-center gap-2"></h3>
         <div id="listaProdutosReal" class="grid grid-cols-1 sm:grid-cols-2 gap-4 pb-4"></div>
       </div>
 
@@ -673,6 +681,7 @@
 
         // Banco local
         // Aplica a ordem configurada no Painel (Traz os itens com ordem "0" ou vazia pro inicio, e os números maiores pro fim)
+        dadosBase.cardapioCategorias = (p.cardapioCategorias || []).sort(function(a,b){ return (a.ordem||0) - (b.ordem||0); });
         dadosBase.tamanhos      = (p.tamanhos     || []).sort(function(a,b){ return (a.ordem||0) - (b.ordem||0); });
         dadosBase.ingredientes  = (p.ingredientes || []).sort(function(a,b){ return (a.ordem||0) - (b.ordem||0); });
         dadosBase.categorias    = (p.categorias   || []).sort(function(a,b){ return (a.ordem||0) - (b.ordem||0); });
@@ -728,8 +737,8 @@
             document.getElementById('areaMonteAcai').classList.remove('hidden');
           }
           if (dadosBase.prontos.length > 0) {
-            document.getElementById('areaItensProntos').classList.remove('hidden');
-            renderizarProntos();
+            document.getElementById('areaCategoriasCardapio').classList.remove('hidden');
+            renderizarCategoriasCardapio();
           }
         }, 300);
       })
@@ -811,39 +820,120 @@
 
 
   // ══════════════════════════════════════════════════════════
-  // 3. RENDERIZAÇÃO DOS ITENS PRONTOS
+  // 3. RENDERIZAÇÃO DAS CATEGORIAS E ITENS
   // ══════════════════════════════════════════════════════════
-  function renderizarProntos() {
-    var lista = document.getElementById('listaProdutosReal');
-    lista.innerHTML = dadosBase.prontos.filter(function(item){ return item.id_item; }).map(function (item) {
-      var foto = (item.foto_url && item.foto_url !== '')
-        ? '<img src="' + esc(item.foto_url) + '" loading="lazy" ' +
-          'class="w-24 h-24 object-cover rounded-2xl shadow flex-shrink-0 border border-gray-100" ' +
-          'onerror="this.style.display=\'none\'">'
-        : '<div class="w-24 h-24 bg-purple-50 rounded-2xl flex items-center justify-center ' +
-          'flex-shrink-0 border-2 border-dashed border-purple-100">' +
-          '<i class="fa-solid fa-box-open text-purple-200 text-2xl"></i></div>';
+  function renderizarCategoriasCardapio() {
+    var lista = document.getElementById('listaCategoriasReal');
+    var categorias = dadosBase.cardapioCategorias || [];
+    
+    // Filtra as categorias que possuem pelo menos 1 produto pronto cadastrado nela
+    var categoriasComProdutos = categorias.filter(function(c) {
+        return dadosBase.prontos.some(function(p) { return p.categoria === c.nome; });
+    });
 
-      return '<div class="card-produto flex gap-3 p-3 group">' +
-             foto +
-             '<div class="flex-1 py-1">' +
-             '<span class="text-[9px] font-black text-purple-600 bg-purple-50 border border-purple-100 ' +
-             'px-2 py-0.5 rounded-full uppercase tracking-widest">' +
-             esc(item.categoria || 'Produto') + '</span>' +
-             '<h4 class="font-black text-gray-800 text-sm leading-tight mt-1.5">' +
-             esc(item.nome) + '</h4>' +
-             '<p class="text-[11px] text-gray-400 font-medium mt-1 line-clamp-2">' +
-             esc(item.descricao || '') + '</p>' +
-             '<p class="font-black text-green-600 mt-2 text-sm">' + fmt(item.preco) + '</p>' +
-             '</div>' +
-             '<div class="flex items-end pb-1 flex-shrink-0">' +
-             '<button onclick="adicionarProntoAoCarrinho(\'' + esc(item.id_item) + '\')" ' +
-             'class="w-10 h-10 bg-gray-50 text-gray-400 rounded-2xl border border-gray-200 ' +
-             'flex items-center justify-center group-hover:bg-purple-600 group-hover:text-white ' +
-             'group-hover:border-purple-600 transition-all shadow-sm active:scale-90">' +
-             '<i class="fa-solid fa-plus text-xs"></i></button>' +
-             '</div></div>';
+    // Filtra produtos que não possuem categoria ou cuja categoria não existe na tabela
+    var produtosSemCat = dadosBase.prontos.filter(function(p) {
+        return !p.categoria || !categorias.some(function(c){ return c.nome === p.categoria; });
+    });
+
+    var html = '';
+    
+    categoriasComProdutos.forEach(function(c) {
+        var foto = (c.foto_url && c.foto_url !== '')
+          ? '<img src="' + esc(c.foto_url) + '" loading="lazy" class="w-24 h-24 object-cover rounded-2xl shadow flex-shrink-0 border border-gray-100" onerror="this.style.display=\'none\'">'
+          : '<div class="w-24 h-24 bg-purple-50 rounded-2xl flex items-center justify-center flex-shrink-0 border-2 border-dashed border-purple-100"><i class="fa-solid fa-tags text-purple-300 text-3xl"></i></div>';
+
+        var qtd = dadosBase.prontos.filter(function(p) { return p.categoria === c.nome; }).length;
+
+        html += '<div onclick="abrirCategoria(\'' + esc(c.nome) + '\')" class="card-produto flex gap-4 p-3 group cursor-pointer">' +
+                foto +
+                '<div class="flex-1 py-1 flex flex-col justify-center">' +
+                '<h4 class="font-black text-gray-800 text-lg leading-tight">' + esc(c.nome) + '</h4>' +
+                '<p class="text-xs text-gray-400 font-bold mt-1.5 bg-gray-50 border border-gray-100 px-2.5 py-1 rounded-lg w-max">' + qtd + ' produto(s)</p>' +
+                '</div>' +
+                '<div class="flex items-center pr-3">' +
+                '<div class="w-8 h-8 bg-gray-50 rounded-full flex items-center justify-center group-hover:bg-purple-100 transition-colors">' +
+                '<i class="fa-solid fa-chevron-right text-gray-400 group-hover:text-purple-600 transition-colors"></i>' +
+                '</div>' +
+                '</div></div>';
+    });
+
+    if (produtosSemCat.length > 0) {
+        var fotoOutros = '<div class="w-24 h-24 bg-gray-50 rounded-2xl flex items-center justify-center flex-shrink-0 border-2 border-dashed border-gray-200"><i class="fa-solid fa-box-open text-gray-300 text-3xl"></i></div>';
+        html += '<div onclick="abrirCategoria(\'Outros\')" class="card-produto flex gap-4 p-3 group cursor-pointer">' +
+                fotoOutros +
+                '<div class="flex-1 py-1 flex flex-col justify-center">' +
+                '<h4 class="font-black text-gray-800 text-lg leading-tight">Outros</h4>' +
+                '<p class="text-xs text-gray-400 font-bold mt-1.5 bg-gray-50 border border-gray-100 px-2.5 py-1 rounded-lg w-max">' + produtosSemCat.length + ' produto(s)</p>' +
+                '</div>' +
+                '<div class="flex items-center pr-3">' +
+                '<div class="w-8 h-8 bg-gray-50 rounded-full flex items-center justify-center group-hover:bg-purple-100 transition-colors">' +
+                '<i class="fa-solid fa-chevron-right text-gray-400 group-hover:text-purple-600 transition-colors"></i>' +
+                '</div>' +
+                '</div></div>';
+    }
+
+    lista.innerHTML = html;
+  }
+
+  function abrirCategoria(nomeCat) {
+    // Esconde as outras áreas para focar apenas nos produtos
+    document.getElementById('areaCategoriasCardapio').classList.add('hidden');
+    document.getElementById('areaMonteAcai').classList.add('hidden');
+    document.getElementById('areaInfoEntrega').classList.add('hidden');
+
+    // Mostra a área de produtos da categoria
+    document.getElementById('areaItensCategoria').classList.remove('hidden');
+    document.getElementById('tituloCategoriaAtual').innerHTML = '<i class="fa-solid fa-tags text-purple-500"></i> ' + esc(nomeCat);
+
+    var produtos = dadosBase.prontos.filter(function(p) {
+        if (nomeCat === 'Outros') {
+            return !p.categoria || !dadosBase.cardapioCategorias.some(function(c){ return c.nome === p.categoria; });
+        }
+        return p.categoria === nomeCat;
+    });
+
+    var lista = document.getElementById('listaProdutosReal');
+    lista.innerHTML = produtos.map(function(item) {
+        var foto = (item.foto_url && item.foto_url !== '')
+          ? '<img src="' + esc(item.foto_url) + '" loading="lazy" class="w-24 h-24 object-cover rounded-2xl shadow flex-shrink-0 border border-gray-100" onerror="this.style.display=\'none\'">'
+          : '<div class="w-24 h-24 bg-purple-50 rounded-2xl flex items-center justify-center flex-shrink-0 border-2 border-dashed border-purple-100"><i class="fa-solid fa-box-open text-purple-200 text-2xl"></i></div>';
+
+        return '<div class="card-produto flex gap-3 p-3 group">' +
+               foto +
+               '<div class="flex-1 py-1">' +
+               '<h4 class="font-black text-gray-800 text-sm leading-tight">' + esc(item.nome) + '</h4>' +
+               '<p class="text-[11px] text-gray-400 font-medium mt-1 line-clamp-2">' + esc(item.descricao || '') + '</p>' +
+               '<p class="font-black text-green-600 mt-2 text-sm">' + fmt(item.preco) + '</p>' +
+               '</div>' +
+               '<div class="flex items-end pb-1 flex-shrink-0">' +
+               '<button onclick="adicionarProntoAoCarrinho(\'' + esc(item.id_item) + '\')" ' +
+               'class="w-10 h-10 bg-gray-50 text-gray-400 rounded-2xl border border-gray-200 flex items-center justify-center group-hover:bg-purple-600 group-hover:text-white group-hover:border-purple-600 transition-all shadow-sm active:scale-90">' +
+               '<i class="fa-solid fa-plus text-xs"></i></button>' +
+               '</div></div>';
     }).join('');
+    
+    // Rola a tela para o topo
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function voltarParaCategorias() {
+    document.getElementById('areaItensCategoria').classList.add('hidden');
+    
+    // Mostra novamente tudo que foi escondido
+    document.getElementById('areaCategoriasCardapio').classList.remove('hidden');
+    
+    if(dadosBase.tamanhos.length > 0 || dadosBase.ingredientes.length > 0) {
+       document.getElementById('areaMonteAcai').classList.remove('hidden');
+    }
+    
+    var c = dadosBase.configuracoes || {};
+    var tempoCfg = (c.tempo_entrega || "").toString().trim();
+    if((tempoCfg && tempoCfg !== "undefined" && tempoCfg !== "") || dadosBase.bairros.length > 0) {
+       document.getElementById('areaInfoEntrega').classList.remove('hidden');
+    }
+    
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
 
